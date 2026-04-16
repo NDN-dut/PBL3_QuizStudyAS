@@ -51,8 +51,8 @@ if (app.Environment.IsDevelopment())
             // Thay vì EnsureCreated, ta dùng Migrate để EF tự tạo bảng lịch sử, khi cấu trúc ổn định, để có thể dùng Migration
             context.Database.Migrate();
 
-            // 3. Gọi hàm nạp dữ liệu mẫu (Seed Data)
-            DbInitializer.Initialize(context);
+            // // 3. Gọi hàm nạp dữ liệu mẫu (Seed Data)
+            // DbInitializer.Initialize(context);
 
             Console.WriteLine("Database đã được làm mới và nạp dữ liệu mẫu thành công!");
         }
