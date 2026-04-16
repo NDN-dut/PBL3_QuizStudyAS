@@ -1,4 +1,11 @@
+using Microsoft.EntityFrameworkCore;
+using QuizStudyAS.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// --- THÊM DÒNG NÀY ĐỂ BƠM DbContext ---
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
