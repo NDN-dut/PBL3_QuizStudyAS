@@ -4,18 +4,25 @@ using QuizStudyAS.Models;
 
 namespace QuizStudyAS.Data.Configurations
 {
-    public class UserConfiguration : IEntityTypeConfiguration<User>
+    public class UserConfiguration : IEntityTypeConfiguration<ApplicationUser>
     {
-        public void Configure(EntityTypeBuilder<User> builder)
+        public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
-            // Thiết lập khóa chính cho User
-            builder.HasKey(u => u.UserId);
+            builder.ToTable("Users");
 
-            // Cấu hình quan hệ 1-n
-            builder.HasMany(u => u.Quizzes)      // Một User có nhiều Quizzes
-                .WithOne(q => q.User)           // Mỗi Quiz thuộc về một User
-                .HasForeignKey(q => q.UserId)   // Khóa ngoại nằm ở bảng Quiz (trường UserId)
-                .OnDelete(DeleteBehavior.Cascade); // Xóa User thì tự động xóa các Quiz liên quan
+            builder.HasKey(u => u.Id);
+
+            builder.Property(u => u.UserName)
+                   .IsRequired()
+                   .HasMaxLength(100);
+
+            builder.Property(u => u.Email)
+                   .IsRequired()
+                   .HasMaxLength(256);
+
+            // KHÔNG CẦN cấu hình các ICollection ở đây nữa.
+            // Các file StudySetConfiguration, LearningProgressConfiguration... 
+            // sẽ tự động "nhận trách nhiệm" móc nối về bảng Users này.
         }
     }
 }
