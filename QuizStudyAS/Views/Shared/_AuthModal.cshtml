@@ -1,0 +1,116 @@
+﻿<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header pb-0 border-bottom-0">
+                <ul class="nav nav-tabs w-100" id="authTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-panel" type="button" role="tab">Đăng Nhập</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-panel" type="button" role="tab">Đăng Ký</button>
+                    </li>
+                </ul>
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body pt-4">
+                <div class="tab-content" id="authTabContent">
+
+                    <div class="tab-pane fade show active" id="login-panel" role="tabpanel">
+                        <div id="loginAlert" class="alert alert-danger d-none" role="alert"></div>
+
+                        <form id="loginForm" asp-controller="Auth" asp-action="Login" method="post">
+                            <div class="mb-3">
+                                <label class="form-label">Tài khoản hoặc Email</label>
+                                <input type="text" name="UserNameOrEmail" class="form-control" required placeholder="Nhập tên hoặc email..." />
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Mật khẩu</label>
+                                <input type="password" name="Password" class="form-control" required placeholder="Nhập mật khẩu..." />
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 fw-bold">Đăng Nhập</button>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="register-panel" role="tabpanel">
+                        <div id="registerAlert" class="alert d-none" role="alert"></div>
+
+                        <form id="registerForm" asp-controller="Auth" asp-action="Register" method="post">
+                            <div class="mb-3">
+                                <label class="form-label">Tên tài khoản</label>
+                                <input type="text" name="UserName" class="form-control" required placeholder="Nhập tên hiển thị..." />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Địa chỉ Email</label>
+                                <input type="email" name="Email" class="form-control" required placeholder="name@example.com" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mật khẩu</label>
+                                <input type="password" name="Password" class="form-control" required placeholder="Tạo mật khẩu..." />
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Xác nhận mật khẩu</label>
+                                <input type="password" name="ConfirmPassword" class="form-control" required placeholder="Nhập lại mật khẩu..." />
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 fw-bold">Tạo Tài Khoản</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // Hàm dùng chung để gửi dữ liệu bằng Fetch API
+        async function submitFormAJAX(formId, alertId, isLogin) {
+            const form = document.getElementById(formId);
+            const alertBox = document.getElementById(alertId);
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault(); // Chặn việc submit mặc định (load lại trang)
+
+                const formData = new FormData(form);
+
+                try {
+                    // Gửi request POST đến Controller
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json(); // Đọc dữ liệu JSON trả về
+
+                    if (data.success) {
+                        if (isLogin) {
+                            // Nếu là form Đăng nhập thành công -> Load lại trang web để cập nhật thanh Menu
+                            window.location.reload();
+                        } else {
+                            // Nếu form Đăng ký thành công -> Báo xanh, khuyên sang tab đăng nhập
+                            alertBox.className = "alert alert-success";
+                            alertBox.textContent = data.message;
+                            alertBox.classList.remove("d-none");
+                            form.reset(); // Xóa trắng form
+                        }
+                    } else {
+                        // Nếu lỗi -> Báo đỏ
+                        alertBox.className = "alert alert-danger";
+                        alertBox.textContent = data.message;
+                        alertBox.classList.remove("d-none");
+                    }
+                } catch (error) {
+                    alertBox.className = "alert alert-danger";
+                    alertBox.textContent = "Có lỗi xảy ra khi kết nối đến máy chủ.";
+                    alertBox.classList.remove("d-none");
+                }
+            });
+        }
+
+        // Kích hoạt cho 2 form
+        submitFormAJAX("loginForm", "loginAlert", true);
+        submitFormAJAX("registerForm", "registerAlert", false);
+    });
+</script>

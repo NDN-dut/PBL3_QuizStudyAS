@@ -7,8 +7,10 @@
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public int RoleId { get; set; }
 
         // --- Navigation Properties (Liên kết) ---
+        public virtual Role Role { get; set; }
         public virtual ICollection<StudySet> StudySets { get; set; }
 
         public virtual ICollection<Classroom> OwnedClassrooms { get; set; }

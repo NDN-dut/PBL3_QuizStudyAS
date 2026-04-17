@@ -20,6 +20,12 @@ namespace QuizStudyAS.Data.Configurations
                    .IsRequired()
                    .HasMaxLength(256);
 
+            // Thêm đoạn này vào bên trong hàm Configure của UserConfiguration.cs
+            builder.HasOne(u => u.Role)
+                   .WithMany(r => r.Users)
+                   .HasForeignKey(u => u.RoleId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
             // KHÔNG CẦN cấu hình các ICollection ở đây nữa.
             // Các file StudySetConfiguration, LearningProgressConfiguration... 
             // sẽ tự động "nhận trách nhiệm" móc nối về bảng Users này.

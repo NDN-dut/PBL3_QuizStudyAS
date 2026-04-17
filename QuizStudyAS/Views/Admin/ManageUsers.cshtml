@@ -1,0 +1,176 @@
+﻿@* Khai báo kiểu dữ liệu Model mà View này sẽ nhận từ Controller *@
+@model IEnumerable<QuizStudyAS.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "Quản lý Người dùng";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-danger fw-bold">Danh sách Người dùng</h2>
+        <button class="btn btn-success">+ Thêm người dùng</button>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover table-bordered mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-center" style="width: 50px;">ID</th>
+                        <th>Tên tài khoản</th>
+                        <th>Email</th>
+                        <th class="text-center">Vai trò</th>
+                        <th class="text-center" style="width: 200px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var user in Model)
+                        {
+                            <tr>
+                                <td class="text-center">@user.Id</td>
+                                <td class="fw-bold">@user.UserName</td>
+                                <td>@user.Email</td>
+                                <td class="text-center">
+                                    @* Đổi màu nhãn tùy theo quyền *@
+                                    @if (user.Role?.RoleName == "Admin")
+                                    {
+                                        <span class="badge bg-danger">Admin</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-primary">User</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <button type="button"
+                                            onclick="openEditModal('@user.Id')"
+                                            class="btn btn-sm btn-warning text-dark fw-bold">
+                                        Sửa
+                                    </button>
+
+                                    <button type="button"
+                                            onclick="deleteUser('@user.Id')"
+                                            class="btn btn-sm btn-danger fw-bold">
+                                        Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-3">Không có dữ liệu người dùng.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa người dùng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId" name="id" />
+                    <div class="mb-3">
+                        <label class="form-label">Tên tài khoản</label>
+                        <input type="text" id="editUserName" class="form-control" disabled />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="editEmail" name="email" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vai trò</label>
+                        <select id="editRoleId" name="roleId" class="form-select">
+                            <option value="1">Admin</option>
+                            <option value="2">User</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Lưu thay đổi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // --- HÀM MỞ MODAL VÀ LẤY DỮ LIỆU ---
+        async function openEditModal(userId) {
+            try {
+                // Gửi request lên Server
+                const response = await fetch(`/Admin/GetUser/${userId}`);
+
+                // Kiểm tra xem Server có trả về lỗi 404 (Không tìm thấy) không
+                if (!response.ok) {
+                    alert("Lỗi kết nối Server! Bạn đã thêm hàm GetUser vào AdminController chưa?");
+                    return;
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Đổ dữ liệu vào Modal
+                    document.getElementById('editUserId').value = result.data.id;
+                    document.getElementById('editUserName').value = result.data.userName;
+                    document.getElementById('editEmail').value = result.data.email;
+                    document.getElementById('editRoleId').value = result.data.roleId;
+
+                    // Mở Modal
+                    new bootstrap.Modal(document.getElementById('editUserModal')).show();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error("Lỗi chi tiết:", error);
+                alert("Đã xảy ra lỗi khi đọc dữ liệu (Xem Console F12 để biết chi tiết).");
+            }
+        }
+
+        // --- XỬ LÝ LƯU THÔNG TIN ---
+        document.getElementById('editUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('/Admin/EditUser', { method: 'POST', body: formData });
+                if (!response.ok) throw new Error("Không tìm thấy hàm EditUser");
+
+                const result = await response.json();
+                if(result.success) location.reload();
+                else alert(result.message);
+            } catch (error) {
+                alert("Lỗi khi lưu thông tin: " + error.message);
+            }
+        });
+
+        // --- XỬ LÝ XÓA ---
+        async function deleteUser(userId) {
+            if (confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
+                const formData = new FormData();
+                formData.append("id", userId);
+
+                try {
+                    const response = await fetch('/Admin/DeleteUser', { method: 'POST', body: formData });
+                    if (!response.ok) throw new Error("Không tìm thấy hàm DeleteUser");
+
+                    const result = await response.json();
+                    if(result.success) location.reload();
+                    else alert(result.message);
+                } catch (error) {
+                    alert("Lỗi khi xóa: " + error.message);
+                }
+            }
+        }
+    </script>
+}
