@@ -47,7 +47,6 @@ if (app.Environment.IsDevelopment())
 
             // 2. Tạo lại Database mới hoàn toàn (Create)
             context.Database.EnsureCreated();
-            context.Database.EnsureDeleted();
             // // Thay vì EnsureCreated, ta dùng Migrate để EF tự tạo bảng lịch sử, khi cấu trúc ổn định, để có thể dùng Migration
             // context.Database.Migrate();
 
