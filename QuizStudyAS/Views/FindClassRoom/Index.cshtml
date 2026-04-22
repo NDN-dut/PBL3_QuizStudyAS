@@ -1,0 +1,36 @@
+﻿
+@{
+    ViewData["Title"] = "Find Class";
+}
+
+
+<div class="container mt-5">
+    <div class="input-group search-box">
+        <span class="input-group-text bg-transparent border-0 pe-0">
+            <i class="bi bi-search text-secondary"></i>
+        </span>
+        <input type="text" class="form-control bg-transparent border-0 text-light shadow-none"
+               placeholder="Search for Class">
+    </div>
+</div>
+
+<style>
+    /* CSS tùy chỉnh để giống ảnh 100% */
+    .search-box {
+        background-color: #2e3856; /* Màu xanh đen giống ảnh */
+        border-radius: 12px; /* Bo tròn góc */
+        padding: 5px 15px;
+        transition: 0.3s;
+    }
+    
+        .search-box:focus-within {
+            background-color: #3e4a6d; /* Sáng lên khi click vào */
+            outline: 2px solid #4255ff; /* Viền xanh đặc trưng */
+        }
+
+    /* Đổi màu chữ Placeholder */
+    .form-control::placeholder {
+        color: #939bb4;
+        opacity: 1;
+    }
+</style>
