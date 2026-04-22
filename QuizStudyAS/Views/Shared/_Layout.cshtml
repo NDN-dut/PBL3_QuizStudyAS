@@ -46,7 +46,9 @@
                         else if (role == "User")
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="StudySet" asp-action="Index">Bộ thẻ của tôi</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="StudySet" asp-action="Index">
+                                    <i class="bi bi-collection-play"></i> Bộ thẻ của tôi
+                                </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Classroom" asp-action="Index">Lớp học</a>

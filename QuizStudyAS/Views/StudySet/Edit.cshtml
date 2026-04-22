@@ -1,0 +1,134 @@
+﻿@model QuizStudyAS.ViewModels.EditStudySetVM
+
+@{
+    ViewData["Title"] = "Chỉnh sửa học phần";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold">Chỉnh sửa học phần</h3>
+        <button type="submit" form="editSetForm" class="btn btn-warning px-4 fw-bold">Lưu thay đổi</button>
+    </div>
+
+    <form asp-action="Edit" method="post" id="editSetForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <div class="mb-3">
+                    <input asp-for="Title" class="form-control form-control-lg border-0 border-bottom rounded-0 fw-bold px-0 fs-4" placeholder="Nhập tiêu đề..." />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+                <div class="mb-2">
+                    <textarea asp-for="Description" class="form-control border-0 border-bottom rounded-0 px-0" rows="1" placeholder="Thêm mô tả..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div id="flashcards-container">
+            @for (int i = 0; i < Model.Flashcards.Count; i++)
+            {
+                <div class="card border-0 shadow-sm mb-3 flashcard-item">
+                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                        <span class="fw-bold text-muted card-number">@(i + 1)</span>
+                        <button type="button" class="btn btn-light text-danger btn-sm btn-remove-card" tabindex="-1">
+                            <i class="bi bi-trash"></i> Xóa thẻ
+                        </button>
+                    </div>
+                    <div class="card-body px-4 pb-4 pt-0">
+                        <div class="row">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label class="text-muted small fw-bold text-uppercase mb-1">Thuật ngữ</label>
+                                <textarea name="Flashcards[@i].Term" class="form-control border-0 border-bottom rounded-0 bg-light p-2 auto-expand" rows="2" required>@Model.Flashcards[i].Term</textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small fw-bold text-uppercase mb-1">Định nghĩa</label>
+                                <textarea name="Flashcards[@i].Definition" class="form-control border-0 border-bottom rounded-0 bg-light p-2 auto-expand" rows="2" required>@Model.Flashcards[i].Definition</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="card border-0 shadow-sm mb-5 text-center mt-4">
+            <button type="button" id="btnAddCard" class="btn btn-light py-4 fw-bold fs-5 text-primary border-0 w-100">
+                + THÊM THẺ MỚI
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.getElementById('flashcards-container');
+            const btnAdd = document.getElementById('btnAddCard');
+
+            // Tính năng phụ: Tự động kéo giãn textarea khi gõ nhiều dòng
+            container.addEventListener('input', function (e) {
+                if (e.target.tagName.toLowerCase() === 'textarea') {
+                    e.target.style.height = 'auto';
+                    e.target.style.height = (e.target.scrollHeight) + 'px';
+                }
+            });
+
+            // Logic Thêm thẻ (Cập nhật giao diện mới thành Textarea)
+            btnAdd.addEventListener('click', function () {
+                const currentCount = container.querySelectorAll('.flashcard-item').length;
+                const newCardHTML = `
+                    <div class="card border-0 shadow-sm mb-3 flashcard-item">
+                        <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                            <span class="fw-bold text-muted card-number">${currentCount + 1}</span>
+                            <button type="button" class="btn btn-light text-danger btn-sm btn-remove-card" tabindex="-1">
+                                <i class="bi bi-trash"></i> Xóa thẻ
+                            </button>
+                        </div>
+                        <div class="card-body px-4 pb-4 pt-0">
+                            <div class="row">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label class="text-muted small fw-bold text-uppercase mb-1">Thuật ngữ</label>
+                                    <textarea name="Flashcards[${currentCount}].Term" class="form-control border-0 border-bottom rounded-0 bg-light p-2 auto-expand" rows="2" required></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="text-muted small fw-bold text-uppercase mb-1">Định nghĩa</label>
+                                    <textarea name="Flashcards[${currentCount}].Definition" class="form-control border-0 border-bottom rounded-0 bg-light p-2 auto-expand" rows="2" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', newCardHTML);
+            });
+
+            // Logic Xóa thẻ và Đánh lại số thứ tự
+            container.addEventListener('click', function (e) {
+                if (e.target.closest('.btn-remove-card')) {
+                    const cardToRemove = e.target.closest('.flashcard-item');
+                    if (container.querySelectorAll('.flashcard-item').length <= 1) {
+                        alert("Một học phần phải có ít nhất 1 thẻ!");
+                        return;
+                    }
+                    cardToRemove.remove();
+                    recalculateIndices();
+                }
+            });
+
+            function recalculateIndices() {
+                const cards = container.querySelectorAll('.flashcard-item');
+                cards.forEach((card, index) => {
+                    card.querySelector('.card-number').innerText = index + 1;
+                    const termInput = card.querySelector('textarea[name$=".Term"]');
+                    const defInput = card.querySelector('textarea[name$=".Definition"]');
+                    if (termInput) termInput.name = `Flashcards[${index}].Term`;
+                    if (defInput) defInput.name = `Flashcards[${index}].Definition`;
+                });
+            }
+        });
+    </script>
+}

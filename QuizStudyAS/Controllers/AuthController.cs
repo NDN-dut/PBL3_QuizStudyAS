@@ -111,5 +111,12 @@ namespace QuizStudyAS.Controllers
             // Quay về trang chủ
             return RedirectToAction("Index", "Home");
         }
+        [HttpGet]
+        public IActionResult Login1()
+        {
+            // Tạm thời đẩy về trang chủ để hiện Modal đăng nhập
+            return RedirectToAction("Index", "Home");
+        }
     }
+
 }
