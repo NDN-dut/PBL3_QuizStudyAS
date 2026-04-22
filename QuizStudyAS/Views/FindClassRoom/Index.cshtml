@@ -3,16 +3,17 @@
     ViewData["Title"] = "Find Class";
 }
 
-
-<div class="container mt-5">
-    <div class="input-group search-box">
-        <span class="input-group-text bg-transparent border-0 pe-0">
-            <i class="bi bi-search text-secondary"></i>
-        </span>
-        <input type="text" class="form-control bg-transparent border-0 text-light shadow-none"
-               placeholder="Search for Class">
+<form asp-controller="FindClassRoom" asp-action="Search" method="get">
+    <div class="container mt-5">
+        <div class="input-group search-box">
+            <span class="input-group-text bg-transparent border-0 pe-0">
+                <i class="bi bi-search text-secondary"></i>
+            </span>
+            <input name ="NameClass" type="text" class="form-control bg-transparent border-0 text-light shadow-none"
+                   placeholder="Search for Class">
+        </div>
     </div>
-</div>
+</form>
 
 <style>
     /* CSS tùy chỉnh để giống ảnh 100% */

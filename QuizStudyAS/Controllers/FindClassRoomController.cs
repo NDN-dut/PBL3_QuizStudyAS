@@ -9,5 +9,10 @@ namespace QuizStudyAS.Controllers
         {
             return View();
         }
+        public IActionResult Search(string NameClass)
+        {
+
+            return View();
+        }
     }
 }
