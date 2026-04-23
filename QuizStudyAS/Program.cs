@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
+using QuizStudyAS.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddScoped<IFindClassRoomService, FindClassRoomService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

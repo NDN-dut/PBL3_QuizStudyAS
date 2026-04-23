@@ -1,6 +1,17 @@
-﻿@model IEnumerable<QuizStudyAS.Models.ApplicationUser>
+﻿@model QuizStudyAS.DTO.ShowClassRoom
 @{
     ViewData["Title"] = "ClassRoom";
 }
 
-
+@if (Model == null)
+{
+    <h1>Không tìm thấy lớp học! Vui lòng thử lại</h1>
+}
+else
+{
+    <ul>
+        <li>@Model.ClassName</li>
+        <li>@Model.OwnerName</li>
+        <li>@Model.Link</li>
+    </ul>
+}
