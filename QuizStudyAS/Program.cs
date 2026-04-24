@@ -42,16 +42,9 @@ if (app.Environment.IsDevelopment())
         {
             var context = services.GetRequiredService<AppDbContext>();
 
-            // 1. Xóa Database cũ (Drop)
-            context.Database.EnsureDeleted();
+            context.Database.Migrate();
 
-            // 2. Tạo lại Database mới hoàn toàn (Create)
-            context.Database.EnsureCreated();
-            // // Thay vì EnsureCreated, ta dùng Migrate để EF tự tạo bảng lịch sử, khi cấu trúc ổn định, để có thể dùng Migration
-            // context.Database.Migrate();
-
-            // 3. Gọi hàm nạp dữ liệu mẫu (Seed Data)
-            DbInitializer.Initialize(context);
+            QuizStudyAS.Data.DbInitializer.Initialize(context);
 
             Console.WriteLine("Database đã được làm mới và nạp dữ liệu mẫu thành công!");
         }
