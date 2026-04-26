@@ -16,6 +16,7 @@ namespace QuizStudyAS.Data
             // --- 1. KHỞI TẠO USER ---
             // Nên gọi SaveChanges() sau mỗi bước để EF Core tự sinh ID (Khóa chính) 
             // dùng cho các bảng phía sau.
+            
             var users = new ApplicationUser[]
             {
                 new ApplicationUser { UserName = "giaovien1", Email = "gv@qsas.com", PasswordHash = "hashed_pass_1" },
@@ -93,6 +94,7 @@ namespace QuizStudyAS.Data
             };
             context.QuizQuestionResults.AddRange(quizResults);
             context.SaveChanges();
+            
         }
     }
 }

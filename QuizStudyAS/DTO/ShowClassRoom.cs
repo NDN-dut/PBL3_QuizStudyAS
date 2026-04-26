@@ -7,7 +7,7 @@ namespace QuizStudyAS.DTO
         public string ClassName { get; set; }
         public string OwnerName { get; set; }
         public string Link { get; set; }
-        
+        public string Status_Class { get; set; }
     }
     
 }

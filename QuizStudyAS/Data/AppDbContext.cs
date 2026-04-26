@@ -19,6 +19,7 @@ namespace QuizStudyAS.Data
         public DbSet<GameSession> GameSessions { get; set; }
         public DbSet<QuizQuestionResult> QuizQuestionResults { get; set; }
 
+        public DbSet<RequestJoinClass> RequestJoinClasses { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

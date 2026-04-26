@@ -1,0 +1,114 @@
+﻿@model QuizStudyAS.DTO.ShowClassRoom
+@{
+    ViewData["Title"] = "ClassRoom";
+}
+
+@if (Model == null)
+{
+    <h1>Không tìm thấy lớp học! Vui lòng thử lại</h1>
+}
+else
+{
+    <div class="class-card">
+    
+        <div class="class-info">
+            <h3 class="class-name">@Model.ClassName</h3>
+            <p class="class-link">Link: <a href="@Model.Link">@Model.Link</a></p>
+        </div>
+            <div class="class-action">
+                @if (Model.Status_Class == "PENDING")
+                {
+                    <button class="btn-join" style="background-color: #6c757d; cursor: not-allowed;" disabled>
+                        Đã gửi yêu cầu
+                    </button>
+                }
+                else if (Model.Status_Class == "APPROVED")
+                {
+                    <button class="btn-join" style="background-color: #0d6efd;">Vào Lớp</button>
+                }
+                else
+                {
+                       <form asp-controller="ClassRoom" asp-action="Join" method ="post">
+                            <input type="hidden" name="className" value="@Model.ClassName" />
+                            <button type="submit" class="btn-join">Join</button>
+                       </form>
+                }
+            </div>
+        
+
+    </div>
+
+    <style>
+        .class-card {
+            border: 1px solid #e0e0e0; /* Viền mỏng màu xám nhạt */
+            border-radius: 10px; /* Bo tròn 4 góc cho mềm mại */
+            padding: 20px; /* Khoảng cách từ viền chữ vào trong */
+            width: 350px; /* Chiều rộng của khung */
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng 3D */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Dùng Flexbox để ép nút Join luôn nằm ở đáy */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 160px; /* Chiều cao tối thiểu của khung */
+    
+            transition: transform 0.2s ease-in-out; /* Hiệu ứng mượt mà khi hover */
+        }
+
+            /* Hiệu ứng nổi lên khi đưa chuột vào khung */
+            .class-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            }
+
+        /* Kiểu chữ cho Tên lớp học */
+        .class-name {
+            margin: 0 0 10px 0;
+            color: #333333;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        /* Kiểu chữ cho Link */
+        .class-link {
+            margin: 0;
+            color: #666666;
+            font-size: 0.95rem;
+        }
+
+            .class-link a {
+                color: #0d6efd;
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+                .class-link a:hover {
+                    text-decoration: underline;
+                }
+
+        /* Chỉnh nút Join nằm bên trái */
+        .class-action {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-start; /* flex-start: Ép phần tử dạt sang góc trái */
+        }
+
+        /* Thiết kế Nút Join */
+        .btn-join {
+            background-color: #198754; /* Màu xanh lá (chuẩn nút Tham gia) */
+            color: #ffffff;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-join:hover {
+                background-color: #157347; /* Đậm màu hơn khi đưa chuột vào */
+        }
+    </style>
+}

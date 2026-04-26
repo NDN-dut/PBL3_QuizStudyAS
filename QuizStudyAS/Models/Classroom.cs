@@ -11,11 +11,12 @@
         public virtual ApplicationUser OwnerUser { get; set; }
         public virtual ICollection<ClassroomUser> ClassroomUsers { get; set; }
         public virtual ICollection<StudySet> StudySets { get; set; }
-
+        public virtual ICollection<RequestJoinClass> JoinRequests {  get; set; }
         public Classroom()
         {
             ClassroomUsers = new HashSet<ClassroomUser>();
             StudySets = new HashSet<StudySet>();
+            JoinRequests = new HashSet<RequestJoinClass>();
         }
     }
 }

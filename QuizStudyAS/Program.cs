@@ -11,6 +11,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IFindClassRoomService, FindClassRoomService>();
+builder.Services.AddScoped<IClassroomRequestService, ClassroomRequestService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
