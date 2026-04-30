@@ -13,14 +13,22 @@ namespace QuizStudyAS.Data
                 return;
             }
 
-            // --- 1. KHỞI TẠO USER ---
-            // Nên gọi SaveChanges() sau mỗi bước để EF Core tự sinh ID (Khóa chính) 
-            // dùng cho các bảng phía sau.
-            
+            // --- 0. KHỞI TẠO ROLE TRƯỚC ---
+            var roles = new Role[]
+            {
+                new Role { RoleName = "Admin" }, // Sẽ tự động lấy RoleId = 1
+                new Role { RoleName = "User" }   // Sẽ tự động lấy RoleId = 2
+            };
+            context.Roles.AddRange(roles);
+            context.SaveChanges();
+
+            // --- 1. KHỞI TẠO USER (Thêm RoleId) ---
             var users = new ApplicationUser[]
             {
-                new ApplicationUser { UserName = "giaovien1", Email = "gv@qsas.com", PasswordHash = "hashed_pass_1" },
-                new ApplicationUser { UserName = "sinhvien1", Email = "sv@qsas.com", PasswordHash = "hashed_pass_2" }
+                // Giao viên 1 cấp quyền Admin
+                new ApplicationUser { UserName = "giaovien1", Email = "gv@qsas.com", PasswordHash = "hashed_pass_1", RoleId = roles[0].RoleId },
+                // Sinh viên 1 cấp quyền User thường
+                new ApplicationUser { UserName = "sinhvien1", Email = "sv@qsas.com", PasswordHash = "hashed_pass_2", RoleId = roles[1].RoleId }
             };
             context.Users.AddRange(users);
             context.SaveChanges();

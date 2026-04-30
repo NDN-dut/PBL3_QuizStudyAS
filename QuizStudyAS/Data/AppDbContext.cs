@@ -18,6 +18,7 @@ namespace QuizStudyAS.Data
         public DbSet<LearningProgress> LearningProgresses { get; set; }
         public DbSet<GameSession> GameSessions { get; set; }
         public DbSet<QuizQuestionResult> QuizQuestionResults { get; set; }
+        public DbSet<Role> Roles { get; set; }
 
         public DbSet<RequestJoinClass> RequestJoinClasses { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

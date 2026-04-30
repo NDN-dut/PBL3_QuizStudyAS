@@ -1,0 +1,40 @@
+﻿@model QuizStudyAS.ViewModels.LoginVM
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4 fw-bold">Đăng nhập</h2>
+                    
+                    <form asp-controller="Auth" asp-action="Login" method="post">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tên đăng nhập hoặc Email</label>
+                            <input asp-for="UserNameOrEmail" class="form-control form-control-lg" required />
+                            <span asp-validation-for="UserNameOrEmail" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Mật khẩu</label>
+                            <input asp-for="Password" type="password" class="form-control form-control-lg" required />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">ĐĂNG NHẬP</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
