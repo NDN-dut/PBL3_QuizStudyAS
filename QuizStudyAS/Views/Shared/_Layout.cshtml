@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -13,19 +16,74 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">QuizStudyAS</a>
+                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">QuizStudyAS</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                    @* --- PHẦN MENU BÊN TRÁI: PHÂN QUYỀN Ở ĐÂY --- *@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+
+                        @{
+                            // Lấy quyền từ Session
+                            var role = HttpContextAccessor.HttpContext.Session.GetString("UserRole");
+                        }
+
+                        @if (role == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-danger fw-bold" asp-controller="Admin" asp-action="Dashboard">Hệ thống</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Admin" asp-action="ManageUsers">Người dùng</a>
+                            </li>
+                        }
+                        else if (role == "User")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="StudySet" asp-action="Index">
+                                    <i class="bi bi-collection-play"></i> Bộ thẻ của tôi
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Classroom" asp-action="Index">Lớp học</a>
+                            </li>
+                            
+                        }
+                    </ul>
+
+                    @* --- PHẦN ĐĂNG NHẬP/ĐĂNG XUẤT BÊN PHẢI --- *@
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        @{
+                            var currentUserName = HttpContextAccessor.HttpContext.Session.GetString("UserName");
+                            var userRole = role; // Fix: define userRole for use below
+                        }
+
+                        @if (!string.IsNullOrEmpty(currentUserName))
+                        {
+                            <li class="nav-item me-3">
+                                <span class="badge bg-light text-dark border p-2">
+                                    <i class="bi bi-person-circle"></i> @currentUserName (@userRole)
+                                </span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-outline-danger btn-sm fw-bold" asp-controller="Auth" asp-action="Logout">Đăng xuất</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <button class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#authModal">
+                                    Đăng nhập / Đăng ký
+                                </button>
+                            </li>
+                        }
+                            
                     </ul>
                 </div>
             </div>
@@ -34,6 +92,7 @@
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
+            
         </main>
     </div>
 
@@ -42,6 +101,9 @@
             &copy; 2026 - QuizStudyAS - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
+    <partial name="_AuthModal" />
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
