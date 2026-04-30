@@ -1,5 +1,5 @@
 ﻿using QuizStudyAS.Data;
-using QuizStudyAS.DTO;
+using QuizStudyAS.ViewModels;
 using Microsoft.EntityFrameworkCore;
 namespace QuizStudyAS.Services
 {

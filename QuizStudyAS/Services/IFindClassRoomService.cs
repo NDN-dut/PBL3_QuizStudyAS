@@ -1,5 +1,5 @@
 ﻿
-using QuizStudyAS.DTO;
+using QuizStudyAS.ViewModels;
 
 namespace QuizStudyAS.Services
 {

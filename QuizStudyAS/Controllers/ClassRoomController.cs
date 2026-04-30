@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using QuizStudyAS.Service;
+using QuizStudyAS.Services;
 using System.Diagnostics;
 
 namespace QuizStudyAS.Controllers
