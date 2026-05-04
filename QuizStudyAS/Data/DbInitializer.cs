@@ -134,6 +134,7 @@ namespace QuizStudyAS.Data
             };
             context.QuizQuestionResults.AddRange(quizResults);
             context.SaveChanges();
+            
         }
     }
 }

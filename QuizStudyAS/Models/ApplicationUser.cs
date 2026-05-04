@@ -23,6 +23,7 @@
         public virtual ICollection<LearningProgress> LearningProgresses { get; set; }
         public virtual ICollection<GameSession> GameSessions { get; set; }
 
+        public virtual ICollection<RequestJoinClass> JoinClassRooms {  get; set; }
         public ApplicationUser()
         {
             StudySets = new HashSet<StudySet>();
@@ -30,6 +31,7 @@
             JoinedClassrooms = new HashSet<ClassroomUser>();
             LearningProgresses = new HashSet<LearningProgress>();
             GameSessions = new HashSet<GameSession>();
+            JoinClassRooms = new HashSet<RequestJoinClass>();
         }
     }
 }

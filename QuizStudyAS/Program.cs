@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
 using QuizStudyAS.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,22 @@ builder.Services.AddHttpContextAccessor();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Kích hoạt tính năng sử dụng Cookie để xác thực
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        // Nếu người dùng chưa đăng nhập mà cố tình vào URL cấm, đẩy về đây
+        options.LoginPath = "/Auth/Login";
+
+        // Nếu đăng nhập rồi nhưng không đủ quyền (ví dụ Student vào trang Admin), đẩy về đây
+        options.AccessDeniedPath = "/Auth/AccessDenied";
+
+        // Thời gian sống của Cookie (ví dụ: 7 ngày)
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+    });
+
+builder.Services.AddScoped<IFindClassRoomService, FindClassRoomService>();
+builder.Services.AddScoped<IClassroomRequestService, ClassroomRequestService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -113,8 +113,6 @@ namespace QuizStudyAS.Controllers
             // Quay về trang chủ
             return RedirectToAction("Index", "Home");
         }
-<<<<<<< Updated upstream
-=======
         [HttpGet]
         public IActionResult Login1()
         {
@@ -224,6 +222,6 @@ namespace QuizStudyAS.Controllers
             TempData["SuccessMessage"] = "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới ngay bây giờ.";
             return RedirectToAction("Index", "Home");
         }
->>>>>>> Stashed changes
     }
+
 }
