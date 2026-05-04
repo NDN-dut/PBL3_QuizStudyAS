@@ -6,12 +6,54 @@
 }
 
 <div class="container mt-4">
+    <!-- Cụm Tiêu đề và Nút Thêm -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="text-danger fw-bold">Danh sách Người dùng</h2>
-        <button class="btn btn-success">+ Thêm người dùng</button>
+        <button type="button" class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            + Thêm người dùng
+        </button>
     </div>
 
-    <div class="card shadow-sm">
+    <!-- --- THANH TÌM KIẾM VÀ LỌC --- -->
+    <form method="get" asp-action="ManageUsers" class="mb-4 bg-light p-3 rounded border shadow-sm">
+        <div class="row g-2">
+            <!-- Ô nhập từ khóa -->
+            <div class="col-md-5">
+                <input type="text" name="searchString" value="@ViewBag.CurrentSearch"
+                       class="form-control" placeholder="Tìm theo tên hoặc email..." />
+            </div>
+
+            <!-- Ô chọn vai trò -->
+            <div class="col-md-4">
+                <select name="roleId" class="form-select">
+                    <option value="">-- Tất cả vai trò --</option>
+                    @if (ViewBag.Roles != null)
+                    {
+                        foreach (var role in ViewBag.Roles)
+                        {
+                            if (ViewBag.CurrentRole == role.RoleId)
+                            {
+                                <option value="@role.RoleId" selected>@role.RoleName</option>
+                            }
+                            else
+                            {
+                                <option value="@role.RoleId">@role.RoleName</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+
+            <!-- Nút bấm -->
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100 fw-bold">Tìm kiếm</button>
+                <a asp-action="ManageUsers" class="btn btn-outline-secondary w-100 fw-bold">Xóa lọc</a>
+            </div>
+        </div>
+    </form>
+    <!-- --- KẾT THÚC THANH TÌM KIẾM --- -->
+    <!-- Phần Bảng dữ liệu -->
+    <div class="card shadow-sm border-0">
         <div class="card-body p-0">
             <table class="table table-hover table-bordered mb-0 align-middle">
                 <thead class="table-dark">
@@ -20,6 +62,7 @@
                         <th>Tên tài khoản</th>
                         <th>Email</th>
                         <th class="text-center">Vai trò</th>
+                        <th class="text-center">Trạng thái</th> <!-- THÊM CỘT TRẠNG THÁI Ở ĐÂY -->
                         <th class="text-center" style="width: 200px;">Thao tác</th>
                     </tr>
                 </thead>
@@ -29,18 +72,32 @@
                         foreach (var user in Model)
                         {
                             <tr>
-                                <td class="text-center">@user.Id</td>
-                                <td class="fw-bold">@user.UserName</td>
+                                <td class="text-center text-muted small">
+                                    @* Cắt bớt ID cho gọn, vì GUID quá dài *@
+                                    @user.Id.Substring(0, 8)...
+                                </td>
+                                <td class="fw-bold text-primary">@user.UserName</td>
                                 <td>@user.Email</td>
                                 <td class="text-center">
                                     @* Đổi màu nhãn tùy theo quyền *@
                                     @if (user.Role?.RoleName == "Admin")
                                     {
-                                        <span class="badge bg-danger">Admin</span>
+                                        <span class="badge bg-danger rounded-pill">Admin</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-primary">User</span>
+                                        <span class="badge bg-info text-dark rounded-pill">User</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @* HIỂN THỊ TRẠNG THÁI ISACTIVE *@
+                                    @if (user.IsActive)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary"><i class="bi bi-lock-fill"></i> Bị khóa</span>
                                     }
                                 </td>
                                 <td class="text-center">
@@ -50,11 +107,23 @@
                                         Sửa
                                     </button>
 
-                                    <button type="button"
-                                            onclick="deleteUser('@user.Id')"
-                                            class="btn btn-sm btn-danger fw-bold">
-                                        Xóa
-                                    </button>
+                                    @* NÚT KHÓA / MỞ KHÓA *@
+                                    @if (user.IsActive)
+                                    {
+                                        <button type="button"
+                                                onclick="toggleUserStatus('@user.Id', true)"
+                                                class="btn btn-sm btn-outline-danger fw-bold ms-1">
+                                            Khóa
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button"
+                                                onclick="toggleUserStatus('@user.Id', false)"
+                                                class="btn btn-sm btn-success fw-bold ms-1">
+                                            Mở khóa
+                                        </button>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -62,7 +131,9 @@
                     else
                     {
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-3">Không có dữ liệu người dùng.</td>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <span class="fs-5">Dữ liệu trống hoặc không tìm thấy kết quả.</span>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -71,32 +142,69 @@
     </div>
 </div>
 
-<div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Modal Thêm Người Dùng -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Chỉnh sửa người dùng</h5>
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold">Thêm Người Dùng Mới</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Tên tài khoản</label>
+                        <input type="text" name="userName" class="form-control" required placeholder="Nhập username không dấu..." />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email</label>
+                        <input type="email" name="email" class="form-control" required placeholder="name@example.com" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu</label>
+                        <input type="password" name="password" class="form-control" required placeholder="Nhập mật khẩu..." />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Vai trò</label>
+                        <select name="roleId" class="form-select">
+                            <option value="2">User (Sinh viên)</option>
+                            <option value="1">Admin (Quản trị)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 fw-bold">Tạo tài khoản</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Sửa Người Dùng -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold">Chỉnh sửa người dùng</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="editUserForm">
                     <input type="hidden" id="editUserId" name="id" />
                     <div class="mb-3">
-                        <label class="form-label">Tên tài khoản</label>
-                        <input type="text" id="editUserName" class="form-control" disabled />
+                        <label class="form-label fw-bold">Tên tài khoản</label>
+                        <input type="text" id="editUserName" name="userName" class="form-control" required />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" id="editEmail" name="email" class="form-control" required />
+                        <label class="form-label fw-bold">Email</label>
+                        <input type="email" id="editEmail" class="form-control" disabled title="Không cho phép đổi Email" />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Vai trò</label>
+                        <label class="form-label fw-bold">Vai trò</label>
                         <select id="editRoleId" name="roleId" class="form-select">
                             <option value="1">Admin</option>
                             <option value="2">User</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Lưu thay đổi</button>
+                    <button type="submit" class="btn btn-warning w-100 fw-bold">Lưu thay đổi</button>
                 </form>
             </div>
         </div>
@@ -105,39 +213,34 @@
 
 @section Scripts {
     <script>
-        // --- HÀM MỞ MODAL VÀ LẤY DỮ LIỆU ---
+        // --- HÀM MỞ MODAL VÀ LẤY DỮ LIỆU SỬA ---
         async function openEditModal(userId) {
             try {
-                // Gửi request lên Server
                 const response = await fetch(`/Admin/GetUser/${userId}`);
-
-                // Kiểm tra xem Server có trả về lỗi 404 (Không tìm thấy) không
                 if (!response.ok) {
                     alert("Lỗi kết nối Server! Bạn đã thêm hàm GetUser vào AdminController chưa?");
                     return;
                 }
 
                 const result = await response.json();
-
                 if (result.success) {
-                    // Đổ dữ liệu vào Modal
                     document.getElementById('editUserId').value = result.data.id;
                     document.getElementById('editUserName').value = result.data.userName;
+                    // Email hiển thị nhưng disable để không cho sửa (thường email làm định danh nên hiếm khi cho sửa)
                     document.getElementById('editEmail').value = result.data.email;
                     document.getElementById('editRoleId').value = result.data.roleId;
 
-                    // Mở Modal
                     new bootstrap.Modal(document.getElementById('editUserModal')).show();
                 } else {
                     alert(result.message);
                 }
             } catch (error) {
                 console.error("Lỗi chi tiết:", error);
-                alert("Đã xảy ra lỗi khi đọc dữ liệu (Xem Console F12 để biết chi tiết).");
+                alert("Đã xảy ra lỗi khi đọc dữ liệu.");
             }
         }
 
-        // --- XỬ LÝ LƯU THÔNG TIN ---
+        // --- XỬ LÝ LƯU THÔNG TIN SỬA ---
         document.getElementById('editUserForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
@@ -154,23 +257,48 @@
             }
         });
 
-        // --- XỬ LÝ XÓA ---
-        async function deleteUser(userId) {
-            if (confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
+        // --- XỬ LÝ KHÓA/MỞ KHÓA (SOFT DELETE) ---
+        async function toggleUserStatus(userId, isCurrentlyActive) {
+            const actionText = isCurrentlyActive ? "KHÓA" : "MỞ KHÓA";
+            if (confirm(`Bạn có chắc chắn muốn ${actionText} người dùng này không?`)) {
                 const formData = new FormData();
                 formData.append("id", userId);
 
                 try {
+                    // Vẫn gọi đến hàm DeleteUser trên Controller vì ta chỉ đổi logic bên trong nó
                     const response = await fetch('/Admin/DeleteUser', { method: 'POST', body: formData });
-                    if (!response.ok) throw new Error("Không tìm thấy hàm DeleteUser");
+                    if (!response.ok) throw new Error("Lỗi kết nối tới máy chủ.");
 
                     const result = await response.json();
-                    if(result.success) location.reload();
-                    else alert(result.message);
+                    if(result.success) {
+                        location.reload();
+                    } else {
+                        alert(result.message);
+                    }
                 } catch (error) {
-                    alert("Lỗi khi xóa: " + error.message);
+                    alert("Lỗi xử lý: " + error.message);
                 }
             }
         }
+
+        // --- XỬ LÝ THÊM NGƯỜI DÙNG MỚI ---
+        document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            try {
+                const response = await fetch('/Admin/AddUser', { method: 'POST', body: formData });
+                if (!response.ok) throw new Error("Lỗi kết nối Server.");
+
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert("Lỗi khi thêm người dùng: " + error.message);
+            }
+        });
     </script>
 }

@@ -7,8 +7,13 @@ var builder = WebApplication.CreateBuilder(args);
 // --- THÊM DÒNG NÀY ĐỂ BƠM DbContext ---
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 // Đăng ký Service mã hóa mật khẩu
-builder.Services.AddScoped<IPasswordHasher, PlainTextPasswordHasher>();
+//builder.Services.AddScoped<IPasswordHasher, PlainTextPasswordHasher>();
+builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+
+// Đăng ký dịch vụ gửi Email
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // 1. ĐĂNG KÝ DỊCH VỤ SESSION (Thêm đoạn này)
 builder.Services.AddDistributedMemoryCache(); // Bộ nhớ tạm để lưu Session
