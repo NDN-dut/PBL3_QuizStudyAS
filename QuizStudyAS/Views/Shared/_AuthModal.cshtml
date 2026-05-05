@@ -28,6 +28,12 @@
                                 <label class="form-label">Mật khẩu</label>
                                 <input type="password" name="Password" class="form-control" required placeholder="Nhập mật khẩu..." />
                             </div>
+                            
+                            <div class="text-end mt-2 mb-3">
+                                <a asp-controller="Auth" asp-action="ForgotPassword" class="text-decoration-none small fw-bold text-primary">
+                                    Quên mật khẩu?
+                                </a>
+                            </div>
                             <button type="submit" class="btn btn-primary w-100 fw-bold">Đăng Nhập</button>
                         </form>
                     </div>
