@@ -1,0 +1,181 @@
+﻿@model QuizStudyAS.ViewModels.YourClassVM
+
+<div class="classroom-container">
+
+    <!-- PHẦN 1: LỚP HỌC ĐÃ THAM GIA (Hiện phía trên) -->
+    <h2 class="section-title">Lớp học đã tham gia</h2>
+    @if (Model.JoinedClasses.Any())
+    {
+        <div class="classroom-grid">
+            @foreach (var cls in Model.JoinedClasses)
+            {
+                <div class="class-card-simple">
+                    <h3 class="class-name-simple">@cls.ClassName</h3>
+                    <!-- Bạn có thể thêm thông tin như tên giáo viên ở đây nếu muốn -->
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="empty-message">Bạn chưa tham gia lớp học nào.</p>
+    }
+
+    <!-- LABEL PHÂN CÁCH Ở GIỮA -->
+    <div class="divider-wrapper">
+        <span class="divider-text">Lớp học do tôi tạo</span>
+    </div>
+
+    <!-- PHẦN 2: LỚP HỌC MÌNH TẠO -->
+    @if (Model.MyClasses.Any())
+    {
+        <div class="classroom-grid">
+            @foreach (var cls in Model.MyClasses)
+            {
+                <div class="class-card-simple my-own-class">
+                    <h3 class="class-name-simple">@cls.ClassName</h3>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="empty-message">Bạn chưa tạo lớp học nào.</p>
+    }
+
+</div>
+
+<!-- NÚT TẠO LỚP HỌC (Ghim ở dưới cùng màn hình) -->
+<div class="bottom-action-bar">
+    <button class="btn-create-class">
+        <i class="fas fa-plus"></i> Tạo lớp học mới
+    </button>
+</div>
+
+<style>
+    /* Container bọc toàn bộ tab */
+    .classroom-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 20px 100px 20px; /* Chừa 100px ở đáy để không bị nút Tạo lớp đè lên */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Tiêu đề khu vực */
+    .section-title {
+        color: #333;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    /* LƯỚI HIỂN THỊ: Ép đúng 3 cột mỗi hàng */
+    .classroom-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Chia 3 phần bằng nhau */
+        gap: 25px; /* Khoảng cách giữa các thẻ */
+        margin-bottom: 40px;
+    }
+
+    /* Thiết kế thẻ lớp học */
+    .class-card-simple {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 25px 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+    }
+
+        .class-card-simple:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            border-color: #0d6efd;
+        }
+
+    .class-name-simple {
+        margin: 0;
+        color: #2c3e50;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    /* Thêm màu viền nhẹ để phân biệt lớp mình tạo (Tùy chọn) */
+    .my-own-class {
+        border-left: 5px solid #198754;
+    }
+
+    /* LABEL PHÂN CÁCH CÓ ĐƯỜNG KẺ 2 BÊN */
+    .divider-wrapper {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 40px 0;
+    }
+
+        .divider-wrapper::before,
+        .divider-wrapper::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ccc;
+        }
+
+    .divider-text {
+        padding: 0 20px;
+        color: #6c757d;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+
+    .empty-message {
+        color: #999;
+        font-style: italic;
+        margin-bottom: 30px;
+    }
+
+    /* NÚT TẠO LỚP: GHIM DƯỚI CÙNG MÀN HÌNH */
+    .bottom-action-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: linear-gradient(to top, rgba(255,255,255,1) 60%, rgba(255,255,255,0));
+        padding: 20px 0 30px 0;
+        text-align: center;
+        pointer-events: none; /* Tránh block các click khác ở viền */
+    }
+
+    .btn-create-class {
+        pointer-events: auto; /* Bật lại click cho nút */
+        background-color: #0d6efd;
+        color: white;
+        border: none;
+        padding: 12px 35px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-radius: 50px; /* Bo tròn hoàn toàn dạng viên thuốc */
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+        .btn-create-class:hover {
+            background-color: #0b5ed7;
+            transform: scale(1.05);
+        }
+
+    /* Responsive: Thu về 2 cột ở iPad, 1 cột ở điện thoại */
+    @@media (max-width: 900px) {
+        .classroom-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    @@media (max-width: 600px) {
+        .classroom-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

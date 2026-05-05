@@ -40,8 +40,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
     });
 
-builder.Services.AddScoped<IFindClassRoomService, FindClassRoomService>();
-builder.Services.AddScoped<IClassroomRequestService, ClassroomRequestService>();
+builder.Services.AddScoped<IClassRoomServices, ClassRoomServices>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
