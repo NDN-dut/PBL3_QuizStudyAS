@@ -8,6 +8,11 @@
         public string PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public int RoleId { get; set; }
+        public bool IsActive { get; set; } = true; // Mặc định tạo ra là được hoạt động
+
+        // Thêm 2 cột để lưu mã Reset Password
+        public string? ResetPasswordToken { get; set; }
+        public DateTime? ResetPasswordExpiry { get; set; }
 
         // --- Navigation Properties (Liên kết) ---
         public virtual Role Role { get; set; }
