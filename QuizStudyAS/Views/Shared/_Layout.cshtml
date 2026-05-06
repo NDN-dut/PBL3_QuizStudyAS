@@ -56,6 +56,9 @@
                             <li class=" nav-item">
                                 <a class="nav-link text-dark" asp-controller="Classroom" asp-action="YourClass">Lớp học của bạn</a>
                             </li>
+                            <li class=" nav-item">
+                                <a class="nav-link text-dark" asp-controller="Classroom" asp-action="Request">Yêu cầu</a>
+                            </li>
                         }
                     </ul>
 
@@ -94,15 +97,10 @@
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
-            
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - QuizStudyAS - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    
 
     <partial name="_AuthModal" />
 

@@ -16,8 +16,8 @@ namespace QuizStudyAS.Services
         }
         public async Task<ShowClassRoom> FindClassRoomByName(string NameClass)
         {
-            var CurrentUser = await _context.Users.FirstOrDefaultAsync();
-            string currentUserId = CurrentUser?.Id;
+            
+            string currentUserId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
 
             var classroom = await _context.Classrooms
                 .Where(p => p.ClassName == NameClass)
@@ -27,7 +27,7 @@ namespace QuizStudyAS.Services
                     Link = p.InviteCode,
                     OwnerName = p.OwnerUser.UserName,
                     // 3. Truyền biến string vào đây để so sánh string == string
-                    Status_Class = p.JoinRequests
+                    Status_Class =  p.JoinRequests
                                     .Where(r => r.UserId == currentUserId)
                                     .Select(r => r.Status)
                                     .FirstOrDefault()
@@ -39,7 +39,7 @@ namespace QuizStudyAS.Services
 
         public async Task CreateRequest(string ClassName)
         {
-            var User = _context.Users.FirstOrDefault();
+            var User = _context.Users.FirstOrDefault(e=>e.Id == _httpContextAccessor.HttpContext.Session.GetString("UserId"));
             var RequestJoin = await _context.RequestJoinClasses.AddAsync(new RequestJoinClass
             {
                 UserId = User.Id,
@@ -78,6 +78,85 @@ namespace QuizStudyAS.Services
                 JoinedClasses = MyJoinedClass
             };
             
+        }
+        public async Task<ListRequestJoinVM> GetJoinVMs()
+        {
+            var ListRequestJoin = await _context.RequestJoinClasses
+                .Where(e => e.Classroom.OwnerUserId == _httpContextAccessor.HttpContext.Session.GetString("UserId") && e.Status == "PENDING")
+                .Select(e => new RequestJoinVM
+                {
+                    UserId = e.UserId,
+                    UserName = e.User.UserName,
+                    ClassName = e.Classroom.ClassName,
+                    ClassRoomId = e.Classroom.ClassroomId
+                }).ToListAsync();
+            return new ListRequestJoinVM
+            {
+                RequestJoinVMs = ListRequestJoin
+            };
+        }
+        public async Task DeninedRequest(string userid, int classroomid)
+        {
+            var request = await _context.RequestJoinClasses.FirstOrDefaultAsync(e=>e.ClassroomId == classroomid && e.UserId ==  userid);
+            if(request != null)
+            {
+                request.Status = "DENIED";
+                await _context.SaveChangesAsync();
+            }
+        }
+        public async Task AcceptRequest(string userid, int classroomid)
+        {
+            var request = await _context.RequestJoinClasses.FirstOrDefaultAsync(e => e.ClassroomId == classroomid && e.UserId == userid);
+            if (request != null)
+            {
+                request.Status = "APPROVED";
+                await _context.AddAsync(new ClassroomUser
+                {
+                    ClassroomId = classroomid,
+                    UserId = userid,
+                    JoinedAt = DateTime.Now
+                });
+                await _context.SaveChangesAsync();
+            }
+        }
+        public async Task CreateClassRoom(string ClassName)
+        {
+            var newLink = CreateUniqueLink();
+            await _context.Classrooms.AddAsync(new Classroom
+            {
+                InviteCode = await newLink,
+                ClassName = ClassName,
+                OwnerUserId = _httpContextAccessor.HttpContext.Session.GetString("UserId")
+
+            });
+            await _context.SaveChangesAsync();
+            
+        }
+        public async Task<string> CreateUniqueLink()
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            string newLink = "";
+            bool isUnique = false;
+
+            while (!isUnique)
+            {
+                var codeArray = new char[8];
+                for (int i = 0; i < 8; i++)
+                {
+                    // Random.Shared.Next() lấy ngẫu nhiên 1 vị trí trong chuỗi chars
+                    codeArray[i] = chars[Random.Shared.Next(chars.Length)];
+                }
+                newLink = new string(codeArray);
+
+                bool LinkExists = await _context.Classrooms.AnyAsync(c => c.InviteCode == newLink);
+
+                if (!LinkExists)
+                {
+                    isUnique = true; // Mã duy nhất -> Dừng vòng lặp!
+                }
+            }
+
+            return newLink;
         }
     }
 }

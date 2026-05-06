@@ -33,5 +33,29 @@ namespace QuizStudyAS.Controllers
             var YourClassData = await _ClassRoomServices.GetYourClass();
             return View(YourClassData);
         }
+        public async Task<IActionResult> Request()
+        {
+            var ListRequesData = await _ClassRoomServices.GetJoinVMs();
+            return View(ListRequesData);
+        }
+        [HttpPost]
+        public async Task<IActionResult> AcceptRequest(string userId, int classroomId)
+        {
+            await _ClassRoomServices.AcceptRequest(userId, classroomId);
+            return Json( new { success = true } ) ;
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeniedRequest(string userId, int classroomId)
+        {
+            await _ClassRoomServices.DeninedRequest(userId, classroomId);
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateClassRoom(string ClassName)
+        {
+            await _ClassRoomServices.CreateClassRoom(ClassName);
+            return RedirectToAction("YourClass", "ClassRoom");
+        }
     }
 }

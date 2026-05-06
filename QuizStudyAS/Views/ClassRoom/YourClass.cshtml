@@ -11,7 +11,7 @@
             {
                 <div class="class-card-simple">
                     <h3 class="class-name-simple">@cls.ClassName</h3>
-                    <!-- Bạn có thể thêm thông tin như tên giáo viên ở đây nếu muốn -->
+                    
                 </div>
             }
         </div>
@@ -23,7 +23,7 @@
 
     <!-- LABEL PHÂN CÁCH Ở GIỮA -->
     <div class="divider-wrapper">
-        <span class="divider-text">Lớp học do tôi tạo</span>
+        <span class="divider-text">Lớp học do bạn tạo</span>
     </div>
 
     <!-- PHẦN 2: LỚP HỌC MÌNH TẠO -->
@@ -47,9 +47,28 @@
 
 <!-- NÚT TẠO LỚP HỌC (Ghim ở dưới cùng màn hình) -->
 <div class="bottom-action-bar">
-    <button class="btn-create-class">
-        <i class="fas fa-plus"></i> Tạo lớp học mới
-    </button>
+    
+    <!-- 1. Thêm cái Wrapper bọc ngoài nút và popup -->
+    <div class="create-class-wrapper">
+        
+        <!-- Nút gốc của bạn (Mình thêm id="btnToggleCreate" để JS gọi) -->
+        <button id="btnToggleCreate" class="btn-create-class">
+            <i class="fas fa-plus"></i> Tạo lớp học mới
+        </button>
+
+        <!-- 2. Khung Popup nhúng ngay bên dưới nút -->
+        <div id="popoverCreate" class="create-popover hidden">
+            <h3 class="popover-title">Tạo lớp học mới</h3>
+            
+            <form asp-controller="Classroom" asp-action="CreateClassRoom" method="post">
+                <input type="text" id="inputClassName" name="ClassName" class="popover-input" placeholder="Nhập tên lớp học..." autocomplete="off" required />
+                
+                <button type="submit" id="btnSubmitCreate" class="popover-btn-submit">Tạo lớp</button>
+            </form>
+        </div>
+
+    </div>
+
 </div>
 
 <style>
@@ -178,4 +197,130 @@
             grid-template-columns: 1fr;
         }
     }
+    /* Container bọc ngoài làm mỏ neo */
+    .create-class-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Khung Popup nhỏ */
+    .create-popover {
+        position: absolute;
+        bottom: calc(100% + 12px); /* Đẩy khung lên phía TRÊN nút thay vì dưới */
+        left: 50%; /* Căn giữa popup so với nút */
+        transform: translateX(-50%) translateY(0);
+        width: 300px;
+        background-color: #0a092d;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2); /* Đổ bóng hắt lên trên */
+        border: 1px solid #2e3856;
+        z-index: 1000;
+        /* Hiệu ứng xuất hiện */
+        opacity: 1;
+        visibility: visible;
+        transition: all 0.2s ease-out;
+    }
+
+        /* Trạng thái Ẩn */
+    .create-popover.hidden {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-50%) translateY(10px); /* Thụt xuống một chút khi ẩn */
+    }
+
+    /* Trang trí bên trong */
+    .popover-title {
+        color: #ffffff;
+        font-size: 1.1rem;
+        margin: 0 0 12px 0;
+        text-align: left;
+    }
+
+    .popover-input {
+        width: 100%;
+        background-color: transparent;
+        border: 2px solid #7b79ff;
+        color: #ffffff;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 12px;
+        box-sizing: border-box;
+    }
+
+    .popover-input:focus {
+            outline: none;
+            border-color: #9391ff;
+    }
+
+    .popover-btn-submit {
+        width: 100%;
+        padding: 8px;
+        border-radius: 16px;
+        border: none;
+        background-color: #3b415a;
+        color: #8b92a5;
+        font-weight: 600;
+        transition: all 0.2s;
+        /* 2 DÒNG NÀY LÀ KHẮC TINH CỦA LỖI NÀY */
+        position: relative;
+        z-index: 50; /* Đẩy nút nổi bóp lên trên cùng, xuyên qua mọi lớp đè vô hình */
+        pointer-events: none; /* Trình duyệt sẽ khóa click của nút này bằng CSS */
+    }
+
+        .popover-btn-submit.active {
+            background-color: #4255ff;
+            color: #ffffff;
+            /* MỞ KHÓA CLICK */
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+            .popover-btn-submit.active:hover {
+                background-color: #3144eb;
+            }
 </style>
+
+@section Scripts{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const btnToggle = document.getElementById('btnToggleCreate');
+            const popover = document.getElementById('popoverCreate');
+            const inputName = document.getElementById('inputClassName');
+            const btnSubmit = document.getElementById('btnSubmitCreate');
+
+            // 1. Bật/Tắt Popover
+            btnToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                popover.classList.toggle('hidden');
+                
+                // Focus con trỏ chuột vào ô nhập
+                if (!popover.classList.contains('hidden')) {
+                    setTimeout(() => inputName.focus(), 100);
+                }
+            });
+
+            // 2. Click ra ngoài thì đóng
+            document.addEventListener('click', function (e) {
+                if (!popover.contains(e.target) && !popover.classList.contains('hidden')) {
+                    popover.classList.add('hidden');
+                    inputNamevalue = "";
+                }
+            });
+
+            // 3. Không đóng khi click bên trong
+            popover.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // 4. Validate bật nút "Tạo lớp"
+            inputName.addEventListener('input', function () {
+                    if (inputName.value.trim().length > 0) {
+                        btnSubmit.classList.add('active'); // Thêm class này là CSS tự mở khóa click
+                    } else {
+                        btnSubmit.classList.remove('active'); // Xóa đi là CSS tự khóa lại
+                    }
+            });
+        });
+    </script>
+}
