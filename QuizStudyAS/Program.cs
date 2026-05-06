@@ -13,6 +13,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 //builder.Services.AddScoped<IPasswordHasher, PlainTextPasswordHasher>();
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 // Đăng ký dịch vụ gửi Email
 builder.Services.AddScoped<IEmailService, EmailService>();
 
