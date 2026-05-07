@@ -6,6 +6,7 @@ using QuizStudyAS.Models;
 using QuizStudyAS.Services;
 using QuizStudyAS.ViewModels;
 
+
 namespace QuizStudyAS.Controllers
 {
     public class AuthController : Controller

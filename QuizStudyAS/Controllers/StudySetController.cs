@@ -14,7 +14,6 @@ namespace QuizStudyAS.Controllers
         {
             _context = context;
         }
-
         // Hàm hỗ trợ lấy ID của user đang đăng nhập từ Session
         private string GetCurrentUserId()
         {
@@ -47,7 +46,6 @@ namespace QuizStudyAS.Controllers
 
             return View(vm);
         }
-
         // 3. TẠO MỚI (POST)
         [HttpPost]
         [ValidateAntiForgeryToken] // Chống tấn công CSRF
