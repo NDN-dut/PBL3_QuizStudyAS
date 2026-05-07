@@ -134,7 +134,21 @@ namespace QuizStudyAS.Data
             };
             context.QuizQuestionResults.AddRange(quizResults);
             context.SaveChanges();
-            
+
+            // --8 KHỞI TẠO YÊU CẦU JOIN CLASS
+            var ListRequest = new RequestJoinClass[]
+            {
+                new RequestJoinClass { ClassroomId = classrooms[0].ClassroomId, UserId = users[1].Id, Status = "APPROVED"},
+                new RequestJoinClass { ClassroomId = classrooms[0].ClassroomId, UserId = users[2].Id, Status = "APPROVED" },
+                new RequestJoinClass { ClassroomId = classrooms[0].ClassroomId, UserId = users[4].Id, Status = "APPROVED" },
+                new RequestJoinClass { ClassroomId = classrooms[1].ClassroomId, UserId = users[1].Id, Status = "APPROVED" },
+                new RequestJoinClass { ClassroomId = classrooms[1].ClassroomId, UserId = users[4].Id, Status = "APPROVED" },
+                new RequestJoinClass { ClassroomId = classrooms[2].ClassroomId, UserId = users[2].Id, Status = "APPROVED" },
+                new RequestJoinClass { ClassroomId = classrooms[3].ClassroomId, UserId = users[1].Id, Status = "APPROVED" }, 
+                new RequestJoinClass { ClassroomId = classrooms[3].ClassroomId, UserId = users[2].Id, Status = "APPROVED" }
+            };
+            context.RequestJoinClasses.AddRange(ListRequest);
+            context.SaveChanges();
         }
     }
 }
