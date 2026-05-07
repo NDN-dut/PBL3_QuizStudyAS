@@ -192,6 +192,41 @@ namespace QuizStudyAS.Controllers
 
             return View(studySet);
         }
+
+        // 7. API TÌM KIẾM MỜ (AUTO-SUGGESTION)
+        [HttpGet]
+        public async Task<IActionResult> SearchSuggestions(string keyword)
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrWhiteSpace(keyword))
+            {
+                return Json(new List<object>()); // Trả về mảng rỗng nếu không có từ khóa
+            }
+
+            // Tách từ khóa thành các mảng chữ (Ví dụ: "to te" -> ["to", "te"])
+            var searchTerms = keyword.ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            // Bắt đầu câu truy vấn: Lấy bộ thẻ của user hiện tại
+            var query = _context.StudySets.Where(s => s.OwnerUserId == userId);
+
+            // Áp dụng thuật toán tìm kiếm mờ: Tiêu đề phải chứa TẤT CẢ các chữ gõ vào
+            foreach (var term in searchTerms)
+            {
+                query = query.Where(s => s.Title.ToLower().Contains(term));
+            }
+
+            // Chỉ lấy 5 kết quả tốt nhất và map sang object ẩn danh để trả về JSON
+            var suggestions = await query
+                .Select(s => new {
+                    id = s.StudySetId,
+                    title = s.Title,
+                    cardCount = s.Flashcards.Count
+                })
+                .Take(5)
+                .ToListAsync();
+
+            return Json(suggestions);
+        }
     }
 
 }

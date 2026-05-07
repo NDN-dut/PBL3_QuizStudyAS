@@ -25,8 +25,25 @@
                 </div>
             </div>
         </div>
+        <!-- BẮT ĐẦU: THANH TÌM KIẾM TRONG BỘ THẺ -->
+        <div class="row mb-4 justify-content-end">
+            <div class="col-md-5">
+                <div class="input-group shadow-sm rounded-pill overflow-hidden border">
+                    <span class="input-group-text bg-light border-0 text-muted ps-3">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" id="local-search-input" class="form-control border-0 bg-light shadow-none" placeholder="Tìm thuật ngữ hoặc định nghĩa trong bộ này..." autocomplete="off">
+                    <!-- Nút X (Clear) để xóa nhanh tìm kiếm -->
+                    <button class="btn btn-light border-0 text-muted pe-3 d-none" type="button" id="btn-clear-search">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- KẾT THÚC: THANH TÌM KIẾM -->
 
         <div id="flashcards-container">
+            <!-- Danh sách thẻ của bạn đang nằm ở đây -->
             @for (int i = 0; i < Model.Flashcards.Count; i++)
             {
                 <div class="card border-0 shadow-sm mb-3 flashcard-item">
@@ -129,6 +146,60 @@
                     if (defInput) defInput.name = `Flashcards[${index}].Definition`;
                 });
             }
+
+             // --- BẮT ĐẦU LOGIC TÌM KIẾM (LỌC) THẺ ---
+            const localSearchInput = document.getElementById('local-search-input');
+            const btnClearSearch = document.getElementById('btn-clear-search');
+
+            if (localSearchInput) {
+                // Lắng nghe sự kiện mỗi khi người dùng gõ phím
+                localSearchInput.addEventListener('input', function () {
+                    const keyword = this.value.toLowerCase().trim();
+                    const allCards = container.querySelectorAll('.flashcard-item');
+
+                    // Ẩn/Hiện nút X (Clear)
+                    if (keyword.length > 0) {
+                        btnClearSearch.classList.remove('d-none');
+                    } else {
+                        btnClearSearch.classList.add('d-none');
+                    }
+
+                    // Quét qua từng thẻ để kiểm tra xem có khớp chữ không
+                    allCards.forEach(card => {
+                        const termInput = card.querySelector('[name$=".Term"]');
+                        const defInput = card.querySelector('[name$=".Definition"]');
+                
+                        let isMatch = false;
+
+                        // Lấy nội dung đang có trong ô nhập liệu (nếu có)
+                        if (termInput && termInput.value.toLowerCase().includes(keyword)) {
+                            isMatch = true;
+                        }
+                        if (defInput && defInput.value.toLowerCase().includes(keyword)) {
+                            isMatch = true;
+                        }
+
+                        // Nếu khớp chữ HOẶC nếu thanh tìm kiếm đang trống -> Hiện thẻ
+                        // Nếu không khớp -> Ẩn thẻ (dùng class d-none của Bootstrap)
+                        if (isMatch || keyword === '') {
+                            card.classList.remove('d-none');
+                        } else {
+                            card.classList.add('d-none');
+                        }
+                    });
+                });
+
+                // Xử lý khi bấm nút X (Xóa tìm kiếm)
+                if (btnClearSearch) {
+                    btnClearSearch.addEventListener('click', function () {
+                        localSearchInput.value = ''; // Xóa chữ
+                        localSearchInput.dispatchEvent(new Event('input')); // Kích hoạt lại hàm tìm kiếm để hiện tất cả thẻ
+                        localSearchInput.focus(); // Đưa con trỏ chuột quay lại ô tìm kiếm
+                    });
+                }
+            }
+            // --- KẾT THÚC LOGIC TÌM KIẾM ---
         });
+
     </script>
 }
