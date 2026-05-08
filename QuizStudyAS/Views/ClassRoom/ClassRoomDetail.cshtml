@@ -1,0 +1,262 @@
+﻿@model QuizStudyAS.ViewModels.ClassRoomDetailVM
+
+@{
+    ViewData["Title"] = Model.ClassName;
+}
+
+<div class="classroom-detail-container">
+    
+    <div class="class-header">
+        <div class="header-content">
+            <h1 class="class-title">@Model.ClassName</h1>
+            <div class="owner-info">
+                <i class="fas fa-user-circle"></i>
+                <span>Giảng viên: <strong>@Model.OwnerName</strong></span>
+                <span class="class-code-badge">Mã lớp: @Model.ClassCode</span>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <button class="btn-add-set">
+                <i class="fas fa-plus"></i> Thêm học phần
+            </button>
+        </div>
+    </div>
+
+    <div class="studysets-section">
+        <div class="section-header-row">
+            <h3 class="section-label">Danh sách học phần (@Model.StudySets.Count)</h3>
+        </div>
+
+        @if (Model.StudySets != null && Model.StudySets.Any())
+        {
+            <div class="studyset-grid">
+                @foreach (var set in Model.StudySets)
+                {
+                    <a asp-controller="StudySet" asp-action="Details" asp-route-id="@set.StudySetId" class="studyset-card">
+                        <div class="set-info">
+                            <h4 class="set-title">@set.Title</h4>
+                            
+                        </div>
+                        <div class="set-icon">
+                            <i class="fas fa-clone"></i>
+                        </div>
+                        <button class="btn-delete-card" data-url="/ClassRoom/Delete" data-id="@set.StudySetId" title="Xóa lớp học này">
+                            <i class="fas fa-times">x</i>
+                        </button>
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-layer-group"></i>
+                <p>Chưa có học phần nào được thêm vào lớp học này.</p>
+            </div>
+        }
+    </div>
+
+</div>
+
+<style>
+    .classroom-detail-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 0 20px;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        color: #fff;
+    }
+
+    /* Header */
+    .class-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-bottom: 2px solid #2e3856;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+
+    .class-title {
+        font-size: 2.5rem;
+        margin: 0 0 10px 0;
+        color: #ffffff;
+    }
+
+    .owner-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #b8bbff;
+    }
+
+    .class-code-badge {
+        background: #2e3856;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        color: #fff;
+        margin-left: 15px;
+    }
+
+    
+
+    /* StudySet Grid */
+    .studyset-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .studyset-card {
+        background: #2e3856;
+        padding: 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s, background 0.2s;
+        border: 2px solid transparent;
+        position: relative;
+
+    }
+
+        .studyset-card:hover {
+            transform: translateY(-5px);
+            background: #3c476e;
+            border-color: #7b79ff;
+        }
+
+    .set-title {
+        margin: 0 0 5px 0;
+        font-size: 1.2rem;
+    }
+
+    .card-count {
+        font-size: 0.9rem;
+        color: #939bb4;
+        background: #1a1d3d;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    .set-icon {
+        font-size: 1.5rem;
+        color: #7b79ff;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        background: #1a1d3d;
+        border-radius: 12px;
+        color: #64748b;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+    .btn-add-set {
+        background-color: #4255ff;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .btn-add-set:hover {
+            background-color: #3144eb;
+        }
+    /* Trang trí nút Xóa */
+    .btn-delete-card {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        color: #64748b; /* Màu xám mờ */
+        font-size: 1.2rem;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10; /* Đẩy nổi lên trên để không bị thẻ a che mất */
+        transition: all 0.2s ease;
+    }
+
+    
+        .btn-delete-card:hover {
+            color: #ff4757; /* Chuyển màu đỏ khi trỏ chuột */
+            background-color: rgba(255, 71, 87, 0.1); /* Nền đỏ nhạt */
+            transform: scale(1.1); /* Hơi to ra một chút */
+        }
+</style>
+
+@section Scripts{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteButtons = document.querySelectorAll('.btn-delete-card');
+
+            deleteButtons.forEach(btn => {
+                btn.addEventListener('click', async function (e) {
+                    // 1. DỪNG TẤT CẢ HÀNH VI MẶC ĐỊNH LẠI
+                    e.preventDefault();       // Không cho thẻ <a> chuyển trang
+                    e.stopPropagation();    // Chặn sự kiện click nổ bong bóng ra ngoài
+
+                    // 2. Hỏi người dùng cho chắc chắn
+                    const isConfirm = confirm('Bạn có chắc chắn muốn xóa mục này không? Hành động này không thể hoàn tác.');
+                    if (!isConfirm) return; // Nếu bấm Hủy thì dừng luôn
+
+                    // 3. Lấy thông tin từ nút bấm
+                    const url = this.getAttribute('data-url');
+                    const id = this.getAttribute('data-id');
+
+                    try {
+                        // 4. Gửi Request lên Controller
+                        // Dùng FormData để gửi ID đi
+                        const formData = new FormData();
+                        formData.append('id', id);
+
+                        const response = await fetch(url, {
+                            method: 'POST', // Xóa thì luôn dùng POST cho an toàn
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            // 5. Xóa thẻ đó khỏi màn hình với hiệu ứng mờ dần
+                            const cardWrapper = this.closest('.card-link-wrapper'); // Tìm cái khung bọc ngoài cùng
+                            cardWrapper.style.opacity = '0';
+                            cardWrapper.style.transform = 'scale(0.9)';
+                            cardWrapper.style.transition = 'all 0.3s ease';
+                    
+                            setTimeout(() => {
+                                cardWrapper.remove();
+                            }, 300);
+                        } else {
+                            alert('Lỗi: ' + (result.message || 'Không thể xóa!'));
+                        }
+                    } catch (error) {
+                        console.error('Lỗi kết nối:', error);
+                        alert('Có lỗi xảy ra khi kết nối đến máy chủ.');
+                    }
+                });
+            });
+        });
+    </script>
+    
+}
