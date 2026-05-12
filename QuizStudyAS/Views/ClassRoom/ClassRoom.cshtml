@@ -1,4 +1,6 @@
 ﻿@model QuizStudyAS.ViewModels.ShowClassRoom
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "ClassRoom";
 }
@@ -25,6 +27,12 @@ else
                 else if (Model.Status_Class == "APPROVED")
                 {
                     <button class="btn-join" style="background-color: #0d6efd;">Vào Lớp</button>
+                }
+                else if(Model.OwnerName == HttpContextAccessor.HttpContext.Session.GetString("UserName"))
+                {
+                    <button class="btn-join" style="background-color: #6c757d; cursor: not-allowed;" disabled>
+                        Bạn là chủ của lớp học này
+                    </button>
                 }
                 else
                 {

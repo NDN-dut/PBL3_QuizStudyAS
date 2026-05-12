@@ -1,0 +1,189 @@
+﻿@model QuizStudyAS.ViewModels.ListRequestJoinVM
+
+<div class="request-list-container">
+    @if(Model.RequestJoinVMs.Any()!=true)
+    {
+        <h1>Không có yêu cầu</h1>
+    }else{
+        @foreach (var item in Model.RequestJoinVMs)
+        {
+            <div class="request-row-card">
+        
+                <!-- GÓC TRÁI: Thông tin User và Lớp học -->
+                <div class="card-left-info">
+                    <div class="user-row">
+                        <span class="user-name">@item.UserName</span>
+                        <span class="user-id">- @item.UserId</span>
+                    </div>
+                    <div class="class-row">
+                        Yêu cầu tham gia: <span class="class-name">@item.ClassName</span>
+                    </div>
+                </div>
+
+                <!-- GÓC PHẢI: 2 Nút tùy chọn -->
+                <div class="card-right-actions">
+                    <form asp-controller="ClassRoom" asp-action="DeniedRequest" method="post" class="ajax-action-form m-0">
+                        <input type="hidden" name="userId" value="@item.UserId" />
+                        <input type="hidden" name="classroomId" value="@item.ClassRoomId" />
+                        <button type="submit" class="btn-req btn-reject">Từ chối</button>
+                    </form>
+
+           
+                    <form asp-controller="ClassRoom" asp-action="AcceptRequest" method="post" class="ajax-action-form m-0">
+                        <input type="hidden" name="userId" value="@item.UserId" />
+                        <input type="hidden" name="classroomId" value="@item.ClassRoomId" />
+                        <button type="submit" class="btn-req btn-accept">Đồng ý</button>
+                    </form>
+                </div>
+
+            </div>
+        }
+    }
+    
+
+
+</div>
+
+<style>
+
+    /* --- BỐ CỤC COMPONENT (Dựa theo ảnh mẫu) --- */
+    .request-row-card {
+        display: flex;
+        justify-content: space-between; /* Đẩy khối trái và phải ra 2 mép */
+        align-items: center; /* Căn giữa theo chiều dọc */
+    
+        background-color: #ffffff;
+        border: 1.5px solid #3b82f6; /* Viền màu xanh dương giống trong ảnh */
+        border-radius: 12px; /* Bo góc mềm mại giống trong ảnh */
+        padding: 16px 24px; /* Khoảng cách chữ tới viền */
+        margin-bottom: 16px; /* Khoảng cách giữa các hàng */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02); /* Đổ bóng mờ tạo chiều sâu */
+        transition: all 0.2s ease-in-out;
+    }
+
+        .request-row-card:hover {
+            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.15); /* Sáng viền lên khi di chuột */
+        }
+
+    /* --- GÓC TRÁI: THÔNG TIN --- */
+    .card-left-info {
+        display: flex;
+        flex-direction: column; /* Xếp tên và lớp theo chiều dọc */
+        gap: 6px;
+    }
+
+    .user-row {
+        font-size: 1.1rem;
+        color: #333;
+    }
+
+    .user-name {
+        font-weight: 700; /* In đậm tên */
+        color: #1e293b;
+    }
+
+    .user-id {
+        color: #64748b; /* Màu xám nhạt cho ID */
+        font-size: 0.95rem;
+    }
+
+    .class-row {
+        color: #475569;
+        font-size: 0.95rem;
+    }
+
+    .class-name {
+        font-weight: 600;
+        color: #3b82f6; /* Tên lớp học màu xanh cho tone-sur-tone với viền */
+    }
+
+    /* --- GÓC PHẢI: NÚT BẤM --- */
+    .card-right-actions {
+        display: flex;
+        gap: 12px; /* Khoảng cách giữa 2 nút */
+    }
+
+    /* Nút cơ bản */
+    .btn-req {
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    /* Nút Từ chối (Viền đỏ, chữ đỏ) */
+    .btn-reject {
+        background-color: transparent;
+        border: 1.5px solid #ef4444;
+        color: #ef4444;
+    }
+
+        .btn-reject:hover {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+
+    /* Nút Đồng ý (Nền xanh, chữ trắng) */
+    .btn-accept {
+        background-color: #3b82f6;
+        border: 1.5px solid #3b82f6;
+        color: #ffffff;
+    }
+
+        .btn-accept:hover {
+            background-color: #2563eb;
+        }
+
+    /* Responsive: Ép xuống thành 1 khối dọc nếu xem trên điện thoại nhỏ */
+    @@media (max-width: 600px) {
+        .request-row-card {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .card-right-actions {
+            width: 100%;
+            justify-content: flex-end;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // CHỈ LẤY các form có gắn class 'ajax-action-form'
+        const forms = document.querySelectorAll('.ajax-action-form');
+
+        forms.forEach(form => {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const url = this.action;
+                const formData = new FormData(this);
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        const card = this.closest('.request-row-card');
+                        card.style.opacity = '0';
+                        setTimeout(() => {
+                            card.remove();
+                        }, 300);
+                    } else {
+                        alert('Có lỗi xảy ra, vui lòng thử lại!');
+                    }
+                } catch (error) {
+                    console.error('Lỗi mạng:', error);
+                }
+            });
+        });
+    </script>
+}
