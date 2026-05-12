@@ -1,22 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using QuizStudyAS.Data;
-using QuizStudyAS.Models;
+using QuizStudyAS.Services;
 using QuizStudyAS.ViewModels;
 
 namespace QuizStudyAS.Controllers
 {
     public class StudySetController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IStudySetService _studySetService;
 
-        public StudySetController(AppDbContext context)
+        // Controller CHỈ tiêm Service, tuyệt đối không biết gì về AppDbContext
+        public StudySetController(IStudySetService studySetService)
         {
-            _context = context;
+            _studySetService = studySetService;
         }
 
-        // Hàm hỗ trợ lấy ID của user đang đăng nhập từ Session
-        private string GetCurrentUserId()
+        private string? GetCurrentUserId()
         {
             return HttpContext.Session.GetString("UserId");
         }
@@ -24,14 +22,10 @@ namespace QuizStudyAS.Controllers
         // 1. XEM DANH SÁCH BỘ THẺ CỦA CÁ NHÂN
         public async Task<IActionResult> Index()
         {
-            if (string.IsNullOrEmpty(GetCurrentUserId())) return RedirectToAction("Index", "Home");
-
             var userId = GetCurrentUserId();
-            // Chỉ lấy những bộ thẻ do chính user này tạo
-            var mySets = await _context.StudySets
-                                       .Where(s => s.OwnerUserId == userId)
-                                       .Include(s => s.Flashcards) // Kéo theo số lượng flashcard để hiển thị
-                                       .ToListAsync();
+            if (string.IsNullOrEmpty(userId)) return RedirectToAction("Index", "Home");
+
+            var mySets = await _studySetService.GetStudySetsByUserIdAsync(userId);
             return View(mySets);
         }
 
@@ -41,7 +35,6 @@ namespace QuizStudyAS.Controllers
             if (string.IsNullOrEmpty(GetCurrentUserId())) return RedirectToAction("Index", "Home");
 
             var vm = new CreateStudySetVM();
-            // Khởi tạo sẵn 2 thẻ trống để giao diện trông giống Quizlet
             vm.Flashcards.Add(new FlashcardVM());
             vm.Flashcards.Add(new FlashcardVM());
 
@@ -50,66 +43,38 @@ namespace QuizStudyAS.Controllers
 
         // 3. TẠO MỚI (POST)
         [HttpPost]
-        [ValidateAntiForgeryToken] // Chống tấn công CSRF
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateStudySetVM vm)
         {
-            if (string.IsNullOrEmpty(GetCurrentUserId())) return RedirectToAction("Index", "Home");
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId)) return RedirectToAction("Index", "Home");
 
-            if (!ModelState.IsValid)
-            {
-                return View(vm);
-            }
+            if (!ModelState.IsValid) return View(vm);
 
-            // Lọc bỏ những thẻ bị người dùng để trống cả 2 mặt
-            var validFlashcards = vm.Flashcards
-                                    .Where(f => !string.IsNullOrWhiteSpace(f.Term) && !string.IsNullOrWhiteSpace(f.Definition))
-                                    .ToList();
-
+            var validFlashcards = vm.Flashcards.Where(f => !string.IsNullOrWhiteSpace(f.Term) && !string.IsNullOrWhiteSpace(f.Definition));
             if (!validFlashcards.Any())
             {
                 ModelState.AddModelError("", "Vui lòng nhập ít nhất một thẻ hợp lệ.");
                 return View(vm);
             }
 
-            // Chuyển ViewModel thành Model thực tế để lưu DB
-            var studySet = new StudySet
-            {
-                Title = vm.Title,
-                Description = vm.Description,
-                OwnerUserId = GetCurrentUserId(), // Gắn cờ quyền sở hữu ngay lập tức
-                CreatedAt = DateTime.Now,
-                Flashcards = validFlashcards.Select(f => new Flashcard
-                {
-                    Term = f.Term,
-                    Definition = f.Definition
-                }).ToList()
-            };
-
-            _context.StudySets.Add(studySet);
-            await _context.SaveChangesAsync();
+            // Giao việc cho Service xử lý
+            await _studySetService.CreateStudySetAsync(vm, userId);
 
             return RedirectToAction(nameof(Index));
         }
 
-        // 4. CHỈNH SỬA (GET) - Đổ dữ liệu cũ lên Form
+        // 4. CHỈNH SỬA (GET)
         public async Task<IActionResult> Edit(int id)
         {
             var userId = GetCurrentUserId();
             if (string.IsNullOrEmpty(userId)) return RedirectToAction("Index", "Home");
 
-            var studySet = await _context.StudySets
-                                         .Include(s => s.Flashcards)
-                                         .FirstOrDefaultAsync(s => s.StudySetId == id);
+            var studySet = await _studySetService.GetStudySetByIdAsync(id);
 
             if (studySet == null) return NotFound();
+            if (studySet.OwnerUserId != userId) return RedirectToAction("AccessDenied", "Auth");
 
-            // RÀNG BUỘC BẢO MẬT: Chỉ chủ sở hữu mới được xem form Edit
-            if (studySet.OwnerUserId != userId)
-            {
-                return RedirectToAction("Index", "Home"); // Hoặc đẩy về trang AccessDenied tùy bạn
-            }
-
-            // Chuyển từ Model sang ViewModel để hiển thị lên View
             var vm = new EditStudySetVM
             {
                 Id = studySet.StudySetId,
@@ -125,7 +90,7 @@ namespace QuizStudyAS.Controllers
             return View(vm);
         }
 
-        // 5. CHỈNH SỬA (POST) - Lưu dữ liệu mới xuống DB
+        // 5. CHỈNH SỬA (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, EditStudySetVM vm)
@@ -134,64 +99,44 @@ namespace QuizStudyAS.Controllers
             if (string.IsNullOrEmpty(userId)) return RedirectToAction("Index", "Home");
 
             if (id != vm.Id) return BadRequest();
-
             if (!ModelState.IsValid) return View(vm);
 
-            var existingSet = await _context.StudySets
-                                            .Include(s => s.Flashcards)
-                                            .FirstOrDefaultAsync(s => s.StudySetId == id);
-
-            if (existingSet == null) return NotFound();
-
-            // RÀNG BUỘC BẢO MẬT: Chặn Hacker dùng Postman gửi data lên
-            if (existingSet.OwnerUserId != userId)
-            {
-                return RedirectToAction("Index", "Home");
-            }
-
-            // Lọc thẻ trống
-            var validFlashcards = vm.Flashcards
-                                    .Where(f => !string.IsNullOrWhiteSpace(f.Term) && !string.IsNullOrWhiteSpace(f.Definition))
-                                    .ToList();
-
+            var validFlashcards = vm.Flashcards.Where(f => !string.IsNullOrWhiteSpace(f.Term) && !string.IsNullOrWhiteSpace(f.Definition));
             if (!validFlashcards.Any())
             {
                 ModelState.AddModelError("", "Vui lòng nhập ít nhất một thẻ hợp lệ.");
                 return View(vm);
             }
 
-            // Cập nhật thông tin cơ bản
-            existingSet.Title = vm.Title;
-            existingSet.Description = vm.Description;
+            // Giao việc cho Service xử lý cập nhật
+            var success = await _studySetService.UpdateStudySetAsync(id, vm, userId);
 
-            // Xóa toàn bộ thẻ cũ trong DB và thay bằng danh sách thẻ mới (Cách an toàn và dễ quản lý index nhất)
-            _context.Flashcards.RemoveRange(existingSet.Flashcards);
-
-            existingSet.Flashcards = validFlashcards.Select(f => new Flashcard
-            {
-                Term = f.Term,
-                Definition = f.Definition
-            }).ToList();
-
-            await _context.SaveChangesAsync();
+            if (!success) return RedirectToAction("AccessDenied", "Auth");
 
             return RedirectToAction(nameof(Index));
         }
+
         // 6. CHỨC NĂNG HỌC THẺ (GET)
         public async Task<IActionResult> Details(int id)
         {
-            var studySet = await _context.StudySets
-                                         .Include(s => s.Flashcards)
-                                         .FirstOrDefaultAsync(s => s.StudySetId == id);
-
+            var studySet = await _studySetService.GetStudySetByIdAsync(id);
             if (studySet == null) return NotFound();
-
-            // Mở bình luận dòng dưới nếu bạn chỉ muốn 1 mình chủ sở hữu được xem. 
-            // Còn nếu muốn chia sẻ link cho bạn bè cùng học thì cứ để trống như thế này.
-            // if (studySet.OwnerUserId != GetCurrentUserId()) return RedirectToAction("Index", "Home");
 
             return View(studySet);
         }
-    }
 
+        // 7. API TÌM KIẾM MỜ (AUTO-SUGGESTION)
+        [HttpGet]
+        public async Task<IActionResult> SearchSuggestions(string keyword)
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrWhiteSpace(keyword))
+            {
+                return Json(new List<object>());
+            }
+
+            var suggestions = await _studySetService.SearchSuggestionsAsync(keyword, userId);
+            return Json(suggestions);
+        }
+    }
 }

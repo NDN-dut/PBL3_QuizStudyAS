@@ -1,48 +1,77 @@
-﻿/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+﻿/* Thiết lập khung layout tổng thể */
+body, html {
+    height: 100%;
+    margin: 0;
+    background-color: #f8f9fa;
 }
 
-a {
-  color: #0077cc;
+/* 1. Top Navbar: Ưu tiên chiều rộng 100% */
+.top-navbar {
+    height: 70px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1030;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.app-wrapper {
+    display: flex;
+    margin-top: 70px; /* Đẩy xuống để không bị Navbar đè lên */
+    height: calc(100vh - 70px);
 }
 
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+/* 2. Sidebar: Cố định bên trái bên dưới Navbar */
+#sidebar {
+    width: 80px; /* Thu gọn mặc định */
+    height: 100%;
+    position: fixed;
+    left: 0;
+    transition: width 0.3s ease-in-out;
+    overflow-x: hidden;
+    z-index: 1020;
 }
 
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+    #sidebar.expanded {
+        width: 260px; /* Mở rộng khi bấm nút 3 sọc */
+    }
+
+/* Hiệu ứng ẩn/hiện chữ trong sidebar */
+.sidebar-text {
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+    font-weight: 600;
 }
 
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+#sidebar.expanded .sidebar-text {
+    opacity: 1;
 }
 
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+/* 3. Main Content: Dịch chuyển tương ứng với Sidebar */
+#main-content {
+    flex-grow: 1;
+    margin-left: 80px; /* Khớp với độ rộng sidebar thu gọn */
+    transition: margin-left 0.3s ease-in-out;
+    height: 100%;
+    overflow-y: auto;
 }
 
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+    #main-content.sidebar-expanded {
+        margin-left: 260px; /* Khớp với độ rộng sidebar mở rộng */
+    }
+
+/* Style cho các link điều hướng */
+.sidebar-link {
+    color: #495057;
+    white-space: nowrap;
+}
+
+    .sidebar-link:hover, .sidebar-link.active {
+        background-color: #e9ecef;
+        color: #0d6efd;
+    }
+
+.cursor-pointer {
+    cursor: pointer;
 }

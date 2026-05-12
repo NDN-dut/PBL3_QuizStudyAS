@@ -4,7 +4,7 @@
     {
         public int StudySetId { get; set; }
         public string Title { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         public string OwnerUserId { get; set; } // Khóa ngoại tới ApplicationUser
         public int? ClassroomId { get; set; } // Dấu '?' nghĩa là có thể Null (Nullable)
