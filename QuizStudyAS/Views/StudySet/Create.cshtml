@@ -29,8 +29,25 @@
                 </div>
             </div>
         </div>
+        <!-- BẮT ĐẦU: THANH TÌM KIẾM TRONG BỘ THẺ -->
+        <div class="row mb-4 justify-content-end">
+            <div class="col-md-5">
+                <div class="input-group shadow-sm rounded-pill overflow-hidden border">
+                    <span class="input-group-text bg-light border-0 text-muted ps-3">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" id="local-search-input" class="form-control border-0 bg-light shadow-none" placeholder="Tìm thuật ngữ hoặc định nghĩa trong bộ này..." autocomplete="off">
+                    <!-- Nút X (Clear) để xóa nhanh tìm kiếm -->
+                    <button class="btn btn-light border-0 text-muted pe-3 d-none" type="button" id="btn-clear-search">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- KẾT THÚC: THANH TÌM KIẾM -->
 
         <div id="flashcards-container">
+            <!-- Danh sách thẻ của bạn đang nằm ở đây -->
             @for (int i = 0; i < Model.Flashcards.Count; i++)
             {
                 <div class="card border-0 shadow-sm mb-3 flashcard-item">
@@ -235,8 +252,96 @@
                     }
                 });
             }
+            // 5. Logic Đọc file CSV
+            const fileInput = document.getElementById('import-file');
+            if (fileInput) {
+                fileInput.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    // Kiểm tra xem có đúng đuôi .csv không
+                    if (!file.name.endsWith('.csv')) {
+                        alert("Vui lòng chọn file có định dạng .csv!");
+                        fileInput.value = ''; // Reset ô chọn file
+                        return;
+                    }
+
+                    const reader = new FileReader();
+            
+                    // Hàm này sẽ chạy sau khi đọc file xong
+                    reader.onload = function (event) {
+                        const fileContent = event.target.result;
+                
+                        // Đổ toàn bộ nội dung file vào ô Textarea
+                        document.getElementById('import-text').value = fileContent;
+                
+                        // Chuẩn của file CSV là ngăn cách bằng dấu phẩy (,),
+                        // nên ta tự động đổi Ký tự ngăn cách thành dấu phẩy cho người dùng
+                        document.getElementById('import-separator').value = ',';
+                
+                        // Mẹo UX: Cuộn xuống ô textarea để người dùng thấy dữ liệu đã được tải lên
+                        document.getElementById('import-text').scrollIntoView({ behavior: 'smooth' });
+                    };
+
+                    // Tiến hành đọc file dưới dạng văn bản
+                    reader.readAsText(file);
+                });
+            }
+            // --- BẮT ĐẦU LOGIC TÌM KIẾM (LỌC) THẺ ---
+            const localSearchInput = document.getElementById('local-search-input');
+            const btnClearSearch = document.getElementById('btn-clear-search');
+
+            if (localSearchInput) {
+                // Lắng nghe sự kiện mỗi khi người dùng gõ phím
+                localSearchInput.addEventListener('input', function () {
+                    const keyword = this.value.toLowerCase().trim();
+                    const allCards = container.querySelectorAll('.flashcard-item');
+
+                    // Ẩn/Hiện nút X (Clear)
+                    if (keyword.length > 0) {
+                        btnClearSearch.classList.remove('d-none');
+                    } else {
+                        btnClearSearch.classList.add('d-none');
+                    }
+
+                    // Quét qua từng thẻ để kiểm tra xem có khớp chữ không
+                    allCards.forEach(card => {
+                        const termInput = card.querySelector('[name$=".Term"]');
+                        const defInput = card.querySelector('[name$=".Definition"]');
+                
+                        let isMatch = false;
+
+                        // Lấy nội dung đang có trong ô nhập liệu (nếu có)
+                        if (termInput && termInput.value.toLowerCase().includes(keyword)) {
+                            isMatch = true;
+                        }
+                        if (defInput && defInput.value.toLowerCase().includes(keyword)) {
+                            isMatch = true;
+                        }
+
+                        // Nếu khớp chữ HOẶC nếu thanh tìm kiếm đang trống -> Hiện thẻ
+                        // Nếu không khớp -> Ẩn thẻ (dùng class d-none của Bootstrap)
+                        if (isMatch || keyword === '') {
+                            card.classList.remove('d-none');
+                        } else {
+                            card.classList.add('d-none');
+                        }
+                    });
+                });
+
+                // Xử lý khi bấm nút X (Xóa tìm kiếm)
+                if (btnClearSearch) {
+                    btnClearSearch.addEventListener('click', function () {
+                        localSearchInput.value = ''; // Xóa chữ
+                        localSearchInput.dispatchEvent(new Event('input')); // Kích hoạt lại hàm tìm kiếm để hiện tất cả thẻ
+                        localSearchInput.focus(); // Đưa con trỏ chuột quay lại ô tìm kiếm
+                    });
+                }
+            }
+            // --- KẾT THÚC LOGIC TÌM KIẾM ---
         });
     </script>
+    <!-- BẮT ĐẦU: MODAL NHẬP LIỆU NHANH & CSV -->
     <div class="modal fade" id="bulkImportModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content border-0 shadow">
@@ -246,19 +351,24 @@
                 </div>
                 <div class="modal-body p-4">
                     <p class="text-muted small mb-4">
-                        Nhập dữ liệu của bạn vào bên dưới. Mỗi thẻ nằm trên một dòng. Thuật ngữ và định nghĩa được phân cách bởi một ký tự do bạn chọn.
+                        Nhập dữ liệu của bạn vào bên dưới, hoặc tải lên file <strong>.csv</strong>. Mỗi thẻ nằm trên một dòng.
                     </p>
                 
-                    <div class="row mb-3">
-                        <div class="col-md-5">
+                    <div class="row mb-3 align-items-end">
+                        <div class="col-md-4">
                             <label class="form-label text-muted small fw-bold text-uppercase">Ký tự ngăn cách</label>
-                            <input type="text" id="import-separator" class="form-control fw-bold" value=":" placeholder="Ví dụ: : hoặc - hoặc =" maxlength="5" />
+                            <input type="text" id="import-separator" class="form-control fw-bold" value=":" placeholder="Ví dụ: : hoặc ," maxlength="5" />
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label text-muted small fw-bold text-uppercase">Tải lên file .CSV</label>
+                            <input class="form-control border-primary" type="file" id="import-file" accept=".csv">
                         </div>
                     </div>
                 
                     <div class="mb-3">
                         <label class="form-label text-muted small fw-bold text-uppercase">Dữ liệu văn bản</label>
-                        <textarea id="import-text" class="form-control bg-light" rows="10" placeholder="dog : con chó&#10;cat : con mèo&#10;bird : con chim"></textarea>
+                        
+                        <textarea id="import-text" class="form-control bg-light" rows="10" placeholder="dog : con chó&#10;cat : con mèo"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-0 bg-light">
@@ -268,4 +378,5 @@
             </div>
         </div>
     </div>
+    <!-- KẾT THÚC: MODAL -->
 }

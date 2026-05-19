@@ -21,6 +21,9 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 // Đăng ký dịch vụ gửi Email
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+// Đăng ký StudySet Service
+builder.Services.AddScoped<IStudySetService, StudySetService>();
+
 // 1. ĐĂNG KÝ DỊCH VỤ SESSION (Thêm đoạn này)
 builder.Services.AddDistributedMemoryCache(); // Bộ nhớ tạm để lưu Session
 builder.Services.AddSession(options =>
@@ -50,8 +53,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
     });
 
-builder.Services.AddScoped<IFindClassRoomService, FindClassRoomService>();
-builder.Services.AddScoped<IClassroomRequestService, ClassroomRequestService>();
+builder.Services.AddScoped<IClassRoomServices, ClassRoomServices>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

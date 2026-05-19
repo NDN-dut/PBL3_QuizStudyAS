@@ -7,6 +7,21 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">Học phần của bạn</h2>
+        <!-- BẮT ĐẦU: THANH TÌM KIẾM MỜ -->
+        <div class="position-relative mb-4 mx-auto" style="max-width: 600px;">
+            <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden border">
+                <span class="input-group-text bg-white border-0 text-muted ps-4">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" id="search-input" class="form-control border-0 shadow-none fs-6" placeholder="Tìm kiếm bộ thẻ theo tên..." autocomplete="off">
+            </div>
+    
+            <!-- Hộp chứa gợi ý (Mặc định ẩn) -->
+            <ul id="search-suggestions" class="list-group position-absolute w-100 shadow-lg mt-2 rounded-3 d-none border-0" style="z-index: 1000; max-height: 350px; overflow-y: auto;">
+                <!-- Javascript sẽ nhét kết quả vào đây -->
+            </ul>
+        </div>
+        <!-- KẾT THÚC: THANH TÌM KIẾM MỜ -->
         <a asp-action="Create" class="btn btn-primary fw-bold">
             <i class="bi bi-plus-lg"></i> Tạo bộ thẻ mới
         </a>
@@ -54,3 +69,82 @@
         transition: all 0.3s ease;
     }
 </style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('search-input');
+            const suggestionsBox = document.getElementById('search-suggestions');
+            let debounceTimer; // Dùng để trì hoãn việc gọi API liên tục
+
+            searchInput.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+                const keyword = this.value.trim();
+
+                // Nếu xóa hết chữ thì ẩn hộp gợi ý
+                if (keyword.length === 0) {
+                    suggestionsBox.classList.add('d-none');
+                    return;
+                }
+
+                // Debounce 300ms: Chỉ gọi Server khi người dùng đã ngừng gõ 0.3 giây
+                debounceTimer = setTimeout(() => {
+                    fetch(`/StudySet/SearchSuggestions?keyword=${encodeURIComponent(keyword)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            suggestionsBox.innerHTML = ''; // Xóa kết quả cũ
+                            
+                            if (data.length > 0) {
+                                // Vẽ danh sách kết quả mới
+                                data.forEach(item => {
+                                    const li = document.createElement('li');
+                                    li.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 border-bottom';
+                                    li.style.cursor = 'pointer';
+                                    
+                                    // Highlight đoạn chữ khớp với từ khóa
+                                    const highlightedTitle = highlightFuzzy(item.title, keyword);
+
+                                    li.innerHTML = `
+                                        <div class="fw-bold text-dark">${highlightedTitle}</div>
+                                        <span class="badge bg-light text-secondary rounded-pill border">${item.cardCount} thẻ</span>
+                                    `;
+                                    
+                                    // Bấm vào gợi ý -> Bay thẳng vào trang Học
+                                    li.addEventListener('click', () => {
+                                        window.location.href = `/StudySet/Details/${item.id}`;
+                                    });
+                                    
+                                    suggestionsBox.appendChild(li);
+                                });
+                                suggestionsBox.classList.remove('d-none');
+                            } else {
+                                // Không tìm thấy
+                                suggestionsBox.innerHTML = '<li class="list-group-item text-muted py-3 text-center border-0"><i>Không tìm thấy học phần nào khớp...</i></li>';
+                                suggestionsBox.classList.remove('d-none');
+                            }
+                        });
+                }, 300);
+            });
+
+            // Hàm làm nổi bật (Bôi xanh) các từ khóa được tìm thấy
+            function highlightFuzzy(text, keyword) {
+                const words = keyword.trim().split(/\s+/);
+                let highlightedText = text;
+                words.forEach(w => {
+                    if (w) {
+                        const regex = new RegExp(`(${w})`, 'gi');
+                        highlightedText = highlightedText.replace(regex, '<span class="text-primary fw-bolder">$1</span>');
+                    }
+                });
+                return highlightedText;
+            }
+
+            // Click ra ngoài khoảng trống thì tự động ẩn hộp gợi ý
+            document.addEventListener('click', function (e) {
+                if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                    suggestionsBox.classList.add('d-none');
+                }
+            });
+        });
+    </script>
+}
