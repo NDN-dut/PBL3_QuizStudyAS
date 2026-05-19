@@ -13,28 +13,55 @@ namespace QuizStudyAS.Services
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
-        }
-        public async Task<ShowClassRoom> FindClassRoomByName(string NameClass)
-        {
             
+        }
+        public async Task<ListShowClassRoomVM> FindClassRoomByName(string NameClass)
+        {
+            AdditionAlgrothim AddAl = new AdditionAlgrothim(_context);
             string currentUserId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
 
-            var classroom = await _context.Classrooms
-                .Where(p => p.ClassName == NameClass)
+            var allClassBasicInfo = await _context.Classrooms
+                                .Select(c => new { c.ClassroomId, c.ClassName })
+                                .ToListAsync();
+
+            // BƯỚC 2: Chạy Levenshtein trên RAM để lấy ra 5 ID có độ lệch thấp nhất
+            var nameToSearch = NameClass.ToLower();
+
+            var top5Ids = allClassBasicInfo
+                .OrderBy(c => AddAl.DistanceLevenshtein(c.ClassName.ToLower(), nameToSearch))
+                .Take(5)
+                .Select(c => c.ClassroomId)
+                .ToList();
+
+            // Nếu không tìm thấy gì (DB rỗng)
+            if (!top5Ids.Any()) return new ListShowClassRoomVM();
+
+            // BƯỚC 3: Lấy chi tiết 5 lớp học dựa trên 5 cái ID vừa tìm được (Giữ nguyên cấu trúc Select của bạn)
+            var top5Classrooms = await _context.Classrooms
+                .Where(p => top5Ids.Contains(p.ClassroomId)) 
                 .Select(p => new ShowClassRoom
                 {
                     ClassName = p.ClassName,
                     Link = p.InviteCode,
                     OwnerName = p.OwnerUser.UserName,
-                    // 3. Truyền biến string vào đây để so sánh string == string
-                    Status_Class =  p.JoinRequests
+                    // Vẫn lấy Status bình thường dựa vào currentUserId
+                    Status_Class = p.JoinRequests
                                     .Where(r => r.UserId == currentUserId)
                                     .Select(r => r.Status)
                                     .FirstOrDefault()
                 })
-                .FirstOrDefaultAsync();
-
-            return classroom;
+                .ToListAsync(); // Sửa FirstOrDefaultAsync thành ToListAsync vì giờ là lấy 1 list
+            
+            // BƯỚC 4: (Quan trọng) Sắp xếp lại thứ tự list cuối cùng 
+            // Vì toán tử .Contains(ID) của SQL không đảm bảo trả về đúng thứ tự độ lệch Levenshtein
+            var finalResult = top5Classrooms
+                .OrderBy(p => AddAl.DistanceLevenshtein(p.ClassName.ToLower(), nameToSearch))
+                .ToList();
+            var data = new ListShowClassRoomVM()
+            {
+                ListClassRoom = top5Classrooms
+            };
+            return data;
         }
 
         public async Task CreateRequest(string ClassName)
@@ -167,11 +194,13 @@ namespace QuizStudyAS.Services
                     ClassName = e.ClassName,
                     OwnerName = e.OwnerUser.UserName,
                     ClassCode = LinkLop,
-                    StudySets = e.StudySets.Select(s => new StudySetItemVM
-                    {
-                        StudySetId = s.StudySetId,
-                        Title = s.Title
-                    }).ToList()
+                    StudySets = e.Materials.
+                                Where(s => s.Status == "AVAILABLE").
+                                Select(k => new StudySetItemVM
+                                {
+                                    StudySetId = k.StudySetId,
+                                    Title = k.StudySet.Title
+                                }).ToList()
                 }).FirstOrDefaultAsync();
             return ClassRoomDetailData;
         }

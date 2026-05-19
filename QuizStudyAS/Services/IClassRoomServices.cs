@@ -4,7 +4,7 @@ namespace QuizStudyAS.Services
 {
     public interface IClassRoomServices
     {
-        public Task<ShowClassRoom> FindClassRoomByName(string NameClass);
+        public Task<ListShowClassRoomVM> FindClassRoomByName(string NameClass);
         public Task CreateRequest(string ClassName);
         public Task<YourClassVM> GetYourClass();
         public Task<ListRequestJoinVM> GetJoinVMs();
