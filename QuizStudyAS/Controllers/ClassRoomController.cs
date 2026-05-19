@@ -57,5 +57,11 @@ namespace QuizStudyAS.Controllers
             await _ClassRoomServices.CreateClassRoom(ClassName);
             return RedirectToAction("YourClass", "ClassRoom");
         }
+        public async Task<IActionResult> ClassRoomDetail(string LinkLop)
+        {
+            var ClassRoomDetailData = await _ClassRoomServices.GetClassRoomDetail(LinkLop);
+            
+            return View(ClassRoomDetailData);
+        }
     }
 }

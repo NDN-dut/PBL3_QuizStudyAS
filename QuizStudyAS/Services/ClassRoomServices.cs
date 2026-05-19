@@ -158,5 +158,22 @@ namespace QuizStudyAS.Services
 
             return newLink;
         }
+        public async Task<ClassRoomDetailVM> GetClassRoomDetail(string LinkLop)
+        {
+            var ClassRoomDetailData = await _context.Classrooms
+                .Where(c => c.InviteCode == LinkLop)
+                .Select(e => new ClassRoomDetailVM
+                {
+                    ClassName = e.ClassName,
+                    OwnerName = e.OwnerUser.UserName,
+                    ClassCode = LinkLop,
+                    StudySets = e.StudySets.Select(s => new StudySetItemVM
+                    {
+                        StudySetId = s.StudySetId,
+                        Title = s.Title
+                    }).ToList()
+                }).FirstOrDefaultAsync();
+            return ClassRoomDetailData;
+        }
     }
 }
