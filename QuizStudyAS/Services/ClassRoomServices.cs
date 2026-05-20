@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
 using QuizStudyAS.Models;
 using QuizStudyAS.ViewModels;
@@ -203,6 +204,41 @@ namespace QuizStudyAS.Services
                                 }).ToList()
                 }).FirstOrDefaultAsync();
             return ClassRoomDetailData;
+        }
+        public async Task<bool> AddStudySet(string ClassCode, int StudySetId)
+        {
+            
+            int Classid = await _context.Classrooms.Where(c=>c.InviteCode == ClassCode)
+                                                   .Select(c=>c.ClassroomId).FirstOrDefaultAsync();
+            if (await CheckAuthorityClass(Classid) == false)
+            {
+                return false;
+            }
+            var record = await _context.ClassRoomMaterials.FirstOrDefaultAsync(e => e.ClassRoomId == Classid && e.StudySetId == StudySetId);
+            
+            if (record!=null)
+            {
+                record.Status = "AVAILABLE";
+            }
+            else
+            {
+                await _context.ClassRoomMaterials.AddAsync(new ClassRoomMaterial
+                {
+                    StudySetId = StudySetId,
+                    ClassRoomId = Classid,
+                    Status = "AVAILABLE"
+                    
+                });
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> CheckAuthorityClass(int ClassId)
+        {
+            string CurrentUserId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            string OwnerClassId = await _context.Classrooms.Where(c=>c.ClassroomId== ClassId)
+                                  .Select(c=>c.OwnerUserId).FirstOrDefaultAsync();
+            return CurrentUserId == OwnerClassId;
         }
     }
 }

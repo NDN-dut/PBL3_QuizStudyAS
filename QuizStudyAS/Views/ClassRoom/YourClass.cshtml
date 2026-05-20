@@ -223,6 +223,7 @@
         border: 1px solid #2e3856;
         z-index: 1000;
         /* Hiệu ứng xuất hiện */
+        pointer-events: auto;
         opacity: 1;
         visibility: visible;
         transition: all 0.2s ease-out;
@@ -300,20 +301,20 @@
                 
                 // TRƯỜNG HỢP 1: Người dùng bấm trúng cái nút "Tạo lớp học mới"
                 if (btnToggle.contains(e.target)) {
-                    popover.classList.toggle('hidden'); // Bật/tắt
                     
+                    popover.classList.remove('hidden');
                     if (!popover.classList.contains('hidden')) {
                         setTimeout(() => inputName.focus(), 100);
                     }
-                    return; // Dừng code tại đây
+                    
+                    return;
                 }
-
-
+                if(popover.contains(e.target)){
+                    return;
+                }
                 // TRƯỜNG HỢP 2: Người dùng bấm RA NGOÀI (Không trúng nút, không trúng popover)
-                if (!popover.classList.contains('hidden')) {
-                    popover.classList.add('hidden'); // Đóng popup
-                    
-                    
+                if(!btnToggle.contains(e.target) && !popover.contains(e.target)){
+                    popover.classList.add('hidden');
                 }
             });
 

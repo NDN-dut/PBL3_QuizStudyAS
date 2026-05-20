@@ -137,5 +137,11 @@ namespace QuizStudyAS.Controllers
             var suggestions = await _studySetService.SearchSuggestionsAsync(keyword, userId);
             return Json(suggestions);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetMyStudySetsForClass(string ClassCode)
+        {
+            List<StudySetItemVM> result = await _studySetService.GetStudySetForClass(ClassCode);
+            return Json(result);
+        }
     }
 }

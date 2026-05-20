@@ -1,4 +1,5 @@
-﻿using QuizStudyAS.ViewModels;
+﻿using Microsoft.AspNetCore.Mvc;
+using QuizStudyAS.ViewModels;
 
 namespace QuizStudyAS.Services
 {
@@ -13,5 +14,7 @@ namespace QuizStudyAS.Services
         public Task CreateClassRoom(string ClassName);
         public Task<string> CreateUniqueLink();
         public Task<ClassRoomDetailVM> GetClassRoomDetail(string LinkLop);
+        public Task<bool> AddStudySet(string ClassCode, int ClassRoomId);
+        public Task<bool> CheckAuthorityClass(int ClassId);
     }
 }

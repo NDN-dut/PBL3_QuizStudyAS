@@ -63,5 +63,19 @@ namespace QuizStudyAS.Controllers
             
             return View(ClassRoomDetailData);
         }
+        [HttpPost]
+        public async Task<IActionResult> AddStudySetToClass(string classCode,int studySetId)
+        {
+            bool result = await _ClassRoomServices.AddStudySet(classCode, studySetId);
+            if(result == true)
+            {
+                return Json(new { success = true });
+            }
+            else
+            {
+                return Json(new { success = false });
+            }
+            
+        }
     }
 }
