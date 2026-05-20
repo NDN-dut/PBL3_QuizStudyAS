@@ -14,7 +14,8 @@ namespace QuizStudyAS.Services
         public Task CreateClassRoom(string ClassName);
         public Task<string> CreateUniqueLink();
         public Task<ClassRoomDetailVM> GetClassRoomDetail(string LinkLop);
-        public Task<bool> AddStudySet(string ClassCode, int ClassRoomId);
+        public Task<bool> AddStudySet(string ClassCode, int StudySetId);
+        public Task<bool> DeleteStudySet(string ClassCode, int StudySetId);
         public Task<bool> CheckAuthorityClass(int ClassId);
     }
 }

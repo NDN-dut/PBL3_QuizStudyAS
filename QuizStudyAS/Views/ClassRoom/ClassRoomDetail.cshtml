@@ -40,7 +40,7 @@
                         <div class="set-icon">
                             <i class="fas fa-clone"></i>
                         </div>
-                        <button class="btn-delete-card" data-url="/ClassRoom/Delete" data-id="@set.StudySetId" title="Xóa học phần này">
+                        <button class="btn-delete-card" data-url="/ClassRoom/DeleteStudySetOfClass" data-id="@set.StudySetId" title="Xóa học phần này">
                             <i class="fas fa-times">x</i>
                         </button>
                     </a>
@@ -167,18 +167,18 @@
                     if (!isConfirm) return;
 
                     const url = this.getAttribute('data-url');
-                    const id = this.getAttribute('data-id');
+                    const studysetid = this.getAttribute('data-id');
 
                     try {
                         const formData = new FormData();
-                        formData.append('id', id);
+                        formData.append('studysetid', studysetid);
                         // Cần gửi thêm ClassCode hoặc ClassId để Backend biết xóa ở lớp nào
                         formData.append('classCode', '@Model.ClassCode'); 
 
                         const response = await fetch(url, { method: 'POST', body: formData });
                         const result = await response.json();
 
-                        if (result.success) {
+                        if (result.success == true) {
                             // SỬA: Tìm thẻ a (studyset-card) bọc ngoài cùng thay vì .card-link-wrapper
                             const cardWrapper = this.closest('.studyset-card'); 
                             if(cardWrapper) {
@@ -187,7 +187,7 @@
                                 setTimeout(() => cardWrapper.remove(), 300);
                             }
                         } else {
-                            alert('Lỗi: ' + (result.message || 'Không thể xóa!'));
+                            alert('Lỗi: ' + (result.message || 'bạn không phải chủ lớp này!'));
                         }
                     } catch (error) {
                         console.error('Lỗi kết nối:', error);

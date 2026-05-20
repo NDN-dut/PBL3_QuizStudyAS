@@ -233,6 +233,23 @@ namespace QuizStudyAS.Services
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<bool> DeleteStudySet(string ClassCode, int StudySetId)
+        {
+            int Classid = await _context.Classrooms.Where(c => c.InviteCode == ClassCode)
+                                                   .Select(c => c.ClassroomId).FirstOrDefaultAsync();
+            if (await CheckAuthorityClass(Classid) == false)
+            {
+                return false;
+            }
+            var record = await _context.ClassRoomMaterials.FirstOrDefaultAsync(e => e.ClassRoomId == Classid && e.StudySetId == StudySetId);
+
+            if (record != null)
+            {
+                record.Status = "DELETE";
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
         public async Task<bool> CheckAuthorityClass(int ClassId)
         {
             string CurrentUserId = _httpContextAccessor.HttpContext.Session.GetString("UserId");

@@ -77,5 +77,18 @@ namespace QuizStudyAS.Controllers
             }
             
         }
+        [HttpPost]
+        public async Task<IActionResult> DeleteStudySetOfClass (string classCode, int studysetid)
+        {
+            bool result = await _ClassRoomServices.DeleteStudySet(classCode, studysetid);
+            if (result == true)
+            {
+                return Json(new { success = true });
+            }
+            else
+            {
+                return Json(new { success = false });
+            }
+        }
     }
 }
