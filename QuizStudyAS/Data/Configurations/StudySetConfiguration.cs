@@ -19,11 +19,7 @@ namespace QuizStudyAS.Data.Configurations
                    .HasForeignKey(s => s.OwnerUserId)
                    .OnDelete(DeleteBehavior.Restrict); // Dùng Restrict để tránh lỗi đa luồng xóa
 
-            // Liên kết với Classroom (Tùy chọn)
-            builder.HasOne(s => s.Classroom)
-                   .WithMany(c => c.StudySets)
-                   .HasForeignKey(s => s.ClassroomId)
-                   .OnDelete(DeleteBehavior.SetNull); // Nếu lớp bị xóa, bộ thẻ văng ra ngoài thành thẻ cá nhân
+            
         }
     }
 }

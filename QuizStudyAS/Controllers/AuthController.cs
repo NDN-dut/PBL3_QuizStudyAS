@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.Services;
 using QuizStudyAS.ViewModels;
 
+
 namespace QuizStudyAS.Controllers
 {
     public class AuthController : Controller

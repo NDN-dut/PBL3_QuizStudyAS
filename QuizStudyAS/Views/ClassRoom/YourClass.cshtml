@@ -9,10 +9,13 @@
         <div class="classroom-grid">
             @foreach (var cls in Model.JoinedClasses)
             {
-                <div class="class-card-simple">
-                    <h3 class="class-name-simple">@cls.ClassName</h3>
+                <a asp-controller="ClassRoom" asp-action="ClassRoomDetail" asp-route-LinkLop ="@cls.Link" method="get" style="text-decoration:none">
+                    <div class="class-card-simple">
+                        <h3 class="class-name-simple">@cls.ClassName</h3>
                     
-                </div>
+                    </div>
+                </a>
+                
             }
         </div>
     }
@@ -32,9 +35,12 @@
         <div class="classroom-grid">
             @foreach (var cls in Model.MyClasses)
             {
-                <div class="class-card-simple my-own-class">
-                    <h3 class="class-name-simple">@cls.ClassName</h3>
-                </div>
+                <a asp-controller="ClassRoom" asp-action="ClassRoomDetail" asp-route-LinkLop="@cls.Link" method="get" style="text-decoration:none">
+                    <div class="class-card-simple my-own-class">
+                        <h3 class="class-name-simple">@cls.ClassName</h3>
+                    </div>
+                </a>
+                
             }
         </div>
     }
@@ -217,6 +223,7 @@
         border: 1px solid #2e3856;
         z-index: 1000;
         /* Hiệu ứng xuất hiện */
+        pointer-events: auto;
         opacity: 1;
         visibility: visible;
         transition: all 0.2s ease-out;
@@ -281,7 +288,7 @@
             }
 </style>
 
-@section Scripts{
+@section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const btnToggle = document.getElementById('btnToggleCreate');
@@ -289,37 +296,35 @@
             const inputName = document.getElementById('inputClassName');
             const btnSubmit = document.getElementById('btnSubmitCreate');
 
-            // 1. Bật/Tắt Popover
-            btnToggle.addEventListener('click', function (e) {
-                e.stopPropagation();
-                popover.classList.toggle('hidden');
-                
-                // Focus con trỏ chuột vào ô nhập
-                if (!popover.classList.contains('hidden')) {
-                    setTimeout(() => inputName.focus(), 100);
-                }
-            });
-
-            // 2. Click ra ngoài thì đóng
+            // GỘP CHUNG THÀNH 1 LÍNH GÁC DUY NHẤT (Không dùng stopPropagation nữa)
             document.addEventListener('click', function (e) {
-                if (!popover.contains(e.target) && !popover.classList.contains('hidden')) {
+                
+                // TRƯỜNG HỢP 1: Người dùng bấm trúng cái nút "Tạo lớp học mới"
+                if (btnToggle.contains(e.target)) {
+                    
+                    popover.classList.remove('hidden');
+                    if (!popover.classList.contains('hidden')) {
+                        setTimeout(() => inputName.focus(), 100);
+                    }
+                    
+                    return;
+                }
+                if(popover.contains(e.target)){
+                    return;
+                }
+                // TRƯỜNG HỢP 2: Người dùng bấm RA NGOÀI (Không trúng nút, không trúng popover)
+                if(!btnToggle.contains(e.target) && !popover.contains(e.target)){
                     popover.classList.add('hidden');
-                    inputNamevalue = "";
                 }
             });
 
-            // 3. Không đóng khi click bên trong
-            popover.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-
-            // 4. Validate bật nút "Tạo lớp"
+            // Validate bật nút "Tạo lớp" (Giữ nguyên)
             inputName.addEventListener('input', function () {
-                    if (inputName.value.trim().length > 0) {
-                        btnSubmit.classList.add('active'); // Thêm class này là CSS tự mở khóa click
-                    } else {
-                        btnSubmit.classList.remove('active'); // Xóa đi là CSS tự khóa lại
-                    }
+                if (inputName.value.trim().length > 0) {
+                    btnSubmit.classList.add('active');
+                } else {
+                    btnSubmit.classList.remove('active');
+                }
             });
         });
     </script>

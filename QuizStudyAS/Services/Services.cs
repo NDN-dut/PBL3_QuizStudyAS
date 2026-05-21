@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
 using QuizStudyAS.Models;
 using QuizStudyAS.ViewModels;
@@ -8,11 +9,13 @@ namespace QuizStudyAS.Services
     public class StudySetService : IStudySetService
     {
         private readonly AppDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         // Tầng Service MỚI LÀ NƠI được phép tiêm AppDbContext
-        public StudySetService(AppDbContext context)
+        public StudySetService(AppDbContext context,IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<List<StudySet>> GetStudySetsByUserIdAsync(string userId)
@@ -103,6 +106,20 @@ namespace QuizStudyAS.Services
                 })
                 .Take(5)
                 .ToListAsync();
+        }
+        public async Task<List<StudySetItemVM>> GetStudySetForClass(string ClassCode)
+        {
+            var ClassId = await _context.Classrooms.Where(c=>c.InviteCode == ClassCode).Select(c=>c.ClassroomId).FirstOrDefaultAsync();
+            string CurrentUserId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            var MyStudySet = await _context.StudySets.Where(s => s.OwnerUserId == CurrentUserId)
+                                                            .Select(s => new StudySetItemVM
+                                                            {
+                                                                StudySetId = s.StudySetId,
+                                                                Title = s.Title,
+                                                                Status = s.MaterialsOf.Where(e => e.ClassRoomId == ClassId).Select(e => e.Status).FirstOrDefault() ?? "NOT_ADD"
+                                                            })
+                                                            .ToListAsync();
+            return MyStudySet;
         }
     }
 }

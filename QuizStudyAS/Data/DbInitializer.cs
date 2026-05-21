@@ -37,10 +37,10 @@ namespace QuizStudyAS.Data
             // --- 2. KHỞI TẠO LỚP HỌC (Classroom) ---
             var classrooms = new Classroom[]
             {
-                new Classroom { ClassName = "Lớp Kiến trúc Phần mềm (OOP/GRASP)", InviteCode = "GRASP2026", OwnerUserId = users[0].Id },
-                new Classroom { ClassName = "Lớp Mạng Máy Tính Cơ Bản", InviteCode = "NET2026", OwnerUserId = users[0].Id },
-                new Classroom { ClassName = "CLB Lịch sử & Chiến thuật", InviteCode = "HIS2026", OwnerUserId = users[1].Id },
-                new Classroom { ClassName = "Ôn thi JLPT N3 Cấp tốc", InviteCode = "N3PASS", OwnerUserId = users[3].Id }
+                new Classroom { ClassName = "Lớp Kiến trúc Phần mềm (OOP/GRASP)", InviteCode = "GRASP2026", OwnerUserId = users[0].Id ,IsActive = true},
+                new Classroom { ClassName = "Lớp Mạng Máy Tính Cơ Bản", InviteCode = "NET2026", OwnerUserId = users[0].Id,IsActive = true },
+                new Classroom { ClassName = "CLB Lịch sử & Chiến thuật", InviteCode = "HIS2026", OwnerUserId = users[1].Id,IsActive = true },
+                new Classroom { ClassName = "Ôn thi JLPT N3 Cấp tốc", InviteCode = "N3PASS", OwnerUserId = users[3].Id,IsActive = true }
             };
             context.Classrooms.AddRange(classrooms);
             context.SaveChanges();
@@ -61,14 +61,15 @@ namespace QuizStudyAS.Data
             context.SaveChanges();
 
             // --- 4. KHỞI TẠO BỘ THẺ (StudySet) ---
-            var studySets = new StudySet[]
+            var studySets = new List<StudySet>
             {
-                new StudySet { Title = "Nguyên lý GRASP & OOP", Description = "Information Expert, Creator, Controller...", OwnerUserId = users[0].Id, ClassroomId = classrooms[0].ClassroomId },
-                new StudySet { Title = "Kiến trúc .NET Core", Description = "3-Layer, Dependency Injection, Repository Pattern", OwnerUserId = users[0].Id, ClassroomId = classrooms[0].ClassroomId },
-                new StudySet { Title = "Giao thức & Subnetting", Description = "OSPF, RIP, VLSM cơ bản", OwnerUserId = users[0].Id, ClassroomId = classrooms[1].ClassroomId },
-                new StudySet { Title = "Vũ khí & Đơn vị Cổ đại", Description = "La Mã, Ottoman, Ba Lan, Đại Việt", OwnerUserId = users[1].Id, ClassroomId = classrooms[2].ClassroomId },
-                new StudySet { Title = "Từ vựng JLPT N3 - Tuần 1", Description = "Kanji và cách đọc phổ biến", OwnerUserId = users[3].Id, ClassroomId = classrooms[3].ClassroomId }
+                new StudySet {  Title = "Nguyên lý GRASP & OOP", Description = "Information Expert, Creator, Controller...", OwnerUserId = users[0].Id },
+                new StudySet {  Title = "Kiến trúc .NET Core", Description = "3-Layer, Dependency Injection, Repository Pattern", OwnerUserId = users[0].Id },
+                new StudySet {  Title = "Giao thức & Subnetting", Description = "OSPF, RIP, VLSM cơ bản", OwnerUserId = users[0].Id },
+                new StudySet {  Title = "Vũ khí & Đơn vị Cổ đại", Description = "La Mã, Ottoman, Ba Lan, Đại Việt", OwnerUserId = users[1].Id },
+                new StudySet {  Title = "Từ vựng JLPT N3 - Tuần 1", Description = "Kanji và cách đọc phổ biến", OwnerUserId = users[3].Id }
             };
+
             context.StudySets.AddRange(studySets);
             context.SaveChanges();
 
@@ -148,6 +149,25 @@ namespace QuizStudyAS.Data
                 new RequestJoinClass { ClassroomId = classrooms[3].ClassroomId, UserId = users[2].Id, Status = "APPROVED" }
             };
             context.RequestJoinClasses.AddRange(ListRequest);
+            context.SaveChanges();
+
+            var materials = new ClassRoomMaterial[]
+            {
+                // Ghép vào classrooms[0]
+                new ClassRoomMaterial { ClassRoomId = classrooms[0].ClassroomId, StudySetId = studySets[0].StudySetId, Status = "AVAILABLE" },
+                new ClassRoomMaterial { ClassRoomId = classrooms[0].ClassroomId, StudySetId = studySets[1].StudySetId, Status = "AVAILABLE" },
+    
+                // Ghép vào classrooms[1]
+                new ClassRoomMaterial { ClassRoomId = classrooms[1].ClassroomId, StudySetId = studySets[2].StudySetId, Status = "AVAILABLE" },
+    
+                // Ghép vào classrooms[2]
+                new ClassRoomMaterial { ClassRoomId = classrooms[2].ClassroomId, StudySetId = studySets[3].StudySetId, Status = "AVAILABLE" },
+    
+                // Ghép vào classrooms[3]
+                new ClassRoomMaterial { ClassRoomId = classrooms[3].ClassroomId, StudySetId = studySets[4].StudySetId, Status = "AVAILABLE" }
+            };
+
+            context.ClassRoomMaterials.AddRange(materials);
             context.SaveChanges();
         }
     }
