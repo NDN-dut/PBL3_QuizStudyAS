@@ -57,5 +57,38 @@ namespace QuizStudyAS.Controllers
             await _ClassRoomServices.CreateClassRoom(ClassName);
             return RedirectToAction("YourClass", "ClassRoom");
         }
+        public async Task<IActionResult> ClassRoomDetail(string LinkLop)
+        {
+            var ClassRoomDetailData = await _ClassRoomServices.GetClassRoomDetail(LinkLop);
+            
+            return View(ClassRoomDetailData);
+        }
+        [HttpPost]
+        public async Task<IActionResult> AddStudySetToClass(string classCode,int studySetId)
+        {
+            bool result = await _ClassRoomServices.AddStudySet(classCode, studySetId);
+            if(result == true)
+            {
+                return Json(new { success = true });
+            }
+            else
+            {
+                return Json(new { success = false });
+            }
+            
+        }
+        [HttpPost]
+        public async Task<IActionResult> DeleteStudySetOfClass (string classCode, int studysetid)
+        {
+            bool result = await _ClassRoomServices.DeleteStudySet(classCode, studysetid);
+            if (result == true)
+            {
+                return Json(new { success = true });
+            }
+            else
+            {
+                return Json(new { success = false });
+            }
+        }
     }
 }
