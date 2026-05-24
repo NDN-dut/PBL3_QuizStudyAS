@@ -1,0 +1,246 @@
+﻿/* Container bọc toàn bộ tab */
+.classroom-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 20px 100px 20px; /* Chừa 100px ở đáy để không bị nút đè lên */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Tiêu đề khu vực */
+.section-title {
+    color: #333;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+/* LƯỚI HIỂN THỊ: Ép đúng 3 cột mỗi hàng */
+.classroom-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+/* Thiết kế thẻ lớp học */
+.class-card-simple {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 25px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+    .class-card-simple:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        border-color: #0d6efd;
+    }
+
+.class-name-simple {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Thêm màu viền nhẹ để phân biệt lớp mình tạo */
+.my-own-class {
+    border-left: 5px solid #198754;
+}
+
+/* LABEL PHÂN CÁCH CÓ ĐƯỜNG KẺ 2 BÊN */
+.divider-wrapper {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 40px 0;
+}
+
+    .divider-wrapper::before,
+    .divider-wrapper::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #ccc;
+    }
+
+.divider-text {
+    padding: 0 20px;
+    color: #6c757d;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.empty-message {
+    color: #999;
+    font-style: italic;
+    margin-bottom: 30px;
+}
+
+/* NÚT TẠO LỚP: GHIM DƯỚI CÙNG MÀN HÌNH */
+.bottom-action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(to top, rgba(255,255,255,1) 60%, rgba(255,255,255,0));
+    padding: 20px 0 30px 0;
+    text-align: center;
+    pointer-events: none;
+}
+
+.btn-create-class {
+    pointer-events: auto;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 12px 35px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+    .btn-create-class:hover {
+        background-color: #0b5ed7;
+        transform: scale(1.05);
+    }
+
+/* Responsive */
+@media (max-width: 900px) {
+    .classroom-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .classroom-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Container bọc ngoài làm mỏ neo Popup */
+.create-class-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.create-popover {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%) translateY(0);
+    width: 300px;
+    background-color: #0a092d;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid #2e3856;
+    z-index: 1000;
+    pointer-events: auto;
+    opacity: 1;
+    visibility: visible;
+    transition: all 0.2s ease-out;
+}
+
+    .create-popover.hidden {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-50%) translateY(10px);
+    }
+
+.popover-title {
+    color: #ffffff;
+    font-size: 1.1rem;
+    margin: 0 0 12px 0;
+    text-align: left;
+}
+
+.popover-input {
+    width: 100%;
+    background-color: transparent;
+    border: 2px solid #7b79ff;
+    color: #ffffff;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+    .popover-input:focus {
+        outline: none;
+        border-color: #9391ff;
+    }
+
+.popover-btn-submit {
+    width: 100%;
+    padding: 8px;
+    border-radius: 16px;
+    border: none;
+    background-color: #3b415a;
+    color: #8b92a5;
+    font-weight: 600;
+    transition: all 0.2s;
+    position: relative;
+    z-index: 50;
+    pointer-events: none;
+}
+
+    .popover-btn-submit.active {
+        background-color: #4255ff;
+        color: #ffffff;
+        pointer-events: auto;
+        cursor: pointer;
+    }
+
+        .popover-btn-submit.active:hover {
+            background-color: #3144eb;
+        }
+
+/* ========================================================
+   BỔ SUNG DARK MODE (DÀNH RIÊNG CHO TRANG LỚP HỌC)
+   ======================================================== */
+
+/* Sửa chữ trên tiêu đề và trong thẻ bài */
+body.dark-theme .section-title,
+body.dark-theme .class-name-simple {
+    color: #f1f1f1 !important;
+}
+
+/* Đổi màu thẻ lớp học thành xám đậm */
+body.dark-theme .class-card-simple {
+    background-color: #242424 !important;
+    border-color: #3f3f3f !important;
+}
+
+    body.dark-theme .class-card-simple:hover {
+        box-shadow: 0 8px 15px rgba(0,0,0,0.4) !important;
+        border-color: #6ea8fe !important; /* Đổi viền hover sang xanh dương cho nổi bật */
+    }
+
+/* Sửa màu chữ vạch kẻ phân cách */
+body.dark-theme .divider-text {
+    color: #a0a0a0 !important;
+    background-color: transparent !important;
+}
+
+body.dark-theme .divider-wrapper::before,
+body.dark-theme .divider-wrapper::after {
+    border-color: #3f3f3f !important;
+}
+
+/* Sửa màu chữ thông báo rỗng */
+body.dark-theme .empty-message {
+    color: #888 !important;
+}
+
+/* FIX LỖI VỆT TRẮNG: Đổi gradient mờ ở đáy màn hình sang màu nền tối của web */
+body.dark-theme .bottom-action-bar {
+    background: linear-gradient(to top, rgba(18,18,18,1) 60%, rgba(18,18,18,0)) !important;
+}
