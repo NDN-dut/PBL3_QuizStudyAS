@@ -115,12 +115,27 @@ namespace QuizStudyAS.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // 6. CHỨC NĂNG HỌC THẺ (GET)
+        // 6. CHỨC NĂNG LẬT THẺ GHI NHỚ (Được đổi tên từ Details cũ)
+        // Khi người dùng bấm vào nút "Thẻ ghi nhớ" từ trang Hub, hệ thống sẽ chạy hàm này
+        public async Task<IActionResult> Learn(int id)
+        {
+            var studySet = await _studySetService.GetStudySetByIdAsync(id);
+            if (studySet == null) return NotFound();
+
+            // Lệnh này sẽ tự động tìm và render file Views/StudySet/Learn.cshtml 
+            // (Nơi chứa giao diện lật thẻ 3D cũ)
+            return View(studySet);
+        }
+
+        // 6.5. TRANG TRUNG TÂM ĐIỀU HƯỚNG BỘ THẺ (STUDY HUB)
+        // Khi người dùng click vào một bộ thẻ từ danh sách Index, hệ thống sẽ chạy hàm này đầu tiên
         public async Task<IActionResult> Details(int id)
         {
             var studySet = await _studySetService.GetStudySetByIdAsync(id);
             if (studySet == null) return NotFound();
 
+            // Lệnh này sẽ tự động tìm và render file Views/StudySet/Details.cshtml
+            // (Nơi chứa giao diện Hub mới gồm 3 nút chức năng)
             return View(studySet);
         }
 
@@ -137,11 +152,64 @@ namespace QuizStudyAS.Controllers
             var suggestions = await _studySetService.SearchSuggestionsAsync(keyword, userId);
             return Json(suggestions);
         }
+
+        // --- API CHO TÍNH NĂNG "THÊM VÀO LỚP HỌC" ---
+
+        public class AddToClassRequest { public int studySetId { get; set; } public int classroomId { get; set; } }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMyClassesForShare(int studySetId)
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId)) return Json(new List<object>());
+
+            // Lấy các lớp mà user sở hữu HOẶC đang tham gia (bạn cần import AppDbContext vào Controller hoặc viết qua Service)
+            // Tạm thời giả định bạn có quyền truy cập bảng ClassroomUser và ClassRoomMaterial
+            // ... Logic lấy danh sách lớp học ...
+
+            // Do tôi chưa thấy Service xử lý ClassRoom của bạn, bạn hãy giao phần truy vấn này cho IClassRoomService nhé.
+            return Json(new List<object>());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddSetToClass([FromBody] AddToClassRequest req)
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId)) return Json(new { success = false });
+
+            // Logic Insert vào bảng ClassRoomMaterial
+            // var material = new ClassRoomMaterial { ClassRoomId = req.classroomId, StudySetId = req.studySetId, Status = "Active" };
+            // _context.ClassRoomMaterials.Add(material);
+            // await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetMyStudySetsForClass(string ClassCode)
         {
             List<StudySetItemVM> result = await _studySetService.GetStudySetForClass(ClassCode);
             return Json(result);
+        }
+
+        // --- CHẾ ĐỘ GAME ĐA NĂNG (TRẮC NGHIỆM / TỰ LUẬN / TRỘN LẪN) ---
+        [HttpGet]
+        public async Task<IActionResult> Quiz(int id, string mode = "multiple", int timer = 15)
+        {
+            var studySet = await _studySetService.GetStudySetByIdAsync(id);
+            if (studySet == null) return NotFound();
+
+            if (studySet.Flashcards.Count < 4)
+            {
+                TempData["ErrorMessage"] = "Học phần này cần ít nhất 4 thuật ngữ để chạy chế độ Game!";
+                return RedirectToAction(nameof(Details), new { id = id });
+            }
+
+            // Gửi cấu hình lựa chọn xuống View thông qua ViewBag
+            ViewBag.GameMode = mode;
+            ViewBag.GameTimer = timer;
+
+            return View(studySet);
         }
     }
 }

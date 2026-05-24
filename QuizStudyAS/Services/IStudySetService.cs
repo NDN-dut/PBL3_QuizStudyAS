@@ -4,6 +4,14 @@ using QuizStudyAS.ViewModels;
 
 namespace QuizStudyAS.Services
 {
+    // ĐÃ ĐƯA RA NGOÀI: Class DTO khai báo độc lập để mọi nơi đều dùng được
+    public class ClassroomShareDTO
+    {
+        public int ClassroomId { get; set; }
+        public string ClassName { get; set; }
+        public bool IsAdded { get; set; } // Kiểm tra xem bộ thẻ đã nằm trong lớp này chưa
+    }
+
     public interface IStudySetService
     {
         Task<List<StudySet>> GetStudySetsByUserIdAsync(string userId);
@@ -12,5 +20,9 @@ namespace QuizStudyAS.Services
         Task<bool> UpdateStudySetAsync(int id, EditStudySetVM vm, string userId);
         Task<object> SearchSuggestionsAsync(string keyword, string userId);
         Task<List<StudySetItemVM>> GetStudySetForClass(string ClassCode);
+
+        // Nhận diện ClassroomShareDTO bình thường
+        Task<List<ClassroomShareDTO>> GetClassesForSharingAsync(string userId, int studySetId);
+        Task<bool> AddStudySetToClassAsync(int studySetId, int classroomId);
     }
 }

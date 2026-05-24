@@ -1,229 +1,296 @@
 ﻿@model QuizStudyAS.Models.StudySet
 
 @{
-    ViewData["Title"] = "Học: " + Model.Title;
+    ViewData["Title"] = "Học phần: " + Model.Title;
 }
 
-<div class="container mt-4 mb-5 max-w-md mx-auto" style="max-width: 800px;">
+<div class="container py-4 mb-5 mx-auto" style="max-width: 900px;">
     
-    <div id="study-screen">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold m-0">@Model.Title</h4>
-            <span class="badge bg-primary fs-6" id="progress-text">1 / @Model.Flashcards.Count</span>
-        </div>
-
-        <div class="progress mb-4" style="height: 10px;">
-            <div id="progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%;"></div>
-        </div>
-
-        <div class="flip-card-container mb-4">
-            <div class="flip-card" id="flashcard">
-                <div class="flip-card-inner">
-                    <div class="flip-card-front shadow-sm border">
-                        <div class="card-content" id="card-term">Đang tải...</div>
-                        <div class="text-muted small position-absolute bottom-0 mb-3">Click để lật thẻ</div>
-                    </div>
-                    <div class="flip-card-back shadow-sm border bg-light">
-                        <div class="card-content text-success" id="card-def">Đang tải...</div>
-                        <div class="text-muted small position-absolute bottom-0 mb-3">Click để lật thẻ</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="d-flex justify-content-center gap-4">
-            <button class="btn btn-outline-danger btn-lg px-4 py-3 fw-bold rounded-pill shadow-sm action-btn" id="btn-unknown">
-                <i class="bi bi-x-lg"></i> Chưa thuộc
-            </button>
-            <button class="btn btn-outline-success btn-lg px-4 py-3 fw-bold rounded-pill shadow-sm action-btn" id="btn-known">
-                <i class="bi bi-check-lg"></i> Đã thuộc
-            </button>
-        </div>
-    </div>
-
-    <div id="result-screen" style="display: none;" class="text-center py-5">
-        <h2 class="fw-bold mb-4">Hoàn thành vòng học! 🎉</h2>
+    <div class="mb-4">
+        <h1 class="fw-bold text-dark mb-3">@Model.Title</h1>
         
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-5">
-                <div class="card border-success border-2 shadow-sm mb-3">
-                    <div class="card-body py-4">
-                        <h1 class="display-4 text-success fw-bold" id="stat-known">0</h1>
-                        <p class="text-muted fw-bold text-uppercase m-0">Thẻ đã thuộc</p>
-                    </div>
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div class="d-flex align-items-center">
+                <div class="avatar-circle bg-primary text-white shadow-sm me-3 d-flex align-items-center justify-content-center fw-bold">
+                    <i class="bi bi-person-fill fs-5"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Tạo bởi học viên</div>
+                    <div class="fw-bold text-dark">@(Model.OwnerUser != null ? Model.OwnerUser.UserName : "Người dùng hệ thống")</div>
                 </div>
             </div>
-            <div class="col-md-5">
-                <div class="card border-danger border-2 shadow-sm mb-3">
-                    <div class="card-body py-4">
-                        <h1 class="display-4 text-danger fw-bold" id="stat-unknown">0</h1>
-                        <p class="text-muted fw-bold text-uppercase m-0">Thẻ cần học lại</p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div id="perfect-msg" style="display: none;">
-            <h4 class="text-success fw-bold">Tuyệt vời! Bạn đã thuộc 100% bộ thẻ này.</h4>
-            <a asp-action="Index" class="btn btn-primary mt-3 px-4">Quay về danh sách</a>
+            <span class="badge bg-light text-secondary border rounded-pill px-3 py-2 fw-bold fs-6">
+                <i class="bi bi-collection-play me-1 text-primary"></i> @Model.Flashcards.Count thuật ngữ
+            </span>
         </div>
-
-        <button class="btn btn-warning btn-lg fw-bold px-5 py-3 shadow" id="btn-study-again">
-            <i class="bi bi-arrow-clockwise"></i> Học lại các thẻ chưa thuộc
-        </button>
-        <a asp-action="Index" class="btn btn-light btn-lg px-4 py-3 border shadow-sm mt-3 d-block w-50 mx-auto">Trở về</a>
+        
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p class="text-muted fs-5 mt-3 bg-white p-3 rounded-3 shadow-sm border-start border-primary border-4">
+                @Model.Description
+            </p>
+        }
     </div>
 
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white">
+        <div class="card-body p-4 position-relative">
+            
+            <div class="flip-card-container mx-auto" id="flashcard-player">
+                <div class="flip-card" id="flashcard-inner">
+                    <div class="flip-card-front d-flex align-items-center justify-content-center p-4 rounded-4 shadow-inner border bg-white">
+                        <h2 class="fw-bold m-0 text-center text-dark" id="card-term">Đang tải...</h2>
+                        <span class="text-muted small position-absolute bottom-0 mb-3"><i class="bi bi-cursor-fill me-1"></i> Bấm vào giữa thẻ để lật</span>
+                    </div>
+                    <div class="flip-card-back d-flex align-items-center justify-content-center p-4 rounded-4 shadow-inner border bg-light">
+                        <h2 class="fw-bold m-0 text-center text-success" id="card-def">...</h2>
+                        <span class="text-muted small position-absolute bottom-0 mb-3"><i class="bi bi-check-circle-fill me-1"></i> Định nghĩa</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-center gap-4 mt-4">
+                <button class="btn btn-outline-primary btn-circle shadow-sm" id="btn-prev-card">
+                    <i class="bi bi-arrow-left-short fs-3"></i>
+                </button>
+                
+                <span class="fw-bold text-muted fs-5" id="card-counter-text">1 / @Model.Flashcards.Count</span>
+                
+                <button class="btn btn-outline-primary btn-circle shadow-sm" id="btn-next-card">
+                    <i class="bi bi-arrow-right-short fs-3"></i>
+                </button>
+            </div>
+
+            <div class="progress mt-4 mx-auto style-progress" style="height: 6px; max-width: 500px; border-radius: 10px;">
+                <div id="card-progress-bar" class="progress-bar bg-primary" role="progressbar" style="width: 0%; transition: width 0.3s ease;"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="bg-white rounded-4 p-2 shadow-sm d-flex gap-2 align-items-center mb-5 overflow-x-auto border">
+        <button class="btn btn-primary rounded-3 flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 active-tab">
+            <i class="bi bi-card-heading fs-5"></i>
+            <span>Thẻ ghi nhớ</span>
+        </button>
+        
+        <button class="btn btn-primary rounded-3 flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 active-tab" data-bs-toggle="modal" data-bs-target="#gameSetupModal">
+            <i class="bi bi-controller fs-5 text-white"></i>
+            <span>Game</span>
+        </button>
+
+        <button class="btn btn-light rounded-3 flex-grow-1 py-3 fw-bold text-secondary d-flex align-items-center justify-content-center gap-2 hover-toolbar-btn" data-bs-toggle="modal" data-bs-target="#addToClassModal" onclick="loadMyClasses(@Model.StudySetId)">
+            <i class="bi bi-share fs-5 text-warning"></i>
+            <span class="text-dark">Thêm vào lớp</span>
+        </button>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-dark m-0">Thuật ngữ trong học phần này</h3>
+        <span class="text-muted small fw-semibold">Cuộn để xem nhanh</span>
+    </div>
+
+    <div class="d-flex flex-column gap-3">
+        @foreach (var card in Model.Flashcards)
+        {
+            <div class="card shadow-sm border rounded-4 bg-white list-card-item">
+                <div class="card-body row align-items-center p-4">
+                    <div class="col-md-4 fw-bold fs-5 text-dark border-end-md py-1">@card.Term</div>
+                    <div class="col-md-8 fs-5 ps-md-4 text-secondary py-1">@card.Definition</div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
-<style>
-    .flip-card-container {
-        perspective: 1000px;
-        height: 350px;
-        width: 100%;
-    }
+<div class="modal fade" id="addToClassModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-light border-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-dark fs-4"><i class="bi bi-people-fill text-primary me-2"></i>Thêm học phần vào lớp</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4" id="classListContainer">
+                <div class="text-center text-muted py-3">
+                    <div class="spinner-border spinner-border-sm text-primary me-2"></div> Đang tải danh sách lớp...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    .flip-card {
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
-    }
 
-    .flip-card-inner {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-        transform-style: preserve-3d;
-    }
-    /* Thêm class 'flipped' qua JS để kích hoạt lật */
-    .flip-card.flipped .flip-card-inner {
-        transform: rotateX(180deg);
-    }
+<div class="modal fade" id="gameSetupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-light border-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-dark fs-4"><i class="bi bi-sliders text-success me-2"></i>Thiết lập trò chơi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form action="/StudySet/Quiz" method="get">
+                    <input type="hidden" name="id" value="@Model.StudySetId" />
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-secondary small text-uppercase">Hình thức kiểm tra</label>
+                        <select class="form-select form-select-lg rounded-3 border-2" name="mode">
+                            <option value="multiple" selected>Chế độ: Trắc nghiệm (4 lựa chọn)</option>
+                            <option value="written">Chế độ: Tự luận (Gõ nghĩa của từ)</option>
+                            <option value="mixed">Chế độ: Trộn lẫn (Kết hợp cả hai)</option>
+                        </select>
+                    </div>
 
-    .flip-card-front, .flip-card-back {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        backface-visibility: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 1rem;
-        padding: 2rem;
-    }
+                    <div class="mb-4 bg-light p-3 rounded-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold text-secondary small text-uppercase mb-0">Thời gian đếm ngược</label>
+                            <div class="form-check form-switch fs-5 mb-0">
+                                <input class="form-check-input cursor-pointer" type="checkbox" id="timerToggle" checked>
+                            </div>
+                        </div>
+                        
+                        <div id="timerInputContainer" class="mt-2">
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-stopwatch text-danger"></i></span>
+                                <input type="number" name="timer" id="timerInput" class="form-control bg-white border-start-0 text-center fw-bold text-danger" value="15" min="5" max="120" />
+                                <span class="input-group-text bg-white fw-semibold">giây / câu</span>
+                            </div>
+                        </div>
+                        <p class="small text-muted m-0 mt-2" id="timerHelp">Hết thời gian đếm ngược câu hỏi tự động tính là sai.</p>
+                    </div>
 
-    .flip-card-back {
-        transform: rotateX(180deg);
-    }
-
-    .card-content {
-        font-size: 1.8rem;
-        font-weight: bold;
-        white-space: pre-wrap; /* Giữ lại các lần xuống dòng của Textarea */
-    }
-
-    .action-btn:hover {
-        transform: scale(1.05);
-        transition: transform 0.2s;
-    }
-</style>
+                    <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill fw-bold shadow-sm py-3 mt-2">
+                        Bắt đầu thách thức <i class="bi bi-play-circle-fill ms-2"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
-        // 1. Nhận dữ liệu C# truyền xuống và biến thành mảng JavaScript
-        const allCards = @Html.Raw(Json.Serialize(Model.Flashcards.Select(f => new { term = f.Term, def = f.Definition })));
-        
-        let currentDeck = [...allCards]; // Mảng chứa các thẻ ĐANG HỌC ở vòng hiện tại
+        // Nạp dữ liệu danh sách thẻ từ C# sang JS để xử lý mượt mà không load lại trang
+        const deck = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Flashcards.Select(f => new { term = f.Term, definition = f.Definition })));
         let currentIndex = 0;
-        let knownCards = [];   // Gom các thẻ đã thuộc
-        let unknownCards = []; // Gom các thẻ không thuộc
 
-        // 2. Định vị các UI elements
-        const uiCard = document.getElementById('flashcard');
-        const uiTerm = document.getElementById('card-term');
-        const uiDef = document.getElementById('card-def');
-        const uiProgress = document.getElementById('progress-bar');
-        const uiProgressText = document.getElementById('progress-text');
-        const studyScreen = document.getElementById('study-screen');
-        const resultScreen = document.getElementById('result-screen');
+        const elCard = document.getElementById('flashcard-inner');
+        const elTerm = document.getElementById('card-term');
+        const elDef = document.getElementById('card-def');
+        const elCounter = document.getElementById('card-counter-text');
+        const elProgress = document.getElementById('card-progress-bar');
 
-        // Khởi tạo ngay khi tải trang
+        // Khởi động load thẻ đầu tiên khi trang sẵn sàng
         document.addEventListener('DOMContentLoaded', () => {
-            loadCard();
-        });
-
-        // Lật thẻ khi Click
-        uiCard.addEventListener('click', () => {
-            uiCard.classList.toggle('flipped');
-        });
-
-        // 3. Hàm tải thẻ lên giao diện
-        function loadCard() {
-            // Nếu đã học hết vòng hiện tại -> Hiện kết quả
-            if (currentIndex >= currentDeck.length) {
-                showResults();
-                return;
-            }
-
-            // Đảm bảo mặt thẻ luôn úp khi hiện thẻ mới
-            uiCard.classList.remove('flipped');
-
-            // Gắn chữ (Đợi 150ms để thẻ kịp úp xuống mới đổi chữ)
-            setTimeout(() => {
-                uiTerm.innerText = currentDeck[currentIndex].term;
-                uiDef.innerText = currentDeck[currentIndex].def;
-            }, 150);
-            
-            // Cập nhật thanh tiến độ
-            let percent = (currentIndex / currentDeck.length) * 100;
-            uiProgress.style.width = percent + '%';
-            uiProgressText.innerText = `${currentIndex + 1} / ${currentDeck.length}`;
-        }
-
-        // 4. Xử lý khi bấm nút Thuộc / Không thuộc
-        function markCard(isKnown) {
-            if (isKnown) {
-                knownCards.push(currentDeck[currentIndex]);
+            if (deck.length > 0) {
+                renderCard();
             } else {
-                unknownCards.push(currentDeck[currentIndex]);
+                elTerm.innerText = "Học phần chưa có thẻ nào.";
             }
-            
-            currentIndex++;
-            loadCard();
-        }
 
-        document.getElementById('btn-known').addEventListener('click', () => markCard(true));
-        document.getElementById('btn-unknown').addEventListener('click', () => markCard(false));
+            // Sự kiện Click lật thẻ
+            document.getElementById('flashcard-player').addEventListener('click', () => {
+                elCard.classList.toggle('flipped');
+            });
 
-        // 5. Màn hình Thống kê
-        function showResults() {
-            studyScreen.style.display = 'none';
-            resultScreen.style.display = 'block';
-            
-            document.getElementById('stat-known').innerText = knownCards.length;
-            document.getElementById('stat-unknown').innerText = unknownCards.length;
-            
-            if (unknownCards.length === 0) {
-                document.getElementById('btn-study-again').style.display = 'none';
-                document.getElementById('perfect-msg').style.display = 'block';
-            } else {
-                document.getElementById('btn-study-again').style.display = 'inline-block';
-                document.getElementById('perfect-msg').style.display = 'none';
-            }
-        }
+            // Sự kiện bấm nút Next / Prev
+            document.getElementById('btn-next-card').addEventListener('click', (e) => {
+                e.stopPropagation(); // Không cho kích hoạt lật thẻ khi bấm nút điều khiển
+                if (deck.length === 0) return;
+                
+                // Trở về mặt trước trước khi chuyển câu
+                elCard.classList.remove('flipped');
+                setTimeout(() => {
+                    currentIndex = (currentIndex + 1) % deck.length;
+                    renderCard();
+                }, 150);
+            });
 
-        // 6. Logic thần thánh: Bắt đầu vòng lặp mới chỉ với các thẻ chưa thuộc
-        document.getElementById('btn-study-again').addEventListener('click', () => {
-            currentDeck = [...unknownCards]; // Gán bộ bài mới bằng các thẻ bị sai
-            currentIndex = 0;
-            knownCards = [];   // Reset giỏ
-            unknownCards = []; // Reset giỏ
-            
-            resultScreen.style.display = 'none';
-            studyScreen.style.display = 'block';
-            loadCard();
+            document.getElementById('btn-prev-card').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (deck.length === 0) return;
+
+                elCard.classList.remove('flipped');
+                setTimeout(() => {
+                    currentIndex = (currentIndex - 1 + deck.length) % deck.length;
+                    renderCard();
+                }, 150);
+            });
         });
+
+        function renderCard() {
+            const currentItem = deck[currentIndex];
+            elTerm.innerText = currentItem.term;
+            elDef.innerText = currentItem.definition;
+            
+            // Cập nhật text số thứ tự và tiến độ thanh progress
+            elCounter.innerText = `${currentIndex + 1} / ${deck.length}`;
+            elProgress.style.width = `${((currentIndex + 1) / deck.length) * 100}%`;
+        }
+
+        // --- HÀM AJAX CHO MODAL CHIA SẺ VÀO LỚP HỌC MỚI ĐÃ LÀM ---
+        function loadMyClasses(studySetId) {
+            fetch(`/StudySet/GetMyClassesForShare?studySetId=${studySetId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('classListContainer');
+                    if (data.length === 0) {
+                        container.innerHTML = '<p class="text-muted text-center py-4 mb-0">Bạn chưa tham gia hoặc sở hữu lớp học nào.</p>';
+                        return;
+                    }
+                    
+                    let html = '<div class="list-group list-group-flush">';
+                    data.forEach(c => {
+                        let btnHtml = c.isAdded
+                            ? `<button class="btn btn-sm btn-success disabled px-3 rounded-pill"><i class="bi bi-check-lg"></i> Đã thêm</button>`
+                            : `<button class="btn btn-sm btn-outline-primary fw-bold px-3 rounded-pill" onclick="addToClass(${studySetId}, ${c.classroomId}, this)"><i class="bi bi-plus-lg"></i> Thêm</button>`;
+
+                        html += `
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3 border-0 border-bottom">
+                                <div class="fw-bold text-dark fs-5"><i class="bi bi-backpack text-muted me-2"></i>${c.className}</div>
+                                ${btnHtml}
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                });
+        }
+
+        function addToClass(studySetId, classroomId, btn) {
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            btn.disabled = true;
+
+            fetch(`/StudySet/AddSetToClass`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studySetId: studySetId, classroomId: classroomId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    btn.className = 'btn btn-sm btn-success px-3 rounded-pill';
+                    btn.innerHTML = '<i class="bi bi-check-lg"></i> Đã thêm';
+                }
+            });
+        }
+        // Logic điều khiển Modal cấu hình Game
+            const timerToggle = document.getElementById('timerToggle');
+            const timerContainer = document.getElementById('timerInputContainer');
+            const timerInput = document.getElementById('timerInput');
+            const timerHelp = document.getElementById('timerHelp');
+
+            timerToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    timerContainer.style.display = 'block';
+                    timerInput.value = '15';
+                    timerHelp.innerHTML = 'Hết thời gian đếm ngược câu hỏi tự động tính là sai.';
+                    timerHelp.className = 'small text-muted m-0 mt-2';
+                } else {
+                    timerContainer.style.display = 'none';
+                    timerInput.value = '0'; // Giá trị 0 quy định là không giới hạn thời gian
+                    timerHelp.innerHTML = 'Chế độ luyện tập thoải mái, không áp lực thời gian.';
+                    timerHelp.className = 'small text-success fw-bold m-0 mt-2';
+                }
+            });
     </script>
 }
