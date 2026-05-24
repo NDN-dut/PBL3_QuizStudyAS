@@ -5,7 +5,6 @@ body, html {
     background-color: #f8f9fa;
 }
 
-/* 1. Top Navbar: Ưu tiên chiều rộng 100% */
 .top-navbar {
     height: 70px;
     width: 100%;
@@ -17,13 +16,13 @@ body, html {
 
 .app-wrapper {
     display: flex;
-    margin-top: 70px; /* Đẩy xuống để không bị Navbar đè lên */
+    margin-top: 70px;
     height: calc(100vh - 70px);
 }
 
-/* 2. Sidebar: Cố định bên trái bên dưới Navbar */
+/* Sidebar */
 #sidebar {
-    width: 80px; /* Thu gọn mặc định */
+    width: 80px;
     height: 100%;
     position: fixed;
     left: 0;
@@ -31,37 +30,40 @@ body, html {
     overflow-x: hidden;
     z-index: 1020;
 }
+/* Dùng nhãn từ thẻ HTML để ra lệnh cho Sidebar mở rộng */
+html.sidebar-expanded-state #sidebar {
+    width: 260px;
+}
 
-    #sidebar.expanded {
-        width: 260px; /* Mở rộng khi bấm nút 3 sọc */
-    }
+html:not(.sidebar-expanded-state) #sidebar .sidebar-text,
+html:not(.sidebar-expanded-state) #sidebar .chevron-icon {
+    display: none !important;
+}
 
-/* Hiệu ứng ẩn/hiện chữ trong sidebar */
-.sidebar-text {
-    opacity: 0;
+html.sidebar-expanded-state #sidebar .sidebar-text {
+    display: inline-block;
+    opacity: 1;
     white-space: nowrap;
-    transition: opacity 0.2s;
     font-weight: 600;
 }
 
-#sidebar.expanded .sidebar-text {
-    opacity: 1;
+html.sidebar-expanded-state #sidebar .chevron-icon {
+    display: block;
 }
 
-/* 3. Main Content: Dịch chuyển tương ứng với Sidebar */
+/* Main Content */
 #main-content {
     flex-grow: 1;
-    margin-left: 80px; /* Khớp với độ rộng sidebar thu gọn */
+    margin-left: 80px;
     transition: margin-left 0.3s ease-in-out;
     height: 100%;
     overflow-y: auto;
 }
 
-    #main-content.sidebar-expanded {
-        margin-left: 260px; /* Khớp với độ rộng sidebar mở rộng */
-    }
-
-/* Style cho các link điều hướng */
+html.sidebar-expanded-state #main-content {
+    margin-left: 260px;
+}
+/* Các định dạng link */
 .sidebar-link {
     color: #495057;
     white-space: nowrap;
@@ -75,3 +77,15 @@ body, html {
 .cursor-pointer {
     cursor: pointer;
 }
+
+#btn-settings-toggle[aria-expanded="true"] .chevron-icon {
+    transform: rotate(180deg);
+}
+
+.sub-menu-link {
+    transition: background-color 0.2s ease;
+}
+
+    .sub-menu-link:hover {
+        background-color: #f8f9fa !important;
+    }

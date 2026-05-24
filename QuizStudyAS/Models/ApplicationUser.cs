@@ -16,6 +16,9 @@
 
         // --- Navigation Properties (Liên kết) ---
         public virtual Role Role { get; set; }
+
+        // Cho phép Null, nếu null sẽ dùng avatar chữ cái mặc định
+        public string? AvatarUrl { get; set; }
         public virtual ICollection<StudySet> StudySets { get; set; }
 
         public virtual ICollection<Classroom> OwnedClassrooms { get; set; }

@@ -1,0 +1,114 @@
+﻿/* ========================================================
+   GLOBAL SOFT DARK MODE - ÁP DỤNG XUYÊN SUỐT TOÀN BỘ WEB
+   ======================================================== */
+
+/* 1. Phủ nền đen dịu mắt toàn web */
+html.dark-theme,
+body.dark-theme,
+body.dark-theme .app-wrapper,
+body.dark-theme #main-content {
+    background-color: #121212 !important;
+    color: #e0e0e0 !important;
+}
+
+    /* 2. Biến các khối trắng (Navbar, Sidebar, Card, Search) thành Xám Đậm */
+    body.dark-theme .bg-white,
+    body.dark-theme .bg-light,
+    body.dark-theme .card,
+    body.dark-theme .top-navbar,
+    body.dark-theme #sidebar,
+    body.dark-theme .modal-content,
+    body.dark-theme .dropdown-menu,
+    body.dark-theme #search-wrapper,
+    body.dark-theme .input-group,
+    body.dark-theme .list-group-item,
+    body.dark-theme .flip-card-front,
+    body.dark-theme .flip-card-back {
+        background-color: #242424 !important;
+        color: #e0e0e0 !important;
+        border-color: #3f3f3f !important;
+    }
+
+    /* 3. Ép toàn bộ Tiêu đề và Văn bản thành Trắng Xám (Chống chói) */
+    body.dark-theme h1, body.dark-theme h2, body.dark-theme h3,
+    body.dark-theme h4, body.dark-theme h5, body.dark-theme h6,
+    body.dark-theme p, body.dark-theme span,
+    body.dark-theme .text-dark,
+    body.dark-theme .fw-bold.text-dark,
+    body.dark-theme .display-4 {
+        color: #f1f1f1 !important;
+    }
+
+    /* Fix chữ xám nhạt */
+    body.dark-theme .text-muted {
+        color: #a0a0a0 !important;
+    }
+
+    /* 4. Fix màu hiển thị của Sidebar Menu */
+    body.dark-theme .sidebar-link,
+    body.dark-theme .sidebar-text,
+    body.dark-theme .sub-menu-link {
+        color: #f8f9fa !important;
+    }
+
+        body.dark-theme .sidebar-link:hover,
+        body.dark-theme .sidebar-link.active,
+        body.dark-theme .sub-menu-link:hover {
+            background-color: #2d2d2d !important;
+            color: #6ea8fe !important;
+        }
+
+    /* 5. Khung nhập liệu và Ô Tìm kiếm */
+    body.dark-theme .form-control,
+    body.dark-theme .form-select,
+    body.dark-theme #search-input {
+        background-color: transparent !important;
+        color: #f1f1f1 !important;
+        border-color: #444 !important;
+    }
+
+        body.dark-theme .form-control:focus {
+            background-color: #333 !important;
+            color: #fff !important;
+            border-color: #5865f2 !important;
+        }
+
+        body.dark-theme #search-input::placeholder {
+            color: #888 !important;
+        }
+
+    body.dark-theme .input-group-text {
+        background-color: transparent !important;
+        border-color: #3f3f3f !important;
+    }
+
+        body.dark-theme .input-group-text i {
+            color: #a0a0a0 !important;
+        }
+
+    /* 6. Viền và Nút bấm chung */
+    body.dark-theme .border, body.dark-theme .border-bottom,
+    body.dark-theme .border-top, body.dark-theme .border-end, body.dark-theme .border-start {
+        border-color: #3f3f3f !important;
+    }
+
+    body.dark-theme .btn-light, body.dark-theme .badge.bg-light {
+        background-color: #333 !important;
+        color: #f1f1f1 !important;
+        border-color: #444 !important;
+    }
+
+        body.dark-theme .btn-light:hover {
+            background-color: #444 !important;
+        }
+
+        /* Nút sửa màu vàng giữ nguyên */
+        body.dark-theme .btn-light.edit-btn {
+            background-color: #333 !important;
+            border-color: #444 !important;
+        }
+
+            body.dark-theme .btn-light.edit-btn:hover {
+                background-color: #ffc107 !important;
+                color: #000 !important;
+            }

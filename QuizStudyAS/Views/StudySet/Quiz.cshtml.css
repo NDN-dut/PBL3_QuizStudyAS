@@ -1,0 +1,44 @@
+﻿.option-btn {
+    transition: all 0.2s ease;
+    border-width: 2px;
+    text-align: left;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+    .option-btn:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        background-color: #f8f9fa;
+    }
+
+.correct-anim {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+    border-color: #198754 !important;
+}
+
+.wrong-anim {
+    background-color: #f8d7da !important;
+    color: #842029 !important;
+    border-color: #dc3545 !important;
+}
+
+.timer-warning {
+    animation: pulse-red 1s infinite;
+}
+
+@keyframes pulse-red {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+        background-color: #bb2d3b;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
