@@ -17,48 +17,102 @@
                 <div class="tab-content" id="authTabContent">
 
                     <div class="tab-pane fade show active" id="login-panel" role="tabpanel">
+                        <div class="ghost-wrapper mb-4 mt-2">
+                            <div class="ghost-container" id="login-mascot">
+                                <div class="ghost-body">
+                                    <div class="ghost-face">
+                                        <div class="eye left"></div>
+                                        <div class="eye right"></div>
+                                        <div class="mouth"></div>
+                                        <div class="cheek left"></div>
+                                        <div class="cheek right"></div>
+                                    </div>
+                                    <div class="arm left"></div>
+                                    <div class="arm right"></div>
+                                    <div class="ghost-skirt">
+                                        <div class="bump"></div><div class="bump"></div><div class="bump"></div>
+                                    </div>
+                                </div>
+                                <div class="ghost-shadow"></div>
+                            </div>
+                        </div>
+
                         <div id="loginAlert" class="alert alert-danger d-none" role="alert"></div>
 
                         <form id="loginForm" asp-controller="Auth" asp-action="Login" method="post">
                             <div class="mb-3">
-                                <label class="form-label">Tài khoản hoặc Email</label>
+                                <label class="form-label fw-semibold">Tài khoản hoặc Email</label>
                                 <input type="text" name="UserNameOrEmail" class="form-control" required placeholder="Nhập tên hoặc email..." />
                             </div>
+
                             <div class="mb-4">
-                                <label class="form-label">Mật khẩu</label>
-                                <input type="password" name="Password" class="form-control" required placeholder="Nhập mật khẩu..." />
+                                <label class="form-label fw-semibold">Mật khẩu</label>
+                                <div class="input-group">
+                                    <input type="password" id="password-input" name="Password" class="form-control border-end-0" required placeholder="Nhập mật khẩu..." />
+                                    <button class="btn btn-outline-secondary border-start-0" type="button" id="btn-toggle-password">
+                                        <i class="bi bi-eye-slash text-muted" id="eye-icon"></i>
+                                    </button>
+                                </div>
                             </div>
-                            
+
                             <div class="text-end mt-2 mb-3">
                                 <a asp-controller="Auth" asp-action="ForgotPassword" class="text-decoration-none small fw-bold text-primary">
                                     Quên mật khẩu?
                                 </a>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 fw-bold">Đăng Nhập</button>
+                            <button type="submit" class="btn btn-primary w-100 fw-bold py-2">Đăng Nhập</button>
                         </form>
                     </div>
 
                     <div class="tab-pane fade" id="register-panel" role="tabpanel">
+                        <div class="ghost-wrapper mb-3 mt-2">
+                            <div class="ghost-container" id="register-mascot">
+                                <div class="ghost-body">
+                                    <div class="ghost-face">
+                                        <div class="eye left"></div>
+                                        <div class="eye right"></div>
+                                        <div class="mouth"></div>
+                                        <div class="cheek left"></div>
+                                        <div class="cheek right"></div>
+                                    </div>
+                                    <div class="arm left"></div>
+                                    <div class="arm right"></div>
+                                    <div class="ghost-skirt">
+                                        <div class="bump"></div><div class="bump"></div><div class="bump"></div>
+                                    </div>
+                                </div>
+                                <div class="ghost-shadow"></div>
+                            </div>
+                        </div>
+
                         <div id="registerAlert" class="alert d-none" role="alert"></div>
 
                         <form id="registerForm" asp-controller="Auth" asp-action="Register" method="post">
                             <div class="mb-3">
-                                <label class="form-label">Tên tài khoản</label>
-                                <input type="text" name="UserName" class="form-control" required placeholder="Nhập tên hiển thị..." />
+                                <label class="form-label fw-semibold">Tên tài khoản</label>
+                                <input type="text" id="reg-username" name="UserName" class="form-control" required placeholder="Nhập tên hiển thị..." autocomplete="off" />
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Địa chỉ Email</label>
-                                <input type="email" name="Email" class="form-control" required placeholder="name@example.com" />
+                                <label class="form-label fw-semibold">Địa chỉ Email</label>
+                                <input type="email" id="reg-email" name="Email" class="form-control" required placeholder="name@example.com" autocomplete="off" />
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Mật khẩu</label>
-                                <input type="password" name="Password" class="form-control" required placeholder="Tạo mật khẩu..." />
+                                <label class="form-label fw-semibold">Mật khẩu (Tối thiểu 6 ký tự)</label>
+                                <div class="input-group">
+                                    <input type="password" id="reg-password" name="Password" class="form-control border-end-0" required placeholder="Tạo mật khẩu..." />
+                                    <button class="btn btn-outline-secondary border-start-0" type="button" id="btn-toggle-reg-pass">
+                                        <i class="bi bi-eye-slash text-muted" id="reg-eye-icon"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="mb-4">
-                                <label class="form-label">Xác nhận mật khẩu</label>
-                                <input type="password" name="ConfirmPassword" class="form-control" required placeholder="Nhập lại mật khẩu..." />
+                                <label class="form-label fw-semibold">Xác nhận mật khẩu</label>
+                                <input type="password" id="reg-confirm" name="ConfirmPassword" class="form-control" required placeholder="Nhập lại mật khẩu..." />
+                                <div id="reg-error-text" class="text-danger small fw-bold mt-1 d-none">
+                                    <i class="bi bi-exclamation-circle-fill"></i> Mật khẩu không trùng khớp hoặc chưa đủ 6 ký tự!
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-success w-100 fw-bold">Tạo Tài Khoản</button>
+                            <button type="submit" class="btn btn-success w-100 fw-bold py-2">Tạo Tài Khoản</button>
                         </form>
                     </div>
 
@@ -71,51 +125,153 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
 
-        // Hàm dùng chung để gửi dữ liệu bằng Fetch API
+        // 1. Hàm Liếc Mắt
+        function trackEyes(e, mascotContainer) {
+            // 1. BƯỚC ĐẦU TIÊN: Kiểm tra an toàn
+            if (!mascotContainer) return;
+
+            // 2. BƯỚC THỨ HAI: Xóa ngay trạng thái buồn/lắc đầu để bé tươi tỉnh lại
+            // (Đưa dòng này lên trước để nó luôn luôn được chạy khi người dùng tương tác)
+            mascotContainer.classList.remove('sad', 'shake');
+
+            // 3. BƯỚC THỨ BA: Nếu bé đang lấy tay che mắt (scared) thì bỏ qua phần liếc mắt
+            if (mascotContainer.classList.contains('scared')) return;
+
+            // 4. Các lệnh tính toán liếc mắt giữ nguyên
+            const input = e.target;
+            const length = Math.min(input.value.length, 30);
+            const xPos = (length / 30) * 10 - 5;
+            const eyes = mascotContainer.querySelectorAll('.eye');
+            eyes.forEach(eye => {
+                eye.style.setProperty('--eye-x', `${xPos}px`);
+                eye.style.setProperty('--eye-y', `4px`);
+            });
+        }
+
+        // 2. Hàm Reset Mắt
+        function resetEyes(mascotContainer) {
+            if (!mascotContainer) return;
+            const eyes = mascotContainer.querySelectorAll('.eye');
+            eyes.forEach(eye => {
+                eye.style.setProperty('--eye-x', `0px`);
+                eye.style.setProperty('--eye-y', `0px`);
+            });
+        }
+
+        // 3. Hàm kích hoạt nút Bật/Tắt che mắt
+        function setupTogglePassword(btnId, inputId, iconId, mascotId) {
+            const btn = document.getElementById(btnId);
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            const mascot = document.getElementById(mascotId);
+
+            // FIX: Kiểm tra đầy đủ cả btn, input và mascot
+            if (btn && input && mascot) {
+                btn.addEventListener('click', function () {
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.replace('bi-eye-slash', 'bi-eye');
+                        mascot.classList.add('scared');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.replace('bi-eye', 'bi-eye-slash');
+                        mascot.classList.remove('scared');
+                    }
+                });
+            }
+        }
+
+        // KÍCH HOẠT TAB ĐĂNG NHẬP
+        const loginMascot = document.getElementById('login-mascot');
+        const loginInputs = document.querySelectorAll('#login-panel input');
+        setupTogglePassword('btn-toggle-password', 'password-input', 'eye-icon', 'login-mascot');
+        loginInputs.forEach(input => {
+            input.addEventListener('focus', (e) => trackEyes(e, loginMascot));
+            input.addEventListener('input', (e) => trackEyes(e, loginMascot));
+            input.addEventListener('blur', () => resetEyes(loginMascot));
+        });
+
+        // KÍCH HOẠT TAB ĐĂNG KÝ
+        const regMascot = document.getElementById('register-mascot');
+        const regInputs = document.querySelectorAll('#register-panel input');
+        const regPass = document.getElementById('reg-password');
+        const regConfirm = document.getElementById('reg-confirm');
+        const regErrorText = document.getElementById('reg-error-text');
+
+        setupTogglePassword('btn-toggle-reg-pass', 'reg-password', 'reg-eye-icon', 'register-mascot');
+        regInputs.forEach(input => {
+            input.addEventListener('focus', (e) => trackEyes(e, regMascot));
+            input.addEventListener('input', (e) => trackEyes(e, regMascot));
+            input.addEventListener('blur', () => resetEyes(regMascot));
+        });
+
+        // BIỂU CẢM BUỒN + LẮC ĐẦU KHI CHECK MẬT KHẨU SAI
+        function checkPasswordValid() {
+            if (!regPass.value && !regConfirm.value) {
+                regMascot.classList.remove('sad');
+                regErrorText.classList.add('d-none');
+                return;
+            }
+            let isStrong = regPass.value.length >= 6;
+            let isMatch = regPass.value === regConfirm.value;
+
+            if (regConfirm.value.length > 0 && (!isStrong || !isMatch)) {
+                regMascot.classList.add('sad');
+                regErrorText.classList.remove('d-none');
+                regMascot.classList.remove('shake');
+                void regMascot.offsetWidth;
+                regMascot.classList.add('shake');
+            } else {
+                regMascot.classList.remove('sad', 'shake');
+                regErrorText.classList.add('d-none');
+            }
+        }
+        if (regConfirm) {
+            regConfirm.addEventListener('blur', checkPasswordValid);
+            regConfirm.addEventListener('keyup', checkPasswordValid);
+        }
+
+        // AJAX SUBMIT FORM GỐC
         async function submitFormAJAX(formId, alertId, isLogin) {
             const form = document.getElementById(formId);
             const alertBox = document.getElementById(alertId);
-
+            if (!form || !alertBox) return;
             form.addEventListener('submit', async function (e) {
-                e.preventDefault(); // Chặn việc submit mặc định (load lại trang)
-
+                e.preventDefault();
                 const formData = new FormData(form);
-
                 try {
-                    // Gửi request POST đến Controller
-                    const response = await fetch(form.action, {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    const data = await response.json(); // Đọc dữ liệu JSON trả về
-
+                    const response = await fetch(form.action, { method: 'POST', body: formData });
+                    const data = await response.json();
                     if (data.success) {
-                        if (isLogin) {
-                            // Nếu là form Đăng nhập thành công -> Load lại trang web để cập nhật thanh Menu
-                            window.location.reload();
-                        } else {
-                            // Nếu form Đăng ký thành công -> Báo xanh, khuyên sang tab đăng nhập
+                        if (isLogin) window.location.reload();
+                        else {
                             alertBox.className = "alert alert-success";
                             alertBox.textContent = data.message;
                             alertBox.classList.remove("d-none");
-                            form.reset(); // Xóa trắng form
+                            form.reset();
+                            regMascot.classList.remove('sad');
+                            regErrorText.classList.add('d-none');
                         }
                     } else {
-                        // Nếu lỗi -> Báo đỏ
                         alertBox.className = "alert alert-danger";
                         alertBox.textContent = data.message;
                         alertBox.classList.remove("d-none");
+
+                        const activeMascot = isLogin ? document.getElementById('login-mascot') : document.getElementById('register-mascot');
+                        if (activeMascot) {
+                            activeMascot.classList.add('sad');
+                            activeMascot.classList.remove('shake');
+                            void activeMascot.offsetWidth; // Reset DOM để animation có thể chạy lại nhiều lần
+                            activeMascot.classList.add('shake');
+                        }
                     }
                 } catch (error) {
                     alertBox.className = "alert alert-danger";
-                    alertBox.textContent = "Có lỗi xảy ra khi kết nối đến máy chủ.";
+                    alertBox.textContent = "Có lỗi xảy ra khi kết nối máy chủ.";
                     alertBox.classList.remove("d-none");
                 }
             });
         }
-
-        // Kích hoạt cho 2 form
         submitFormAJAX("loginForm", "loginAlert", true);
         submitFormAJAX("registerForm", "registerAlert", false);
     });
