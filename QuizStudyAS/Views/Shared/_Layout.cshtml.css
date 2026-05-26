@@ -30,25 +30,26 @@ body, html {
     overflow-x: hidden;
     z-index: 1020;
 }
+/* Dùng nhãn từ thẻ HTML để ra lệnh cho Sidebar mở rộng */
+html.sidebar-expanded-state #sidebar {
+    width: 260px;
+}
 
-    #sidebar.expanded {
-        width: 260px;
-    }
+html:not(.sidebar-expanded-state) #sidebar .sidebar-text,
+html:not(.sidebar-expanded-state) #sidebar .chevron-icon {
+    display: none !important;
+}
 
-    #sidebar:not(.expanded) .sidebar-text, #sidebar:not(.expanded) .chevron-icon {
-        display: none !important;
-    }
+html.sidebar-expanded-state #sidebar .sidebar-text {
+    display: inline-block;
+    opacity: 1;
+    white-space: nowrap;
+    font-weight: 600;
+}
 
-    #sidebar.expanded .sidebar-text {
-        display: inline-block;
-        opacity: 1;
-        white-space: nowrap;
-        font-weight: 600;
-    }
-
-    #sidebar.expanded .chevron-icon {
-        display: block;
-    }
+html.sidebar-expanded-state #sidebar .chevron-icon {
+    display: block;
+}
 
 /* Main Content */
 #main-content {
@@ -59,10 +60,9 @@ body, html {
     overflow-y: auto;
 }
 
-    #main-content.sidebar-expanded {
-        margin-left: 260px;
-    }
-
+html.sidebar-expanded-state #main-content {
+    margin-left: 260px;
+}
 /* Các định dạng link */
 .sidebar-link {
     color: #495057;
