@@ -40,7 +40,7 @@ namespace QuizStudyAS.Controllers
             return RedirectToAction("Index", new { NameClass = className });
         }
 
-        public async Task<IActionResult> YourClass() => RedirectToAction("Index");
+        
         public async Task<IActionResult> Search() => RedirectToAction("Index");
 
         public async Task<IActionResult> Request()

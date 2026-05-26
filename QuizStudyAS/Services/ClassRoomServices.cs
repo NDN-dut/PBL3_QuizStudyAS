@@ -66,10 +66,11 @@ namespace QuizStudyAS.Services
                 .ToList();
             var data = new ListShowClassRoomVM()
             {
-                ListClassRoom = top5Classrooms
+                ListClassRoom = finalResult
             };
             return data;
         }
+        
 
         public async Task CreateRequest(string ClassName)
         {
