@@ -1,0 +1,262 @@
+﻿@model QuizStudyAS.Models.StudySet
+
+@{
+    string modeTitle = ViewBag.GameMode == "multiple" ? "Trắc nghiệm" : (ViewBag.GameMode == "written" ? "Tự luận" : "Trộn lẫn");
+    ViewData["Title"] = $"Chế độ {modeTitle}: {Model.Title}";
+}
+
+<div class="container py-4 max-w-md mx-auto" style="max-width: 800px;">
+    
+    <div id="game-screen">
+        <div class="d-flex justify-content-between align-items-end mb-3">
+            <div>
+                <a asp-action="Details" asp-route-id="@Model.StudySetId" class="text-decoration-none text-muted small fw-bold mb-1 d-inline-block">
+                    <i class="bi bi-arrow-left"></i> Thoát Game
+                </a>
+                <h4 class="fw-bold m-0 text-dark">@Model.Title</h4>
+                <div class="badge bg-secondary mt-1">Chế độ: @modeTitle</div>
+                <div class="text-muted small fw-bold mt-2" id="question-counter">Câu 1 / @Model.Flashcards.Count</div>
+            </div>
+            <div class="text-end">
+                <div class="fs-4 fw-bold text-primary mb-2" id="score-display">Điểm: 0</div>
+                
+                <div class="badge bg-danger fs-5 px-3 py-2 shadow-sm @(ViewBag.GameTimer == 0 ? "d-none" : "")" id="timer-badge">
+                    <i class="bi bi-stopwatch"></i> <span id="time-left">@ViewBag.GameTimer</span>s
+                </div>
+            </div>
+        </div>
+
+        <div class="progress mb-4 bg-light shadow-inner" style="height: 10px; border-radius: 10px;">
+            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%; transition: width 0.4s ease;"></div>
+        </div>
+
+        <div class="card shadow-sm border rounded-4 mb-4 bg-white">
+            <div class="card-body p-5 text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 200px;">
+                <span class="text-muted small text-uppercase fw-bold mb-2" id="question-type-hint">Thuật ngữ</span>
+                <h2 class="fw-bold mb-0 text-dark" id="question-text">Đang tải...</h2>
+            </div>
+        </div>
+
+        <div id="interaction-area">
+            </div>
+    </div>
+
+    <div id="result-screen" class="text-center py-5 d-none bg-white rounded-4 shadow-sm border mt-4">
+        <h1 class="display-1 mb-3">🏆</h1>
+        <h2 class="fw-bold text-dark mb-2">Trận đấu kết thúc!</h2>
+        <p class="text-muted fs-5 mb-4">Bạn đã hoàn thành xuất sắc các thử thách học phần.</p>
+        
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-4">
+                <div class="card border border-primary bg-light rounded-4">
+                    <div class="card-body py-4">
+                        <h1 class="display-3 text-primary fw-bold m-0" id="final-score">0</h1>
+                        <p class="text-muted fw-bold text-uppercase m-0 mt-2">Tổng Điểm</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-center gap-3">
+            <button class="btn btn-primary btn-lg fw-bold px-5 rounded-pill shadow-sm" onclick="location.reload()">
+                <i class="bi bi-arrow-clockwise"></i> Đấu Lại
+            </button>
+            <a asp-action="Details" asp-route-id="@Model.StudySetId" class="btn btn-light btn-lg px-5 fw-bold border rounded-pill shadow-sm text-dark">
+                Về Học Phần
+            </a>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        // Cấu hình nhận từ C# thông qua ViewBag
+        const configMode = "@ViewBag.GameMode";
+        const configTimer = parseInt("@ViewBag.GameTimer");
+        const hasTimer = configTimer > 0;
+
+        // Đồng bộ dữ liệu bộ bài
+        const deck = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Flashcards.Select(f => new { term = f.Term, def = f.Definition })));
+        
+        // Trộn ngẫu nhiên câu hỏi trước khi bắt đầu đấu trường
+        deck.sort(() => Math.random() - 0.5);
+
+        let currentIndex = 0;
+        let score = 0;
+        let currentTimer = null;
+        let timeLeft = configTimer;
+
+        const uiQuestion = document.getElementById('question-text');
+        const uiHint = document.getElementById('question-type-hint');
+        const uiArea = document.getElementById('interaction-area');
+        const uiProgress = document.getElementById('progress-bar');
+        const uiCounter = document.getElementById('question-counter');
+        const uiScore = document.getElementById('score-display');
+        const uiTimeLeft = document.getElementById('time-left');
+        const uiTimerBadge = document.getElementById('timer-badge');
+
+        document.addEventListener('DOMContentLoaded', loadQuestion);
+
+        function loadQuestion() {
+            if (currentIndex >= deck.length) {
+                endGame();
+                return;
+            }
+
+            const currentQ = deck[currentIndex];
+            
+            // Cập nhật các thông số cơ bản
+            uiQuestion.innerText = currentQ.term;
+            uiCounter.innerText = `Câu ${currentIndex + 1} / ${deck.length}`;
+            uiProgress.style.width = `${(currentIndex / deck.length) * 100}%`;
+            uiArea.innerHTML = ''; // Clear vùng tương tác cũ
+
+            // QUYẾT ĐỊNH LOẠI GIAO DIỆN PHÙ HỢP TẠI THỜI ĐIỂM RUNTIME
+            let activeType = "multiple"; // Mặc định
+            if (configMode === "written") {
+                activeType = "written";
+            } else if (configMode === "mixed") {
+                activeType = Math.random() > 0.5 ? "multiple" : "written"; // Xác suất 50% trộn lẫn
+            }
+
+            if (activeType === "multiple") {
+                // RENDER GIAO DIỆN TRẮC NGHIỆM (4 NÚT BẤM)
+                uiHint.innerText = "Chế độ: Chọn đáp án đúng";
+                
+                let options = [currentQ.def];
+                let wrongPool = deck.filter(f => f.def !== currentQ.def);
+                wrongPool.sort(() => Math.random() - 0.5);
+                
+                for(let i = 0; i < 3; i++) {
+                    if(wrongPool[i]) options.push(wrongPool[i].def);
+                }
+                options.sort(() => Math.random() - 0.5);
+
+                const row = document.createElement('div');
+                row.className = 'row g-3';
+                
+                options.forEach((opt, idx) => {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-6';
+                    
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-outline-secondary w-100 p-4 fs-5 fw-semibold rounded-4 option-btn text-dark d-flex align-items-center bg-white';
+                    
+                    const letter = String.fromCharCode(65 + idx);
+                    btn.innerHTML = `<span class="badge bg-light text-secondary border honest-badge me-3 fs-6">${letter}</span> ${opt}`;
+                    
+                    btn.onclick = () => submitAnswer(opt, currentQ.def, btn, "multiple");
+                    col.appendChild(btn);
+                    row.appendChild(col);
+                });
+                uiArea.appendChild(row);
+
+            } else {
+                // RENDER GIAO DIỆN TỰ LUẬN (Ô INPUT GÕ ĐÁP ÁN)
+                uiHint.innerText = "Chế độ: Gõ nghĩa của từ bằng Tiếng Việt";
+                
+                uiArea.innerHTML = `
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                        <div class="d-flex gap-2">
+                            <input type="text" id="written-input" class="form-control form-control-lg p-3 fs-4 fw-bold text-center border-2 rounded-3" placeholder="Nhập định nghĩa/nghĩa của từ..." autocomplete="off">
+                            <button class="btn btn-primary px-4 fw-bold rounded-3 shadow-sm" id="btn-submit-written" style="width: 140px;">
+                                GỬI <i class="bi bi-send-fill ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                const txtInput = document.getElementById('written-input');
+                const btnSubmit = document.getElementById('btn-submit-written');
+
+                setTimeout(() => txtInput.focus(), 150); // Tự động focus con trỏ chuột
+
+                txtInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') btnSubmit.click();
+                });
+
+                btnSubmit.onclick = () => submitAnswer(txtInput.value, currentQ.def, txtInput, "written");
+            }
+
+            startTimer();
+        }
+
+        function submitAnswer(userAnswer, correctAnswer, element, modeType) {
+            stopTimer();
+            
+            // Chuẩn hóa chuỗi, loại bỏ khoảng trắng dư thừa và không phân biệt chữ hoa/thường
+            const isCorrect = (userAnswer || "").trim().toLowerCase() === (correctAnswer || "").trim().toLowerCase();
+            
+            if (modeType === "multiple") {
+                const btns = document.querySelectorAll('.option-btn');
+                btns.forEach(b => b.disabled = true);
+                
+                if (isCorrect) {
+                    element.classList.add('correct-anim');
+                    calculateScore();
+                } else {
+                    if (element) element.classList.add('wrong-anim');
+                    btns.forEach(b => {
+                        if (b.innerText.substring(3).trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
+                            b.classList.add('correct-anim');
+                        }
+                    });
+                }
+            } else {
+                // Xử lý hiệu ứng động cho ô viết tự luận
+                element.disabled = true;
+                document.getElementById('btn-submit-written').disabled = true;
+                
+                if (isCorrect) {
+                    element.classList.add('is-valid', 'bg-success', 'text-white');
+                    calculateScore();
+                } else {
+                    element.classList.add('is-invalid', 'bg-danger', 'text-white');
+                    element.value = `Sai rồi! Đáp án đúng là: ${correctAnswer}`;
+                }
+            }
+
+            setTimeout(() => {
+                currentIndex++;
+                loadQuestion();
+            }, 2000); // Chờ 2 giây để người học kịp ghi nhớ lại đáp án
+        }
+
+        function calculateScore() {
+            // Cộng 100 điểm cứng, nếu bật tính giờ cộng thêm điểm bonus thời gian thừa
+            score += 100 + (hasTimer ? (timeLeft * 10) : 0);
+            uiScore.innerText = `Điểm: ${score}`;
+        }
+
+        function startTimer() {
+            if (!hasTimer) return;
+            timeLeft = configTimer;
+            uiTimeLeft.innerText = timeLeft;
+            uiTimerBadge.classList.remove('timer-warning');
+
+            currentTimer = setInterval(() => {
+                timeLeft--;
+                uiTimeLeft.innerText = timeLeft;
+
+                if (timeLeft <= 5) uiTimerBadge.classList.add('timer-warning');
+
+                if (timeLeft <= 0) {
+                    stopTimer();
+                    const activeInput = document.getElementById('written-input');
+                    submitAnswer("!!!TIMEOUT!!!", deck[currentIndex].def, activeInput || null, activeInput ? "written" : "multiple");
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (currentTimer) clearInterval(currentTimer);
+        }
+
+        function endGame() {
+            document.getElementById('game-screen').classList.add('d-none');
+            document.getElementById('result-screen').classList.remove('d-none');
+            document.getElementById('final-score').innerText = score;
+        }
+    </script>
+}

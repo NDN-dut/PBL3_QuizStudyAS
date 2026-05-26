@@ -1,0 +1,59 @@
+<script>
+        document.addEventListener("DOMContentLoaded", function () {
+        
+            // 1. CHỨC NĂNG THU PHÓNG SIDEBAR
+            const btnToggle = document.getElementById('btn-toggle-sidebar');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+
+            if (btnToggle && sidebar) {
+                btnToggle.addEventListener('click', function (e) {
+                    e.preventDefault(); // Ngăn lỗi nhảy trang khi click
+                    sidebar.classList.toggle('expanded');
+                    if (mainContent) {
+                        mainContent.classList.toggle('sidebar-expanded');
+                    }
+                });
+            }
+
+            // 2. CHỨC NĂNG GIAO DIỆN SÁNG / TỐI
+            const themeBtn = document.getElementById('theme-toggle-btn');
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+
+            function applyTheme(isDark) {
+                if (isDark) {
+                    // Áp dụng class dark-theme cho cả thẻ html và body
+                    document.documentElement.classList.add('dark-theme');
+                    document.body.classList.add('dark-theme');
+                
+                    if(themeIcon) themeIcon.className = 'bi bi-sun-fill fs-6 text-warning';
+                    if(themeText) themeText.innerText = 'Giao diện sáng';
+                } else {
+                    document.documentElement.classList.remove('dark-theme');
+                    document.body.classList.remove('dark-theme');
+                
+                    if(themeIcon) themeIcon.className = 'bi bi-moon-stars-fill fs-6 text-secondary';
+                    if(themeText) themeText.innerText = 'Giao diện tối';
+                }
+            }
+
+            // Lấy lịch sử cài đặt từ LocalStorage
+            const currentTheme = localStorage.getItem('quiz_study_theme');
+            if (currentTheme === 'dark') {
+                applyTheme(true);
+            }
+
+            // Bắt sự kiện khi người dùng click vào nút Sáng/Tối
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const isCurrentlyDark = document.body.classList.contains('dark-theme');
+                
+                    applyTheme(!isCurrentlyDark);
+                    localStorage.setItem('quiz_study_theme', !isCurrentlyDark ? 'dark' : 'light');
+                });
+            }
+        
+        });
+</script>
