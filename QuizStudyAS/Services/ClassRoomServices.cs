@@ -18,6 +18,12 @@ namespace QuizStudyAS.Services
         }
         public async Task<ListShowClassRoomVM> FindClassRoomByName(string NameClass)
         {
+            // THÊM ĐOẠN KIỂM TRA CHẶN NULL HOẶC RỖNG Ở ĐÂY
+            if (string.IsNullOrWhiteSpace(NameClass))
+            {
+                return new ListShowClassRoomVM { ListClassRoom = new List<ShowClassRoom>() };
+            }
+
             AdditionAlgrothim AddAl = new AdditionAlgrothim(_context);
             string currentUserId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
 
