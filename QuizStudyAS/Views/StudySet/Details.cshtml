@@ -69,10 +69,10 @@
     </div>
 
     <div class="bg-white rounded-4 p-2 shadow-sm d-flex gap-2 align-items-center mb-5 overflow-x-auto border">
-        <button class="btn btn-primary rounded-3 flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 active-tab">
+        <a asp-action="Learn" asp-route-id="@Model.StudySetId" class="btn btn-primary rounded-3 flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 active-tab text-white text-decoration-none">
             <i class="bi bi-card-heading fs-5"></i>
             <span>Thẻ ghi nhớ</span>
-        </button>
+        </a>
         
         <button class="btn btn-primary rounded-3 flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 active-tab" data-bs-toggle="modal" data-bs-target="#gameSetupModal">
             <i class="bi bi-controller fs-5 text-white"></i>

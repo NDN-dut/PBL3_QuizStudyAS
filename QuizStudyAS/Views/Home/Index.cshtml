@@ -1,8 +1,208 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
+    // Đọc trạng thái đăng nhập từ Session
+    var currentUserName = Context.Session.GetString("UserName");
+    bool isLoggedIn = !string.IsNullOrEmpty(currentUserName);
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="home-container fade-in-up">
+    <div class="row align-items-center hero-section mb-5 py-3 py-md-5">
+
+        <div class="col-lg-6 mb-5 mb-lg-0 text-center text-lg-start z-index-2">
+            <span class="badge bg-primary bg-opacity-10 text-primary mb-3 px-3 py-2 rounded-pill border border-primary border-opacity-25 shadow-sm" style="font-size: 0.9rem;">
+                <i class="bi bi-controller text-warning me-1"></i> Nền tảng học tập Gamification
+            </span>
+            <h1 class="display-4 fw-black text-gradient mb-3" style="font-weight: 900; line-height: 1.2;">
+                Học Nhanh Hơn,<br /> <span class="text-primary">Nhớ Lâu Hơn!</span>
+            </h1>
+            <p class="lead text-muted mb-4 fs-5 pe-lg-4">
+                Đánh bay sự nhàm chán! Khám phá sức mạnh của Flashcard kết hợp với các minigame. Chinh phục kiến thức, cày điểm XP và leo rank ngay hôm nay.
+            </p>
+
+            @if (!isLoggedIn)
+            {
+                <button class="btn btn-primary btn-lg rounded-pill fw-bold px-5 py-3 shadow-lg bounce-hover" data-bs-toggle="modal" data-bs-target="#authModal">
+                    Bắt Đầu Chơi & Học <i class="bi bi-rocket-takeoff ms-2"></i>
+                </button>
+            }
+            else
+            {
+                <a asp-controller="StudySet" asp-action="Index" class="btn btn-primary btn-lg rounded-pill fw-bold px-5 py-3 shadow-lg bounce-hover">
+                    Tiếp Tục Chinh Phục <i class="bi bi-arrow-right-circle ms-2"></i>
+                </a>
+            }
+        </div>
+
+        <div class="col-lg-6 position-relative text-center d-flex justify-content-center align-items-center" style="min-height: 450px;">
+
+            <div class="ghost-wrapper float-animation" style="transform: scale(1.6); transform-origin: center; z-index: 10;">
+                <div class="ghost-container">
+                    <div class="ghost-body">
+                        <div class="ghost-face">
+                            <div class="eye left"></div>
+                            <div class="eye right"></div>
+                            <div class="mouth"></div>
+                            <div class="cheek left"></div>
+                            <div class="cheek right"></div>
+                        </div>
+                        <div class="arm left"></div>
+                        <div class="arm right"></div>
+                        <div class="ghost-skirt">
+                            <div class="bump"></div><div class="bump"></div><div class="bump"></div>
+                        </div>
+                    </div>
+                    <div class="ghost-shadow"></div>
+                </div>
+            </div>
+
+            <div class="floating-card float-delay-1 position-absolute top-0 start-0 bg-white rounded-4 shadow-lg p-3 text-center border-bottom border-4 border-warning" style="width: 140px; transform: rotate(-15deg); z-index: 5;">
+                <div class="fs-1">💡</div>
+                <div class="fw-bold mt-2 text-dark">Sáng tạo</div>
+            </div>
+
+            <div class="floating-card float-delay-2 position-absolute bottom-0 end-0 bg-white rounded-4 shadow-lg p-3 text-center border-bottom border-4 border-success" style="width: 140px; transform: rotate(15deg); z-index: 5;">
+                <div class="fs-1">🏆</div>
+                <div class="fw-bold mt-2 text-dark">Huy hiệu Vàng</div>
+            </div>
+
+            <div class="floating-card float-delay-3 position-absolute top-50 start-100 translate-middle bg-white rounded-pill shadow px-4 py-2 border d-flex align-items-center gap-2" style="z-index: 15;">
+                <span class="fs-3">🔥</span>
+                <span class="fw-black text-danger fs-5" style="font-weight: 800;">7 Ngày</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5 pt-3 mt-4 border-top border-light">
+        <div class="col-md-4">
+            <div class="card h-100 feature-card border-0 shadow-sm rounded-4 text-center p-4 pt-5 hover-lift">
+                <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <i class="bi bi-collection fs-1"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Bộ thẻ Flashcard</h4>
+                <p class="text-muted">Lật thẻ thông minh với thuật toán lặp lại ngắt quãng (Spaced Repetition) giúp não bộ ghi nhớ từ vựng vĩnh viễn.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 feature-card border-0 shadow-sm rounded-4 text-center p-4 pt-5 hover-lift position-relative overflow-hidden border-bottom border-4 border-warning">
+                <div class="position-absolute top-0 end-0 bg-warning text-dark fw-bold px-3 py-1 rounded-bl-3" style="border-bottom-left-radius: 1rem;">HOT</div>
+                <div class="icon-box bg-success bg-opacity-10 text-success rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <i class="bi bi-joystick fs-1"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Game Hóa Kịch Tính</h4>
+                <p class="text-muted">Vừa học vừa chơi! Trả lời trắc nghiệm, cày điểm XP, mở khóa huy hiệu và leo rank Đấu trường với bạn bè.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 feature-card border-0 shadow-sm rounded-4 text-center p-4 pt-5 hover-lift">
+                <div class="icon-box bg-warning bg-opacity-10 text-warning rounded-circle mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                    <i class="bi bi-people fs-1"></i>
+                </div>
+                <h4 class="fw-bold mb-3">Lớp Học Tương Tác</h4>
+                <p class="text-muted">Giáo viên quản lý tiến độ, giao bài tập. Học sinh cạnh tranh điểm số trong Lớp học theo thời gian thực.</p>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    /* Gradient chữ cho tiêu đề */
+    .text-gradient {
+        background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Hiệu ứng nhún nhảy cho nút bấm */
+    .bounce-hover {
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+    }
+
+        .bounce-hover:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(13, 110, 253, 0.3) !important;
+        }
+
+    /* Hiệu ứng trôi nổi (Cho các Flashcard con xung quanh) */
+    @@keyframes float-cards {
+        0%, 100% {
+            transform: translateY(0) rotate(var(--rotation, 0deg));
+        }
+
+        50% {
+            transform: translateY(-15px) rotate(var(--rotation, 0deg));
+        }
+    }
+
+    .float-delay-1 {
+        --rotation: -15deg;
+        animation: float-cards 4s ease-in-out 0.5s infinite;
+    }
+
+    .float-delay-2 {
+        --rotation: 15deg;
+        animation: float-cards 5s ease-in-out 1.5s infinite;
+    }
+
+    .float-delay-3 {
+        --rotation: 0deg;
+        animation: float-cards 4.5s ease-in-out 2s infinite;
+    }
+
+    /* Hiệu ứng nâng thẻ Tính năng khi hover */
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .hover-lift:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08) !important;
+        }
+
+    /* Hoạt ảnh mượt mà khi load trang */
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    /* ==========================================
+           TƯƠNG THÍCH VỚI CHẾ ĐỘ TỐI (DARK MODE)
+           ========================================== */
+    body.dark-theme .feature-card {
+        background-color: #2b2b2b !important;
+        border: 1px solid #444 !important;
+        color: #f1f1f1 !important;
+    }
+
+        body.dark-theme .feature-card h4 {
+            color: #fff !important;
+        }
+
+        body.dark-theme .feature-card .text-muted {
+            color: #adb5bd !important;
+        }
+
+    body.dark-theme .floating-card {
+        background-color: #333 !important;
+        border-color: #444 !important;
+        color: #fff !important;
+    }
+
+        body.dark-theme .floating-card .text-dark {
+            color: #fff !important;
+        }
+
+    body.dark-theme .border-light {
+        border-color: #444 !important;
+    }
+</style>

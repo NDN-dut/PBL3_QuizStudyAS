@@ -1,38 +1,45 @@
 ﻿@model IEnumerable<QuizStudyAS.Models.StudySet>
 
 @{
-    ViewData["Title"] = "Học phần của tôi";
+    ViewData["Title"] = "Kho Bí Kíp Của Tôi";
 }
 
-<div class="container py-4" style="max-width: 1200px;">
-    
+<div class="container py-4 page-fade-in" style="max-width: 1200px;">
+
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 gap-3">
-        <h2 class="fw-bold m-0 text-dark">Học phần của bạn</h2>
-        <a asp-action="Create" class="btn btn-primary fw-bold px-4 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2 transition-btn">
-            <i class="bi bi-plus-lg fs-5"></i> <span>Tạo học phần</span>
+        <div class="d-flex align-items-center gap-3">
+            <div class="inventory-icon-box shadow-sm">
+                <i class="bi bi-journal-bookmark-fill text-primary"></i>
+            </div>
+            <h2 class="fw-black m-0 arena-title-shine text-uppercase">KHO BÍ KÍP</h2>
+        </div>
+        <a asp-action="Create" class="btn btn-primary btn-lg fw-bold px-4 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2 transition-btn border-2 border-white">
+            <i class="bi bi-magic fs-5"></i> <span>Tạo bí kíp mới</span>
         </a>
     </div>
 
-    <div class="position-relative mb-5 mx-auto" style="max-width: 900px;">
-        <div class="input-group input-group-lg shadow-sm rounded-4 overflow-hidden bg-white border" style="transition: all 0.3s;" id="search-wrapper">
+    <div class="position-relative mb-5 mx-auto" style="max-width: 800px;">
+        <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden bg-white border border-2" style="transition: all 0.3s;" id="search-wrapper">
             <span class="input-group-text bg-transparent border-0 text-muted ps-4 pe-2">
                 <i class="bi bi-search fs-5"></i>
             </span>
-            <input type="text" id="search-input" class="form-control border-0 shadow-none bg-transparent fs-5 py-3" placeholder="Tìm kiếm học phần của bạn..." autocomplete="off">
+            <input type="text" id="search-input" class="form-control border-0 shadow-none bg-transparent fs-5 py-3 fw-semibold" placeholder="Tra cứu bí kíp của bạn..." autocomplete="off">
         </div>
 
-        <ul id="search-suggestions" class="list-group position-absolute w-100 shadow-lg mt-2 rounded-4 d-none border-0" style="z-index: 1000; max-height: 400px; overflow-y: auto;">
+        <ul id="search-suggestions" class="list-group position-absolute w-100 shadow-lg mt-2 rounded-4 d-none border-0 overflow-hidden" style="z-index: 1000; max-height: 400px; overflow-y: auto;">
         </ul>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="text-center py-5 bg-white rounded-4 shadow-sm border-0 mt-4 mx-auto" style="max-width: 600px;">
-            <i class="bi bi-journal-plus display-1 text-primary opacity-50 mb-3 d-block"></i>
-            <h3 class="fw-bold text-dark">Bạn chưa có học phần nào</h3>
-            <p class="text-muted fs-6 mb-4 px-4">Hãy tạo học phần đầu tiên để bắt đầu hành trình ghi nhớ từ vựng hiệu quả.</p>
-            <a asp-action="Create" class="btn btn-primary btn-lg rounded-pill fw-bold px-5 shadow-sm transition-btn">
-                Bắt đầu tạo ngay
+        <div class="text-center py-5 bg-white rounded-4 shadow-sm border-0 mt-4 mx-auto position-relative overflow-hidden" style="max-width: 600px;">
+            <div class="empty-book-animation mb-3">
+                <i class="bi bi-book-half display-1 text-primary opacity-25"></i>
+            </div>
+            <h3 class="fw-black text-dark mb-2">Kho tàng đang trống rỗng</h3>
+            <p class="text-muted fs-6 mb-4 px-4 fw-semibold">Hãy rèn luyện cuốn bí kíp phép thuật đầu tiên để bắt đầu hành trình chinh phục kiến thức của bạn!</p>
+            <a asp-action="Create" class="btn btn-primary btn-lg rounded-pill fw-bold px-5 shadow transition-btn">
+                <i class="bi bi-plus-circle-fill me-2"></i> Khởi tạo ngay
             </a>
         </div>
     }
@@ -42,32 +49,43 @@
             @foreach (var item in Model)
             {
                 <div class="col">
-                    <div class="card h-100 border rounded-4 shadow-sm hover-card bg-white position-relative">
-                        
+                    <div class="card h-100 border-0 rounded-4 shadow-sm grimoire-card bg-white position-relative overflow-hidden">
+
+                        <div class="grimoire-gradient-top"></div>
+
+                        <i class="bi bi-journal-text position-absolute text-light opacity-50 card-watermark"></i>
+
                         <div class="position-absolute top-0 end-0 m-3 z-3">
-                            <a asp-action="Edit" asp-route-id="@item.StudySetId" class="btn btn-light btn-sm rounded-circle shadow-sm edit-btn d-flex justify-content-center align-items-center" style="width: 35px; height: 35px;" title="Sửa học phần">
-                                <i class="bi bi-pencil-fill text-muted"></i>
+                            <a asp-action="Edit" asp-route-id="@item.StudySetId" class="btn btn-light btn-sm rounded-circle shadow-sm edit-btn d-flex justify-content-center align-items-center border" style="width: 36px; height: 36px;" title="Sửa học phần">
+                                <i class="bi bi-pencil-fill text-secondary"></i>
                             </a>
                         </div>
 
-                        <a asp-action="Details" asp-route-id="@item.StudySetId" class="text-decoration-none text-dark d-flex flex-column h-100 card-body p-4 stretched-link z-1">
+                        <a asp-action="Details" asp-route-id="@item.StudySetId" class="text-decoration-none text-dark d-flex flex-column h-100 p-4 stretched-link z-1">
+
                             <div class="mb-3">
-                                <span class="badge bg-light text-dark border rounded-pill px-3 py-2 fw-bold" style="font-size: 0.85rem;">
-                                    @item.Flashcards.Count thuật ngữ
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-bold shadow-xs">
+                                    <i class="bi bi-stack"></i> @item.Flashcards.Count thẻ
                                 </span>
                             </div>
-                            
-                            <h4 class="card-title fw-bold mb-2 text-truncate">@item.Title</h4>
-                            
-                            <p class="card-text text-muted small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                                @(string.IsNullOrEmpty(item.Description) ? "Không có mô tả" : item.Description)
+
+                            <h4 class="card-title fw-black mb-2 text-truncate pe-4" title="@item.Title">@item.Title</h4>
+
+                            <p class="card-text text-muted small flex-grow-1 fw-semibold" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                @(string.IsNullOrEmpty(item.Description) ? "Chưa có mô tả chi tiết..." : item.Description)
                             </p>
 
-                            <div class="mt-4 d-flex align-items-center pt-3 border-top">
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold me-2 shadow-sm" style="width: 32px; height: 32px; font-size: 14px;">
-                                    <i class="bi bi-person-fill"></i>
+                            <div class="mt-4 d-flex align-items-center justify-content-between pt-3 border-top position-relative">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center fw-bold border shadow-xs" style="width: 32px; height: 32px; font-size: 14px;">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <span class="small fw-bold text-muted">@item.CreatedAt.ToString("dd/MM/yyyy")</span>
                                 </div>
-                                <span class="small fw-semibold text-muted">Tạo ngày @item.CreatedAt.ToString("dd/MM/yyyy")</span>
+
+                                <div class="play-action-icon text-primary transition-all shadow-sm bg-white rounded-circle">
+                                    <i class="bi bi-play-circle-fill fs-3"></i>
+                                </div>
                             </div>
                         </a>
                     </div>
@@ -78,52 +96,158 @@
 </div>
 
 <style>
+    /* NHÚNG TRỰC TIẾP CSS VÀO ĐÂY ĐỂ ĐỒNG BỘ HIỆU ỨNG */
+
     body {
-        background-color: #f6f7fb; /* Nền xám nhạt đặc trưng của Quizlet */
+        background-color: #f8fafc;
+    }
+    /* Nền tổng thể sáng sủa, mượt mà */
+
+    /* Hiệu ứng Header */
+    .inventory-icon-box {
+        width: 50px;
+        height: 50px;
+        background: #fff;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        border: 2px solid #e2e8f0;
+        transform: rotate(-5deg);
+        transition: 0.3s;
+    }
+
+        .inventory-icon-box:hover {
+            transform: rotate(0deg) scale(1.1);
+            border-color: #0d6efd;
+        }
+
+    .arena-title-shine {
+        letter-spacing: -1px;
+        background: linear-gradient(to right, #1e293b 0%, #3b82f6 50%, #1e293b 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shine 3s linear infinite;
+    }
+    @@keyframes shine {
+        to {
+            background-position: 200% center;
+        }
     }
 
     /* Hiệu ứng thanh tìm kiếm */
-    #search-input:focus {
-        outline: none;
-    }
-
     #search-wrapper:focus-within {
-        border-color: #5865f2 !important;
-        box-shadow: 0 0 0 4px rgba(88, 101, 242, 0.15) !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.15) !important;
     }
 
-    /* Hiệu ứng thẻ Card */
-    .hover-card {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        border: 2px solid transparent !important;
+    /* ------------------------------------------------ */
+    /* THIẾT KẾ THẺ BÍ KÍP (GRIMOIRE CARDS)             */
+    /* ------------------------------------------------ */
+    .grimoire-card {
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        border: 1px solid rgba(0,0,0,0.05) !important;
     }
 
-        .hover-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0,0,0,.1) !important;
-            border-bottom: 2px solid #5865f2 !important; /* Viền xanh bên dưới khi hover */
+    /* Vệt màu Gradient phép thuật trên đầu thẻ */
+    .grimoire-gradient-top {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 6px;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        opacity: 0.8;
+        transition: height 0.3s ease;
+    }
+
+    /* Icon Watermark to chìm dưới nền thẻ */
+    .card-watermark {
+        font-size: 120px;
+        right: -20px;
+        bottom: -20px;
+        z-index: 0;
+        transform: rotate(-15deg);
+        transition: 0.4s ease;
+    }
+
+    /* Icon Play ẩn góc phải dưới */
+    .play-action-icon {
+        opacity: 0;
+        transform: translateX(20px) scale(0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+    }
+
+    /* ----- TRẠNG THÁI HOVER CỦA THẺ ----- */
+    .grimoire-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(59, 130, 246, 0.1) !important;
+        border-color: rgba(59, 130, 246, 0.3) !important;
+    }
+
+        .grimoire-card:hover .grimoire-gradient-top {
+            height: 8px;
+            opacity: 1;
         }
 
-    /* Hiệu ứng nút bấm */
+        .grimoire-card:hover .card-watermark {
+            transform: rotate(-5deg) scale(1.1);
+            color: #f1f5f9 !important;
+            opacity: 1;
+        }
+
+        .grimoire-card:hover .play-action-icon {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+
+    /* Nút bấm Hover chung */
     .transition-btn {
         transition: all 0.2s;
     }
 
         .transition-btn:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3) !important;
         }
 
     .edit-btn {
-        transition: background-color 0.2s, color 0.2s;
+        transition: all 0.2s;
+        z-index: 10;
     }
 
         .edit-btn:hover {
-            background-color: #ffc107 !important;
+            background-color: #facc15 !important;
+            border-color: #facc15 !important;
         }
 
             .edit-btn:hover i {
-                color: white !important;
+                color: #fff !important;
             }
+
+    /* Hiệu ứng trang trống */
+    .empty-book-animation {
+        animation: floatBook 3s infinite ease-in-out alternate;
+    }
+    @@keyframes floatBook {
+        0% {
+            transform: translateY(0);
+        }
+
+        100% {
+            transform: translateY(-15px);
+        }
+    }
+
+    .shadow-xs {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
 </style>
 
 @section Scripts {
@@ -147,20 +271,21 @@
                         .then(response => response.json())
                         .then(data => {
                             suggestionsBox.innerHTML = '';
-                            
+
                             if (data.length > 0) {
                                 data.forEach(item => {
                                     const li = document.createElement('li');
-                                    li.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 border-bottom px-4';
+                                    li.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 border-bottom px-4 transition-all';
                                     li.style.cursor = 'pointer';
-                                    
-                                    const highlightedTitle = highlightFuzzy(item.title, keyword);
 
+                                    const highlightedTitle = highlightFuzzy(item.title, keyword);
                                     li.innerHTML = `
-                                        <div class="fw-bold text-dark fs-6"><i class="bi bi-search text-muted me-3"></i>${highlightedTitle}</div>
-                                        <span class="badge bg-light text-secondary rounded-pill border px-3 py-2">${item.cardCount} thẻ</span>
-                                    `;
-                                    
+                                                <div class="fw-bold text-dark fs-6 d-flex align-items-center">
+                                                    <div class="bg-primary bg-opacity-10 text-primary rounded px-2 py-1 me-3"><i class="bi bi-search"></i></div>
+                                                    ${highlightedTitle}
+                                                </div>
+                                                <span class="badge bg-light text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 shadow-xs"><i class="bi bi-stack"></i> ${item.cardCount} thẻ</span>
+                                            `;
                                     li.addEventListener('click', () => {
                                         window.location.href = `/StudySet/Details/${item.id}`;
                                     });
@@ -168,7 +293,7 @@
                                 });
                                 suggestionsBox.classList.remove('d-none');
                             } else {
-                                suggestionsBox.innerHTML = '<li class="list-group-item text-muted py-4 text-center border-0 fs-6"><i>Không tìm thấy học phần nào khớp...</i></li>';
+                                suggestionsBox.innerHTML = '<li class="list-group-item text-muted py-4 text-center border-0 fs-6 fw-semibold"><i>Không tìm thấy cuốn bí kíp nào khớp...</i></li>';
                                 suggestionsBox.classList.remove('d-none');
                             }
                         });
@@ -181,7 +306,7 @@
                 words.forEach(w => {
                     if (w) {
                         const regex = new RegExp(`(${w})`, 'gi');
-                        highlightedText = highlightedText.replace(regex, '<span class="text-primary fw-bolder">$1</span>');
+                        highlightedText = highlightedText.replace(regex, '<span class="text-primary fw-black">$1</span>');
                     }
                 });
                 return highlightedText;

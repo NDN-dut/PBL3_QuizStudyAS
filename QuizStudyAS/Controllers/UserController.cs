@@ -38,7 +38,12 @@ namespace QuizStudyAS.Controllers
                 Email = user.Email,
                 CreatedAt = user.CreatedAt,
                 // --- THAY ĐỔI 2: Map ảnh cũ sang VM ---
-                ExistingAvatarUrl = user.AvatarUrl
+                ExistingAvatarUrl = user.AvatarUrl,
+
+                XP = user.XP,
+                Level = user.Level,
+                CurrentStreak = user.CurrentStreak,
+                HighestStreak = user.HighestStreak
             };
 
             return View(vm);

@@ -56,6 +56,9 @@ namespace QuizStudyAS.Controllers
                 HttpContext.Session.SetString("UserId", result.User.Id);
                 HttpContext.Session.SetString("UserRole", result.User.Role.RoleName);
 
+                HttpContext.Session.SetInt32("UserLevel", result.User.Level);
+                HttpContext.Session.SetInt32("UserStreak", result.User.CurrentStreak);
+
                 return Json(new { success = true });
             }
 

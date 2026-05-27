@@ -7,12 +7,16 @@ namespace QuizStudyAS.Controllers
     public class StudySetController : Controller
     {
         private readonly IStudySetService _studySetService;
+        private readonly IGamificationService _gamificationService; // THÊM DÒNG NÀY
 
-        // Controller CHỈ tiêm Service, tuyệt đối không biết gì về AppDbContext
-        public StudySetController(IStudySetService studySetService)
+        // Cập nhật Constructor
+        public StudySetController(IStudySetService studySetService, IGamificationService gamificationService)
         {
             _studySetService = studySetService;
+            _gamificationService = gamificationService; // THÊM DÒNG NÀY
         }
+
+        // ... (Các hàm GetCurrentUserId() và Index() giữ nguyên) ...
 
         private string? GetCurrentUserId()
         {
@@ -210,6 +214,52 @@ namespace QuizStudyAS.Controllers
             ViewBag.GameTimer = timer;
 
             return View(studySet);
+        }
+
+        // ==========================================
+        // API: LƯU TIẾN ĐỘ GAME HÓA (XP, STREAK)
+        // Gọi bằng AJAX từ View khi người dùng hoàn thành bài
+        // ==========================================
+        // ==========================================
+        // API: LƯU TIẾN ĐỘ GAME HÓA (XP, STREAK) VÀ ĐỒNG BỘ SESSION
+        // ==========================================
+        [HttpPost]
+        public async Task<IActionResult> SaveProgress([FromBody] ProgressRequest req)
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId)) return Json(new { success = false, message = "Vui lòng đăng nhập" });
+
+            // Tính điểm XP thưởng: Quiz được 50 XP, Học lật thẻ được 10 XP
+            int earnedXP = req.ActionType == "Quiz" ? 50 : 10;
+
+            // Gọi Service xử lý lưu vào CSDL
+            var result = await _gamificationService.UpdateUserProgressAsync(userId, earnedXP);
+
+            if (result.Success)
+            {
+                // CRITICAL: Cập nhật lại Session ngay lập tức để các trang khác tải lên đều nhận số mới
+                HttpContext.Session.SetInt32("UserLevel", result.Level);
+                HttpContext.Session.SetInt32("UserStreak", result.CurrentStreak);
+
+                return Json(new
+                {
+                    success = true,
+                    level = result.Level,
+                    currentStreak = result.CurrentStreak,
+                    earnedXP = result.EarnedXP,
+                    isLeveledUp = result.IsLeveledUp,
+                    isStreakSaved = result.IsStreakSaved
+                });
+            }
+
+            return Json(new { success = false });
+        }
+
+        public class ProgressRequest
+        {
+            public int StudySetId { get; set; }
+            public string ActionType { get; set; } // "Learn" hoặc "Quiz"
+            public int Score { get; set; }
         }
     }
 }

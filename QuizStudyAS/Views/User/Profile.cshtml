@@ -48,7 +48,68 @@
             </div>
 
             <div class="col-md-8">
+                @{
+                    // Đã đổi thành cố định 1000 XP
+                    int nextLevelXP = 1000;
+
+                    // Tính phần trăm để kéo độ dài thanh Progress Bar
+                    int xpPercent = (int)Math.Round((double)Model.XP / nextLevelXP * 100);
+                }
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                    <h4 class="fw-bold text-dark mb-4"><i class="bi bi-controller text-primary me-2"></i>Bảng Thành Tích</h4>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-4 border">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-bold text-dark fs-5">🌟 Cấp độ @Model.Level</span>
+                                    <span class="text-primary fw-bold">@Model.XP / @nextLevelXP XP</span>
+                                </div>
+                                <div class="progress" style="height: 12px; border-radius: 10px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: @xpPercent%;"></div>
+                                </div>
+                                <p class="small text-muted m-0 mt-2">Cố gắng thêm @(nextLevelXP - Model.XP) XP nữa để thăng cấp nhé!</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-4 border d-flex align-items-center justify-content-between h-100">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="streak-flame bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        <i class="bi bi-fire fs-3"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark fs-5">Chuỗi @Model.CurrentStreak Ngày</div>
+                                        <div class="small text-muted">Kỷ lục cao nhất: @Model.HighestStreak ngày</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-secondary text-uppercase small mb-3">Huy hiệu đạt được</h6>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <div class="badge-item text-center">
+                            <div class="bg-warning bg-opacity-25 text-warning rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 border border-warning" style="width: 60px; height: 60px;">
+                                <i class="bi bi-lightning-charge-fill fs-2"></i>
+                            </div>
+                            <span class="small fw-bold text-dark">Lần đầu<br>xung trận</span>
+                        </div>
+
+                        <div class="badge-item text-center opacity-50">
+                            <div class="bg-secondary bg-opacity-10 text-secondary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 border border-secondary" style="width: 60px; height: 60px;">
+                                <i class="bi bi-book-half fs-2"></i>
+                            </div>
+                            <span class="small fw-bold text-muted">Mọt sách<br>(Khóa)</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                    <h4 class="fw-bold text-dark mb-4"><i class="bi bi-person-lines-fill text-primary me-2"></i>Thông tin cá nhân</h4>
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+
+                    
+
                     <h3 class="fw-bold text-dark mb-4">Thông tin cá nhân</h3>
 
                     @if (TempData["SuccessMessage"] != null)

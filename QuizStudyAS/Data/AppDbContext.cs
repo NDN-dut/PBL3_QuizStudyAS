@@ -21,6 +21,8 @@ namespace QuizStudyAS.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<ClassRoomMaterial> ClassRoomMaterials { get; set; }
         public DbSet<RequestJoinClass> RequestJoinClasses { get; set; }
+        public DbSet<Achievement> Achievements { get; set; }
+        public DbSet<UserAchievement> UserAchievements { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
