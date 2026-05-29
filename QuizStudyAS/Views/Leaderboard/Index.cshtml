@@ -1,0 +1,44 @@
+﻿@model QuizStudyAS.ViewModels.LeaderboardVM
+
+@{
+    ViewData["Title"] = "Đấu trường danh vọng";
+}
+
+<div class="container py-4 page-fade-in" style="max-width: 1150px;">
+    <div class="arena-master-box border-0 shadow-lg rounded-4 overflow-hidden bg-white">
+
+        <div class="arena-header d-flex flex-column flex-md-row align-items-center justify-content-between p-4 border-bottom bg-white">
+            <div class="mb-3 mb-md-0 text-center text-md-start">
+                <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-3">
+                    <div class="css-trophy-mini"></div>
+                    <h2 class="fw-black m-0 arena-title-shine">ĐẤU TRƯỜNG DANH VỌNG</h2>
+                </div>
+                <p class="text-muted small m-0 mt-2 fw-semibold ls-1">
+                    <i class="bi bi-arrow-repeat spin-slow"></i> Bảng thứ hạng cập nhật tự động dựa trên tiến độ thực tế
+                </p>
+            </div>
+
+            <ul class="nav nav-pills arena-tabs p-1 bg-light rounded-pill border" id="rankTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold px-4 py-2 rounded-pill" id="level-tab" data-bs-toggle="tab" data-bs-target="#level-pane" type="button" role="tab">
+                        Theo Cấp Độ
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold px-4 py-2 rounded-pill" id="streak-tab" data-bs-toggle="tab" data-bs-target="#streak-pane" type="button" role="tab">
+                        Theo Chuỗi 🔥
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content" id="rankTabContent">
+            <div class="tab-pane fade show active" id="level-pane" role="tabpanel" aria-labelledby="level-tab">
+                @await Html.PartialAsync("_RankSection", Model.LevelRanking)
+            </div>
+            <div class="tab-pane fade" id="streak-pane" role="tabpanel" aria-labelledby="streak-tab">
+                @await Html.PartialAsync("_RankSection", Model.StreakRanking)
+            </div>
+        </div>
+    </div>
+</div>

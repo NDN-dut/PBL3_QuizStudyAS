@@ -24,6 +24,9 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 // Đăng ký StudySet Service
 builder.Services.AddScoped<IStudySetService, StudySetService>();
 
+// Đăng kí LeaderBoardService
+builder.Services.AddScoped<ILeaderboardService, LeaderboardService>();
+
 // 1. ĐĂNG KÝ DỊCH VỤ SESSION (Thêm đoạn này)
 builder.Services.AddDistributedMemoryCache(); // Bộ nhớ tạm để lưu Session
 builder.Services.AddSession(options =>
@@ -54,6 +57,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddScoped<IClassRoomServices, ClassRoomServices>();
+
+builder.Services.AddScoped<IGamificationService, GamificationService>();
 
 var app = builder.Build();
 
@@ -90,18 +95,16 @@ if (app.Environment.IsDevelopment())
         {
             var context = services.GetRequiredService<AppDbContext>();
 
-            //// 1. Xóa Database cũ (Drop)
-            //context.Database.EnsureDeleted();
+            // ĐÃ SỬA: Lấy Hasher từ hệ thống ra
+            var hasher = services.GetRequiredService<IPasswordHasher>();
 
-            //// 2. Tạo lại Database mới hoàn toàn (Create)
-            //context.Database.EnsureCreated();
-            ////// Thay vì EnsureCreated, ta dùng Migrate để EF tự tạo bảng lịch sử, khi cấu trúc ổn định, để có thể dùng Migration
-            ////context.Database.Migrate();
+            // context.Database.EnsureDeleted(); // Cứ đóng comment dòng này cho an toàn
+            context.Database.Migrate();
 
-            //// 3. Gọi hàm nạp dữ liệu mẫu (Seed Data)
-            //DbInitializer.Initialize(context);
+            // ĐÃ SỬA: Truyền 'hasher' vào làm tham số thứ 2
+            DbInitializer.Initialize(context, hasher);
 
-            //Console.WriteLine("Database đã được làm mới và nạp dữ liệu mẫu thành công!");
+            Console.WriteLine("Database đã được làm mới và nạp dữ liệu mẫu thành công!");
         }
         catch (Exception ex)
         {
@@ -109,5 +112,6 @@ if (app.Environment.IsDevelopment())
         }
     }
 }
+
 
 app.Run();

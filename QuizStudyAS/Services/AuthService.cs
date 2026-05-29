@@ -22,15 +22,24 @@ namespace QuizStudyAS.Services
                 return (false, "Tên tài khoản hoặc Email đã được sử dụng.");
             }
 
+            // 1. Tìm quyền "User" trong Database
             var defaultRole = _context.Roles.FirstOrDefault(r => r.RoleName == "User");
-            int defaultRoleId = defaultRole != null ? defaultRole.RoleId : 2;
 
+            // 2. NẾU CHƯA CÓ -> TỰ ĐỘNG TẠO MỚI LUÔN ĐỂ TRÁNH LỖI KHÓA NGOẠI
+            if (defaultRole == null)
+            {
+                defaultRole = new Role { RoleName = "User" };
+                _context.Roles.Add(defaultRole);
+                _context.SaveChanges(); // Lưu xuống DB để lấy được RoleId chuẩn xác
+            }
+
+            // 3. Tạo tài khoản với RoleId chuẩn xác
             var newUser = new ApplicationUser
             {
                 UserName = username,
                 Email = email,
                 PasswordHash = _passwordHasher.HashPassword(password),
-                RoleId = defaultRoleId
+                RoleId = defaultRole.RoleId // Lấy ID trực tiếp từ đối tượng Role
             };
 
             _context.Users.Add(newUser);
@@ -38,7 +47,6 @@ namespace QuizStudyAS.Services
 
             return (true, "Đăng ký thành công! Vui lòng đăng nhập.");
         }
-
         public (bool Success, ApplicationUser? User, string Message) AuthenticateUser(string usernameOrEmail, string password)
         {
             var user = _context.Users

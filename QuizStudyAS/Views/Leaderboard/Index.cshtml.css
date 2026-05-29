@@ -1,0 +1,185 @@
+﻿/* 1. HIỆU ỨNG TIÊU ĐỀ NỔI BẬT */
+.arena-title-shine {
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(to right, #1a1a1a 0%, #ffd700 50%, #1a1a1a 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 3s linear infinite;
+}
+
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+
+/* 2. NỀN MÀU CHO TÊN USER VINH DANH */
+.honored-name-box {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.name-gold {
+    background: linear-gradient(135deg, #fef9c3, #fde047);
+    color: #854d0e;
+    border: 1px solid #facc15;
+}
+
+.name-silver {
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+
+.name-bronze {
+    background: linear-gradient(135deg, #fff7ed, #ffedd5);
+    color: #9a3412;
+    border: 1px solid #fdba74;
+}
+
+/* 3. THIẾT KẾ TROPHY (CÚP) BẰNG CSS */
+.css-trophy-main {
+    width: 60px;
+    height: 50px;
+    background: #ffffff;
+    position: relative;
+    margin: 20px auto;
+    border-radius: 0 0 30px 30px;
+    box-shadow: inset 0 -5px rgba(0,0,0,0.1);
+    animation: bounceIcon 2s infinite ease-in-out;
+}
+
+    .css-trophy-main::before { /* Tay cầm */
+        content: '';
+        position: absolute;
+        top: 5px;
+        left: -15px;
+        width: 90px;
+        height: 30px;
+        border: 8px solid #ffffff;
+        border-radius: 15px;
+        z-index: -1;
+    }
+
+    .css-trophy-main::after { /* Chân đế */
+        content: '';
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 10px;
+        background: #ffffff;
+        border-radius: 5px;
+    }
+
+/* 4. THIẾT KẾ MEDAL (HUY CHƯƠNG) BẰNG CSS */
+.css-medal {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 25px auto;
+    position: relative;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+    .css-medal::before { /* Ruy băng */
+        content: '';
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 20px solid #ef4444;
+        z-index: -1;
+    }
+
+.silver .css-medal {
+    background: #cbd5e1;
+}
+
+.bronze .css-medal {
+    background: #ca8a04;
+}
+
+/* 5. CẤU TRÚC KHUNG ĐẤU TRƯỜNG */
+.arena-master-box {
+    background: #ffffff;
+    border: 1px solid #f1f5f9 !important;
+}
+
+.metal-block {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gold-gradient {
+    background: linear-gradient(180deg, #facc15 0%, #eab308 100%);
+    height: 180px;
+}
+
+.silver-gradient {
+    background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+    height: 130px;
+}
+
+.bronze-gradient {
+    background: linear-gradient(180deg, #d97706 0%, #92400e 100%);
+    height: 100px;
+}
+
+/* 6. CHỈ SỐ DANH SÁCH */
+.rank-index-badge {
+    background: #f1f5f9;
+    color: #64748b;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 0.85rem;
+}
+
+/* ANIMATIONS */
+@keyframes bounceIcon {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-8px) rotate(2deg);
+    }
+}
+
+.spin-slow {
+    display: inline-block;
+    animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* mascot mouth update */
+.mouth-dot {
+    width: 6px;
+    height: 6px;
+    background: #333;
+    border-radius: 50%;
+    margin: 2px auto;
+}

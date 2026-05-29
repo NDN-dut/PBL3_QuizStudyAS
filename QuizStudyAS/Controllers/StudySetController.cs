@@ -7,12 +7,18 @@ namespace QuizStudyAS.Controllers
     public class StudySetController : Controller
     {
         private readonly IStudySetService _studySetService;
+        private readonly IGamificationService _gamificationService; // THÊM DÒNG NÀY
+        private readonly IClassRoomServices _classRoomServices; // THÊM DÒNG NÀY
 
-        // Controller CHỈ tiêm Service, tuyệt đối không biết gì về AppDbContext
-        public StudySetController(IStudySetService studySetService)
+        // Cập nhật Constructor
+        public StudySetController(IStudySetService studySetService, IGamificationService gamificationService, IClassRoomServices classRoomServices)
         {
             _studySetService = studySetService;
+            _gamificationService = gamificationService; // THÊM DÒNG NÀY
+            _classRoomServices = classRoomServices; // THÊM DÒNG NÀY
         }
+
+        // ... (Các hàm GetCurrentUserId() và Index() giữ nguyên) ...
 
         private string? GetCurrentUserId()
         {
@@ -155,7 +161,8 @@ namespace QuizStudyAS.Controllers
 
         // --- API CHO TÍNH NĂNG "THÊM VÀO LỚP HỌC" ---
 
-        public class AddToClassRequest { public int studySetId { get; set; } public int classroomId { get; set; } }
+        // ĐỔI TÊN BIẾN classroomId THÀNH classCode ĐỂ KHỚP VỚI HÀM CỦA ClassRoomServices
+        public class AddToClassRequest { public int studySetId { get; set; } public string classCode { get; set; } }
 
         [HttpGet]
         public async Task<IActionResult> GetMyClassesForShare(int studySetId)
@@ -163,26 +170,41 @@ namespace QuizStudyAS.Controllers
             var userId = GetCurrentUserId();
             if (string.IsNullOrEmpty(userId)) return Json(new List<object>());
 
-            // Lấy các lớp mà user sở hữu HOẶC đang tham gia (bạn cần import AppDbContext vào Controller hoặc viết qua Service)
-            // Tạm thời giả định bạn có quyền truy cập bảng ClassroomUser và ClassRoomMaterial
-            // ... Logic lấy danh sách lớp học ...
+            // Sử dụng hàm GetYourClass() của bạn để lấy cả lớp mình tạo & lớp mình tham gia
+            var yourClasses = await _classRoomServices.GetYourClass();
 
-            // Do tôi chưa thấy Service xử lý ClassRoom của bạn, bạn hãy giao phần truy vấn này cho IClassRoomService nhé.
-            return Json(new List<object>());
+            var allClasses = new List<object>();
+
+            // Gom lớp do mình làm chủ
+            foreach (var c in yourClasses.MyClasses)
+            {
+                allClasses.Add(new { classCode = c.Link, className = c.ClassName, role = "Owner" });
+            }
+
+            // Gom lớp mình là thành viên
+            foreach (var c in yourClasses.JoinedClasses)
+            {
+                allClasses.Add(new { classCode = c.Link, className = c.ClassName, role = "Member" });
+            }
+
+            return Json(allClasses);
         }
 
         [HttpPost]
         public async Task<IActionResult> AddSetToClass([FromBody] AddToClassRequest req)
         {
             var userId = GetCurrentUserId();
-            if (string.IsNullOrEmpty(userId)) return Json(new { success = false });
+            if (string.IsNullOrEmpty(userId)) return Json(new { success = false, message = "Vui lòng đăng nhập" });
 
-            // Logic Insert vào bảng ClassRoomMaterial
-            // var material = new ClassRoomMaterial { ClassRoomId = req.classroomId, StudySetId = req.studySetId, Status = "Active" };
-            // _context.ClassRoomMaterials.Add(material);
-            // await _context.SaveChangesAsync();
+            // GỌI THẲNG XUỐNG SERVICE: Truyền đúng Mã code lớp và ID bộ thẻ
+            bool isSuccess = await _classRoomServices.AddStudySet(req.classCode, req.studySetId);
 
-            return Json(new { success = true });
+            if (isSuccess)
+            {
+                return Json(new { success = true, message = "Đã chia sẻ học phần vào lớp thành công!" });
+            }
+
+            return Json(new { success = false, message = "Bạn không có quyền hoặc lớp học không tồn tại." });
         }
 
         [HttpGet]
@@ -210,6 +232,52 @@ namespace QuizStudyAS.Controllers
             ViewBag.GameTimer = timer;
 
             return View(studySet);
+        }
+
+        // ==========================================
+        // API: LƯU TIẾN ĐỘ GAME HÓA (XP, STREAK)
+        // Gọi bằng AJAX từ View khi người dùng hoàn thành bài
+        // ==========================================
+        // ==========================================
+        // API: LƯU TIẾN ĐỘ GAME HÓA (XP, STREAK) VÀ ĐỒNG BỘ SESSION
+        // ==========================================
+        [HttpPost]
+        public async Task<IActionResult> SaveProgress([FromBody] ProgressRequest req)
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId)) return Json(new { success = false, message = "Vui lòng đăng nhập" });
+
+            // Tính điểm XP thưởng: Quiz được 50 XP, Học lật thẻ được 10 XP
+            int earnedXP = req.ActionType == "Quiz" ? 50 : 10;
+
+            // Gọi Service xử lý lưu vào CSDL
+            var result = await _gamificationService.UpdateUserProgressAsync(userId, earnedXP);
+
+            if (result.Success)
+            {
+                // CRITICAL: Cập nhật lại Session ngay lập tức để các trang khác tải lên đều nhận số mới
+                HttpContext.Session.SetInt32("UserLevel", result.Level);
+                HttpContext.Session.SetInt32("UserStreak", result.CurrentStreak);
+
+                return Json(new
+                {
+                    success = true,
+                    level = result.Level,
+                    currentStreak = result.CurrentStreak,
+                    earnedXP = result.EarnedXP,
+                    isLeveledUp = result.IsLeveledUp,
+                    isStreakSaved = result.IsStreakSaved
+                });
+            }
+
+            return Json(new { success = false });
+        }
+
+        public class ProgressRequest
+        {
+            public int StudySetId { get; set; }
+            public string ActionType { get; set; } // "Learn" hoặc "Quiz"
+            public int Score { get; set; }
         }
     }
 }

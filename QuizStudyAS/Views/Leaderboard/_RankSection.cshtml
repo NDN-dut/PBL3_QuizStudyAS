@@ -1,0 +1,261 @@
+﻿@model List<QuizStudyAS.ViewModels.UserRankVM>
+
+@{
+    var top1 = Model.FirstOrDefault(u => u.Rank == 1);
+    var top2 = Model.FirstOrDefault(u => u.Rank == 2);
+    var top3 = Model.FirstOrDefault(u => u.Rank == 3);
+    var restUsers = Model.Where(u => u.Rank > 3).ToList();
+}
+
+<style>
+    /* NHÚNG TRỰC TIẾP CSS VÀO ĐÂY ĐỂ TRÁNH LỖI CACHE TRÌNH DUYỆT */
+    .arena-body-grid {
+        min-height: 520px;
+    }
+
+    /* Nền màu cho tên người vinh danh */
+    .honored-name-box {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        z-index: 10;
+        position: relative;
+    }
+
+    .name-gold {
+        background: linear-gradient(135deg, #fef9c3, #fde047);
+        color: #854d0e;
+        border: 1px solid #facc15;
+    }
+
+    .name-silver {
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        color: #334155;
+        border: 1px solid #cbd5e1;
+    }
+
+    .name-bronze {
+        background: linear-gradient(135deg, #fff7ed, #ffedd5);
+        color: #9a3412;
+        border: 1px solid #fdba74;
+    }
+
+    /* Thiết kế Bục 3D */
+    .podium-column {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0 10px;
+    }
+
+    .metal-block {
+        width: 100%;
+        border-radius: 16px 16px 0 0;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 20px;
+        box-shadow: inset 0 4px 6px rgba(255,255,255,0.4);
+    }
+
+        .metal-block.gold-grad {
+            height: 180px;
+            background: linear-gradient(to top, #eab308, #fef08a);
+            border-top: 4px solid #fff;
+        }
+
+        .metal-block.silver-grad {
+            height: 130px;
+            background: linear-gradient(to top, #94a3b8, #e2e8f0);
+            border-top: 4px solid #fff;
+        }
+
+        .metal-block.bronze-grad {
+            height: 100px;
+            background: linear-gradient(to top, #b45309, #fcd34d);
+            border-top: 4px solid #fff;
+        }
+
+    /* VẼ CÚP VÀNG BẰNG CSS */
+    .css-trophy {
+        width: 50px;
+        height: 45px;
+        background: #fbbf24;
+        position: relative;
+        border-radius: 0 0 25px 25px;
+        box-shadow: inset -5px -5px 0 rgba(0,0,0,0.15);
+        animation: floatItem 2s ease-in-out infinite;
+    }
+
+        .css-trophy::before { /* Tay cầm cúp */
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: -15px;
+            width: 80px;
+            height: 25px;
+            border: 5px solid #fbbf24;
+            border-radius: 15px;
+            z-index: -1;
+        }
+
+        .css-trophy::after { /* Chân đế cúp */
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 20px;
+            background: #d97706;
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+        }
+
+    /* VẼ HUY CHƯƠNG BẰNG CSS */
+    .css-medal {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        position: relative;
+        border: 3px solid #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        animation: floatItem 2.5s ease-in-out infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+
+        .css-medal.silver {
+            background: #94a3b8;
+        }
+
+        .css-medal.bronze {
+            background: #d97706;
+        }
+
+        .css-medal::before { /* Ruy băng đỏ */
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 25px solid #ef4444;
+            z-index: -1;
+        }
+
+    @@keyframes floatItem {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    /* Danh sách cột phải */
+    .rank-list-row {
+        transition: all 0.2s;
+    }
+
+        .rank-list-row:hover {
+            transform: translateX(5px);
+            background: #f8fafc !important;
+        }
+</style>
+
+<div class="row g-0 arena-body-grid">
+
+    <div class="col-lg-5 p-4 border-end d-flex flex-column align-items-center justify-content-end" style="background: linear-gradient(180deg, #fff 0%, #f1f5f9 100%);">
+
+        <div class="mb-5 position-relative">
+            <div class="ghost-container">
+                <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%) rotate(-10deg); font-size: 28px; z-index: 10; animation: floatItem 2s infinite alternate;">
+                    <i class="bi bi-crown-fill text-warning"></i>
+                </div>
+                <div class="ghost-body">
+                    <div class="ghost-face">
+                        <div class="eye left"></div>
+                        <div class="eye right"></div>
+                        <div class="mouth" style="border-radius: 50%; height: 8px; width: 8px; border: 2px solid #333; background: #333; margin: 2px auto;"></div>
+                        <div class="cheek left"></div>
+                        <div class="cheek right"></div>
+                    </div>
+                    <div class="arm left"></div>
+                    <div class="arm right"></div>
+                    <div class="ghost-skirt">
+                        <div class="bump"></div><div class="bump"></div><div class="bump"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-end justify-content-center w-100" style="height: 250px;">
+
+            @if (top2 != null)
+            {
+                <div class="podium-column">
+                    <div class="honored-name-box name-silver text-truncate text-center" style="max-width: 110px;" title="@top2.UserName">@top2.UserName</div>
+                    <div class="metal-block silver-grad shadow-sm">
+                        <div class="css-medal silver">2</div>
+                    </div>
+                </div>
+            }
+
+            @if (top1 != null)
+            {
+                <div class="podium-column">
+                    <div class="honored-name-box name-gold text-truncate text-center fs-6" style="max-width: 130px;" title="@top1.UserName">@top1.UserName</div>
+                    <div class="metal-block gold-grad shadow">
+                        <div class="css-trophy"></div>
+                    </div>
+                </div>
+            }
+
+            @if (top3 != null)
+            {
+                <div class="podium-column">
+                    <div class="honored-name-box name-bronze text-truncate text-center" style="max-width: 110px;" title="@top3.UserName">@top3.UserName</div>
+                    <div class="metal-block bronze-grad shadow-sm">
+                        <div class="css-medal bronze">3</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-7 p-4 bg-light" style="max-height: 550px; overflow-y: auto;">
+        <div class="d-flex flex-column gap-3">
+            @if (!restUsers.Any())
+            {
+                <div class="text-center py-5 text-muted fw-bold">Đang chờ các chiến thần gia nhập...</div>
+            }
+            @foreach (var user in restUsers)
+            {
+                <div class="rank-list-row d-flex align-items-center justify-content-between p-3 rounded-4 bg-white border-0 shadow-sm">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width: 40px; height: 40px; background: #f1f5f9; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #64748b;">
+                            #@user.Rank
+                        </div>
+                        <div class="fw-bold text-dark fs-6">@user.UserName</div>
+                    </div>
+                    <div class="badge bg-white border border-primary border-opacity-25 text-primary rounded-pill px-3 py-2 fw-bold shadow-sm">
+                        @user.ValueDisplay
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

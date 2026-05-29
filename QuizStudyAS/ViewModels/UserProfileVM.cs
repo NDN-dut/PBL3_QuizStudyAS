@@ -16,6 +16,12 @@ namespace QuizStudyAS.ViewModels
 
         public DateTime CreatedAt { get; set; }
 
+        //Các trường liên quan đến game
+        public int XP { get; set; }
+        public int Level { get; set; }
+        public int CurrentStreak { get; set; }
+        public int HighestStreak { get; set; }
+
         // --- 2 TRƯỜNG MỚI ĐƯỢC THÊM VÀO ---
         // 1. Dùng để hiển thị ảnh cũ
         public string? ExistingAvatarUrl { get; set; }

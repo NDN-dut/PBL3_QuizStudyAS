@@ -65,7 +65,11 @@
 
         <div id="perfect-msg" style="display: none;">
             <h4 class="text-success fw-bold">Tuyệt vời! Bạn đã thuộc 100% bộ thẻ này.</h4>
-            <a asp-action="Index" class="btn btn-primary mt-3 px-4">Quay về danh sách</a>
+
+            <div id="gamification-reward-learn" class="mt-3 fs-5 fw-bold text-primary bg-primary bg-opacity-10 p-3 rounded-3 border border-primary border-opacity-25 d-inline-block shadow-sm">
+                <div class="spinner-border spinner-border-sm"></div> Đang tính toán phần thưởng...
+            </div>
+            <a asp-action="Index" class="btn btn-primary mt-3 px-4 d-block mx-auto" style="width: fit-content;">Quay về danh sách</a>
         </div>
 
         <button class="btn btn-warning btn-lg fw-bold px-5 py-3 shadow" id="btn-study-again">
@@ -201,17 +205,93 @@
         function showResults() {
             studyScreen.style.display = 'none';
             resultScreen.style.display = 'block';
-            
+
             document.getElementById('stat-known').innerText = knownCards.length;
             document.getElementById('stat-unknown').innerText = unknownCards.length;
-            
+
             if (unknownCards.length === 0) {
                 document.getElementById('btn-study-again').style.display = 'none';
                 document.getElementById('perfect-msg').style.display = 'block';
+
+                // =======================================
+                // ĐOẠN MÃ MỚI: GỌI API VÀ CẬP NHẬT GIAO DIỆN
+                // =======================================
+                fetch('/StudySet/SaveProgress', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ StudySetId: @Model.StudySetId, ActionType: "Learn", Score: 100 })
+                })
+                    .then(res => res.json())
+                    .then(res => {
+                        const rewardBox = document.querySelector('#perfect-msg .bg-primary'); // Hoặc id gamification-reward-learn của bạn
+
+                        if (res.success) {
+                            // Cập nhật ngay Navbar
+                            let navLevel = document.getElementById('nav-user-level');
+                            let navStreak = document.getElementById('nav-user-streak');
+                            if (navLevel) navLevel.innerText = res.level;
+                            if (navStreak) navStreak.innerText = res.currentStreak;
+
+                            // Thay đổi chữ trong khung spinner thành kết quả
+                            if (rewardBox) {
+                                let msg = `Thưởng +${res.earnedXP} XP <i class="bi bi-star-fill text-warning"></i>`;
+                                if (res.isStreakSaved) msg += ` | Chuỗi ${res.currentStreak} ngày 🔥`;
+                                if (res.isLeveledUp) msg += `<br><span class="text-success mt-2 d-block">🌟 BẠN ĐÃ THĂNG LÊN CẤP ${res.level}! 🌟</span>`;
+                                rewardBox.innerHTML = msg;
+                            }
+                        } else {
+                            if (rewardBox) rewardBox.style.display = 'none';
+                        }
+                    })
+                    .catch(() => {
+                        const rewardBox = document.querySelector('#perfect-msg .bg-primary');
+                        if (rewardBox) rewardBox.style.display = 'none';
+                    });
+                // =======================================
+
             } else {
                 document.getElementById('btn-study-again').style.display = 'inline-block';
                 document.getElementById('perfect-msg').style.display = 'none';
             }
+        }
+
+        // 5.5 HÀM GỌI API VÀ BẮN PHÁO HOA
+        function saveGamification(actionType, score) {
+            fetch('/StudySet/SaveProgress', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ StudySetId: @Model.StudySetId, ActionType: actionType, Score: score })
+            })
+                .then(res => res.json())
+                .then(res => {
+                    const rewardBox = document.getElementById('gamification-reward-learn');
+                    if (res.success && res.data) {
+                        let msg = `<i class="bi bi-star-fill text-warning"></i> +${res.data.earnedXP} XP <br>`;
+
+                        if (res.data.isStreakSaved) {
+                            msg += `<span class="text-danger fw-black"><i class="bi bi-fire fs-4"></i> Chuỗi ${res.data.currentStreak} Ngày!</span><br>`;
+                        }
+
+                        if (res.data.isLeveledUp) {
+                            msg += `<span class="text-success fs-4 fw-black">🌟 LÊN LEVEL ${res.data.level}! 🌟</span>`;
+                            triggerConfetti(); // BẮN PHÁO HOA!
+                        }
+                        rewardBox.innerHTML = msg;
+                    } else {
+                        rewardBox.style.display = 'none'; // Ẩn nếu chưa đăng nhập
+                    }
+                }).catch(() => document.getElementById('gamification-reward-learn').style.display = 'none');
+        }
+
+        // HIỆU ỨNG PHÁO HOA RƠI TỪ 2 BÊN
+        function triggerConfetti() {
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+            (function frame() {
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
         }
 
         // 6. Logic thần thánh: Bắt đầu vòng lặp mới chỉ với các thẻ chưa thuộc
