@@ -8,12 +8,14 @@ namespace QuizStudyAS.Controllers
     {
         private readonly IStudySetService _studySetService;
         private readonly IGamificationService _gamificationService; // THÊM DÒNG NÀY
+        private readonly IClassRoomServices _classRoomServices; // THÊM DÒNG NÀY
 
         // Cập nhật Constructor
-        public StudySetController(IStudySetService studySetService, IGamificationService gamificationService)
+        public StudySetController(IStudySetService studySetService, IGamificationService gamificationService, IClassRoomServices classRoomServices)
         {
             _studySetService = studySetService;
             _gamificationService = gamificationService; // THÊM DÒNG NÀY
+            _classRoomServices = classRoomServices; // THÊM DÒNG NÀY
         }
 
         // ... (Các hàm GetCurrentUserId() và Index() giữ nguyên) ...
@@ -159,7 +161,8 @@ namespace QuizStudyAS.Controllers
 
         // --- API CHO TÍNH NĂNG "THÊM VÀO LỚP HỌC" ---
 
-        public class AddToClassRequest { public int studySetId { get; set; } public int classroomId { get; set; } }
+        // ĐỔI TÊN BIẾN classroomId THÀNH classCode ĐỂ KHỚP VỚI HÀM CỦA ClassRoomServices
+        public class AddToClassRequest { public int studySetId { get; set; } public string classCode { get; set; } }
 
         [HttpGet]
         public async Task<IActionResult> GetMyClassesForShare(int studySetId)
@@ -167,26 +170,41 @@ namespace QuizStudyAS.Controllers
             var userId = GetCurrentUserId();
             if (string.IsNullOrEmpty(userId)) return Json(new List<object>());
 
-            // Lấy các lớp mà user sở hữu HOẶC đang tham gia (bạn cần import AppDbContext vào Controller hoặc viết qua Service)
-            // Tạm thời giả định bạn có quyền truy cập bảng ClassroomUser và ClassRoomMaterial
-            // ... Logic lấy danh sách lớp học ...
+            // Sử dụng hàm GetYourClass() của bạn để lấy cả lớp mình tạo & lớp mình tham gia
+            var yourClasses = await _classRoomServices.GetYourClass();
 
-            // Do tôi chưa thấy Service xử lý ClassRoom của bạn, bạn hãy giao phần truy vấn này cho IClassRoomService nhé.
-            return Json(new List<object>());
+            var allClasses = new List<object>();
+
+            // Gom lớp do mình làm chủ
+            foreach (var c in yourClasses.MyClasses)
+            {
+                allClasses.Add(new { classCode = c.Link, className = c.ClassName, role = "Owner" });
+            }
+
+            // Gom lớp mình là thành viên
+            foreach (var c in yourClasses.JoinedClasses)
+            {
+                allClasses.Add(new { classCode = c.Link, className = c.ClassName, role = "Member" });
+            }
+
+            return Json(allClasses);
         }
 
         [HttpPost]
         public async Task<IActionResult> AddSetToClass([FromBody] AddToClassRequest req)
         {
             var userId = GetCurrentUserId();
-            if (string.IsNullOrEmpty(userId)) return Json(new { success = false });
+            if (string.IsNullOrEmpty(userId)) return Json(new { success = false, message = "Vui lòng đăng nhập" });
 
-            // Logic Insert vào bảng ClassRoomMaterial
-            // var material = new ClassRoomMaterial { ClassRoomId = req.classroomId, StudySetId = req.studySetId, Status = "Active" };
-            // _context.ClassRoomMaterials.Add(material);
-            // await _context.SaveChangesAsync();
+            // GỌI THẲNG XUỐNG SERVICE: Truyền đúng Mã code lớp và ID bộ thẻ
+            bool isSuccess = await _classRoomServices.AddStudySet(req.classCode, req.studySetId);
 
-            return Json(new { success = true });
+            if (isSuccess)
+            {
+                return Json(new { success = true, message = "Đã chia sẻ học phần vào lớp thành công!" });
+            }
+
+            return Json(new { success = false, message = "Bạn không có quyền hoặc lớp học không tồn tại." });
         }
 
         [HttpGet]

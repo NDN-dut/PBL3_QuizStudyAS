@@ -24,6 +24,9 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 // Đăng ký StudySet Service
 builder.Services.AddScoped<IStudySetService, StudySetService>();
 
+// Đăng kí LeaderBoardService
+builder.Services.AddScoped<ILeaderboardService, LeaderboardService>();
+
 // 1. ĐĂNG KÝ DỊCH VỤ SESSION (Thêm đoạn này)
 builder.Services.AddDistributedMemoryCache(); // Bộ nhớ tạm để lưu Session
 builder.Services.AddSession(options =>
