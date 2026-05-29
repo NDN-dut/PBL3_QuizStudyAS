@@ -1,0 +1,165 @@
+﻿/* NHÚNG TRỰC TIẾP CSS VÀO ĐÂY ĐỂ ĐỒNG BỘ HIỆU ỨNG */
+
+body {
+    background-color: #f8fafc;
+}
+/* Nền tổng thể sáng sủa, mượt mà */
+
+/* Hiệu ứng Header */
+.inventory-icon-box {
+    width: 50px;
+    height: 50px;
+    background: #fff;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border: 2px solid #e2e8f0;
+    transform: rotate(-5deg);
+    transition: 0.3s;
+}
+
+    .inventory-icon-box:hover {
+        transform: rotate(0deg) scale(1.1);
+        border-color: #0d6efd;
+    }
+
+.arena-title-shine {
+    letter-spacing: -1px;
+    background: linear-gradient(to right, #1e293b 0%, #3b82f6 50%, #1e293b 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 3s linear infinite;
+}
+
+@@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+
+/* Hiệu ứng thanh tìm kiếm */
+#search-wrapper:focus-within {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.15) !important;
+}
+
+/* ------------------------------------------------ */
+/* THIẾT KẾ THẺ BÍ KÍP (GRIMOIRE CARDS)             */
+/* ------------------------------------------------ */
+.grimoire-card {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+/* Vệt màu Gradient phép thuật trên đầu thẻ */
+.grimoire-gradient-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    opacity: 0.8;
+    transition: height 0.3s ease;
+}
+
+/* Icon Watermark to chìm dưới nền thẻ */
+.card-watermark {
+    font-size: 120px;
+    right: -20px;
+    bottom: -20px;
+    z-index: 0;
+    transform: rotate(-15deg);
+    transition: 0.4s ease;
+}
+
+/* Icon Play ẩn góc phải dưới */
+.play-action-icon {
+    opacity: 0;
+    transform: translateX(20px) scale(0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+}
+
+/* ----- TRẠNG THÁI HOVER CỦA THẺ ----- */
+.grimoire-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(59, 130, 246, 0.1) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+    .grimoire-card:hover .grimoire-gradient-top {
+        height: 8px;
+        opacity: 1;
+    }
+
+    .grimoire-card:hover .card-watermark {
+        transform: rotate(-5deg) scale(1.1);
+        color: #f1f5f9 !important;
+        opacity: 1;
+    }
+
+    .grimoire-card:hover .play-action-icon {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+
+/* Nút bấm Hover chung */
+.transition-btn {
+    transition: all 0.2s;
+}
+
+    .transition-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3) !important;
+    }
+
+.edit-btn {
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+    .edit-btn:hover {
+        background-color: #facc15 !important;
+        border-color: #facc15 !important;
+    }
+
+        .edit-btn:hover i {
+            color: #fff !important;
+        }
+
+/* Hiệu ứng trang trống */
+.empty-book-animation {
+    animation: floatBook 3s infinite ease-in-out alternate;
+}
+
+@@keyframes floatBook {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-15px);
+    }
+}
+
+.shadow-xs {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+
+
+.inventory-frame {
+    transition: all 0.3s ease;
+}
+
+.frame-title {
+    color: #1e293b;
+    border-color: #f1f5f9 !important;
+}

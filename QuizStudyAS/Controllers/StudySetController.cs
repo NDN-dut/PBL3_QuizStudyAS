@@ -25,14 +25,16 @@ namespace QuizStudyAS.Controllers
             return HttpContext.Session.GetString("UserId");
         }
 
-        // 1. XEM DANH SÁCH BỘ THẺ CỦA CÁ NHÂN
+        // 1. XEM DANH SÁCH BỘ THẺ THEO NHÓM
         public async Task<IActionResult> Index()
         {
             var userId = GetCurrentUserId();
             if (string.IsNullOrEmpty(userId)) return RedirectToAction("Index", "Home");
 
-            var mySets = await _studySetService.GetStudySetsByUserIdAsync(userId);
-            return View(mySets);
+            // Đổi từ GetStudySetsByUserIdAsync sang gọi hàm Inventory mới
+            var inventory = await _studySetService.GetInventoryByUserIdAsync(userId);
+
+            return View(inventory);
         }
 
         // 2. TẠO MỚI (GET)
@@ -167,29 +169,19 @@ namespace QuizStudyAS.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMyClassesForShare(int studySetId)
         {
-            var userId = GetCurrentUserId();
-            if (string.IsNullOrEmpty(userId)) return Json(new List<object>());
+            // 1. Lấy ID người dùng đang đăng nhập (Tùy theo cách nhóm bạn lưu Session)
+            var userId = HttpContext.Session.GetString("UserId");
 
-            // Sử dụng hàm GetYourClass() của bạn để lấy cả lớp mình tạo & lớp mình tham gia
-            var yourClasses = await _classRoomServices.GetYourClass();
-
-            var allClasses = new List<object>();
-
-            // Gom lớp do mình làm chủ
-            foreach (var c in yourClasses.MyClasses)
+            if (string.IsNullOrEmpty(userId))
             {
-                allClasses.Add(new { classCode = c.Link, className = c.ClassName, role = "Owner" });
+                return Json(new List<object>()); // Trả về mảng rỗng nếu chưa đăng nhập
             }
 
-            // Gom lớp mình là thành viên
-            foreach (var c in yourClasses.JoinedClasses)
-            {
-                allClasses.Add(new { classCode = c.Link, className = c.ClassName, role = "Member" });
-            }
+            // 2. GỌI ĐÚNG HÀM Ở TẦNG SERVICE (Hàm này đã được lọc chỉ lấy lớp tự tạo)
+            var classes = await _studySetService.GetClassesForSharingAsync(userId, studySetId);
 
-            return Json(allClasses);
+            return Json(classes);
         }
-
         [HttpPost]
         public async Task<IActionResult> AddSetToClass([FromBody] AddToClassRequest req)
         {

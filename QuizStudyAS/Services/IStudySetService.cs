@@ -24,5 +24,7 @@ namespace QuizStudyAS.Services
         // Nhận diện ClassroomShareDTO bình thường
         Task<List<ClassroomShareDTO>> GetClassesForSharingAsync(string userId, int studySetId);
         Task<bool> AddStudySetToClassAsync(int studySetId, int classroomId);
+
+        Task<StudySetInventoryVM> GetInventoryByUserIdAsync(string userId);
     }
 }
