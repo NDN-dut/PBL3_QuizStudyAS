@@ -74,5 +74,42 @@ namespace QuizStudyAS.Controllers
             var result = _adminService.AddUser(userName, email, password, roleId);
             return Json(new { success = result.Success, message = result.Message });
         }
+        // ==========================================
+        // QUẢN LÝ LỚP HỌC (CLASSROOM MANAGEMENT)
+        // ==========================================
+
+        [HttpGet]
+        public IActionResult ManageClassrooms(string searchString)
+        {
+            var classrooms = _adminService.GetFilteredClassrooms(searchString);
+            ViewBag.CurrentSearch = searchString;
+            return View(classrooms);
+        }
+
+        [HttpPost]
+        public IActionResult ToggleClassroomStatus(int id)
+        {
+            var result = _adminService.ToggleClassroomStatus(id);
+            return Json(new { success = result.Success, message = result.Message });
+        }
+
+        // ==========================================
+        // QUẢN LÝ HỌC PHẦN (STUDYSET MANAGEMENT)
+        // ==========================================
+
+        [HttpGet]
+        public IActionResult ManageStudySets(string searchString)
+        {
+            var studySets = _adminService.GetFilteredStudySets(searchString);
+            ViewBag.CurrentSearch = searchString;
+            return View(studySets);
+        }
+
+        [HttpPost]
+        public IActionResult ToggleStudySetStatus(int id)
+        {
+            var result = _adminService.ToggleStudySetStatus(id);
+            return Json(new { success = result.Success, message = result.Message });
+        }
     }
 }

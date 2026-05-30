@@ -1,0 +1,103 @@
+﻿@model IEnumerable<QuizStudyAS.Models.Classroom>
+
+@{
+    ViewData["Title"] = "Quản lý Lớp học";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-danger fw-bold">Danh sách Lớp học</h2>
+    </div>
+
+    <form method="get" asp-action="ManageClassrooms" class="mb-4 bg-light p-3 rounded border shadow-sm">
+        <div class="row g-2">
+            <div class="col-md-5">
+                <input type="text" name="searchString" value="@ViewBag.CurrentSearch"
+                       class="form-control" placeholder="Tìm theo tên hoặc mã tham gia..." />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+            </div>
+            <div class="col-md-2">
+                <a asp-action="ManageClassrooms" class="btn btn-secondary w-100">Đặt lại</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Tên Lớp</th>
+                    <th>Mã tham gia</th>
+                    <th>Người tạo</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var cls in Model)
+                    {
+                        <tr>
+                            <td>@cls.ClassroomId</td>
+                            <td class="fw-bold">@cls.ClassName</td>
+                            <td>@cls.InviteCode</td>
+                            <td>@(cls.OwnerUser?.UserName ?? "N/A")</td>
+                            <td>
+                                @if (cls.IsActive)
+                                {
+                                    <span class="badge bg-success">Hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Bị khóa</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm @(cls.IsActive ? "btn-outline-danger" : "btn-outline-success")"
+                                        onclick="toggleClassroomStatus(@cls.ClassroomId, @(cls.IsActive.ToString().ToLower()))">
+                                    @(cls.IsActive ? "Khóa lớp" : "Mở khóa")
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">Không tìm thấy lớp học nào.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function toggleClassroomStatus(id, currentStatus) {
+            const action = currentStatus ? "KHÓA" : "MỞ KHÓA";
+            if (confirm(`Bạn có khá chắc chắn muốn ${action} lớp học này không?`)) {
+                const formData = new FormData();
+                formData.append('id', id);
+
+                try {
+                    const response = await fetch('/Admin/ToggleClassroomStatus', { method: 'POST', body: formData });
+                    if (!response.ok) throw new Error("Lỗi kết nối tới máy chủ.");
+
+                    const result = await response.json();
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    alert("Lỗi xử lý: " + error.message);
+                }
+            }
+        }
+    </script>
+}

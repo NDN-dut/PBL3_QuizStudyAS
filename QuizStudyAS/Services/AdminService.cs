@@ -100,5 +100,53 @@ namespace QuizStudyAS.Services
             var msg = user.IsActive ? "Đã mở khóa tài khoản thành công." : "Đã khóa tài khoản thành công.";
             return (true, msg);
         }
+        public (bool Success, string Message) ToggleClassroomStatus(int classroomId)
+        {
+            var classroom = _context.Classrooms.Find(classroomId);
+            if (classroom == null)
+                return (false, "Không tìm thấy lớp học.");
+
+            classroom.IsActive = !classroom.IsActive;
+            _context.SaveChanges();
+
+            var msg = classroom.IsActive ? "Đã mở khóa lớp học thành công." : "Đã khóa lớp học thành công.";
+            return (true, msg);
+        }
+
+        public (bool Success, string Message) ToggleStudySetStatus(int studySetId)
+        {
+            var studySet = _context.StudySets.Find(studySetId);
+            if (studySet == null)
+                return (false, "Không tìm thấy học phần.");
+
+            studySet.IsActive = !studySet.IsActive;
+            _context.SaveChanges();
+
+            var msg = studySet.IsActive ? "Đã mở khóa học phần thành công." : "Đã khóa học phần thành công.";
+            return (true, msg);
+        }
+        public List<Classroom> GetFilteredClassrooms(string searchString)
+        {
+            var query = _context.Classrooms.Include(c => c.OwnerUser).AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(c => c.ClassName.Contains(searchString) || c.InviteCode.Contains(searchString));
+            }
+
+            return query.ToList();
+        }
+
+        public List<StudySet> GetFilteredStudySets(string searchString)
+        {
+            var query = _context.StudySets.Include(s => s.OwnerUser).AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                query = query.Where(s => s.Title.Contains(searchString));
+            }
+
+            return query.ToList();
+        }
     }
 }

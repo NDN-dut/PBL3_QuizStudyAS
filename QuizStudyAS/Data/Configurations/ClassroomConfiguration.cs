@@ -13,6 +13,7 @@ namespace QuizStudyAS.Data.Configurations
 
             builder.Property(c => c.ClassName).IsRequired().HasMaxLength(200);
             builder.Property(c => c.InviteCode).IsRequired().HasMaxLength(20);
+            builder.Property(c => c.IsActive).HasDefaultValue(true);
 
             // Liên kết với Chủ lớp (OwnerUser)
             builder.HasOne(c => c.OwnerUser)
