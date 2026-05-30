@@ -16,5 +16,11 @@ namespace QuizStudyAS.Services
         (bool Success, string Message) AddUser(string userName, string email, string password, int roleId);
         (bool Success, string Message) EditUser(string id, string userName, int roleId);
         (bool Success, string Message) ToggleUserStatus(string id, string currentUserId);
+        // Các thao tác quản lý nội dung (Khóa/Mở khóa)
+        (bool Success, string Message) ToggleClassroomStatus(int classroomId);
+        (bool Success, string Message) ToggleStudySetStatus(int studySetId);
+        // Lấy danh sách để Admin quản lý (bao gồm cả tìm kiếm)
+        List<Classroom> GetFilteredClassrooms(string searchString);
+        List<StudySet> GetFilteredStudySets(string searchString);
     }
 }
