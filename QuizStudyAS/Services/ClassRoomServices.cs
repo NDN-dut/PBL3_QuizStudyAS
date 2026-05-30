@@ -202,6 +202,8 @@ namespace QuizStudyAS.Services
                     ClassName = e.ClassName,
                     OwnerName = e.OwnerUser.UserName,
                     ClassCode = LinkLop,
+                    // THÊM DÒNG NÀY: Lấy cờ khóa từ Database
+                    IsActive = e.IsActive,
                     StudySets = e.Materials.
                                 Where(s => s.Status == "AVAILABLE").
                                 Select(k => new StudySetItemVM

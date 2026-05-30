@@ -12,6 +12,7 @@ namespace QuizStudyAS.Data.Configurations
             builder.HasKey(s => s.StudySetId);
 
             builder.Property(s => s.Title).IsRequired().HasMaxLength(200);
+            builder.Property(s => s.IsActive).HasDefaultValue(true);
 
             // Liên kết với User (Người tạo)
             builder.HasOne(s => s.OwnerUser)

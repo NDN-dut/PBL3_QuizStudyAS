@@ -12,8 +12,8 @@ using QuizStudyAS.Data;
 namespace QuizStudyAS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260524064859_AddAvatarUrlToUser")]
-    partial class AddAvatarUrlToUser
+    [Migration("20260530111322_AddIsActiveToStudySet")]
+    partial class AddIsActiveToStudySet
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,34 @@ namespace QuizStudyAS.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("QuizStudyAS.Models.Achievement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IconUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RequiredXP")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Achievements");
+                });
 
             modelBuilder.Entity("QuizStudyAS.Models.ApplicationUser", b =>
                 {
@@ -36,13 +64,25 @@ namespace QuizStudyAS.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("CurrentStreak")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<int>("HighestStreak")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastStudyDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -61,6 +101,9 @@ namespace QuizStudyAS.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("XP")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -108,7 +151,9 @@ namespace QuizStudyAS.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("OwnerUserId")
                         .IsRequired()
@@ -322,6 +367,11 @@ namespace QuizStudyAS.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("OwnerUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -339,6 +389,33 @@ namespace QuizStudyAS.Migrations
                     b.HasIndex("OwnerUserId");
 
                     b.ToTable("StudySets", (string)null);
+                });
+
+            modelBuilder.Entity("QuizStudyAS.Models.UserAchievement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AchievementId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UnlockedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AchievementId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserAchievements");
                 });
 
             modelBuilder.Entity("QuizStudyAS.Models.ApplicationUser", b =>
@@ -499,6 +576,30 @@ namespace QuizStudyAS.Migrations
                     b.Navigation("OwnerUser");
                 });
 
+            modelBuilder.Entity("QuizStudyAS.Models.UserAchievement", b =>
+                {
+                    b.HasOne("QuizStudyAS.Models.Achievement", "Achievement")
+                        .WithMany("UserAchievements")
+                        .HasForeignKey("AchievementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QuizStudyAS.Models.ApplicationUser", "User")
+                        .WithMany("UserAchievements")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Achievement");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("QuizStudyAS.Models.Achievement", b =>
+                {
+                    b.Navigation("UserAchievements");
+                });
+
             modelBuilder.Entity("QuizStudyAS.Models.ApplicationUser", b =>
                 {
                     b.Navigation("GameSessions");
@@ -512,6 +613,8 @@ namespace QuizStudyAS.Migrations
                     b.Navigation("OwnedClassrooms");
 
                     b.Navigation("StudySets");
+
+                    b.Navigation("UserAchievements");
                 });
 
             modelBuilder.Entity("QuizStudyAS.Models.Classroom", b =>
