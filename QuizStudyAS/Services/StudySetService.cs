@@ -239,7 +239,7 @@ namespace QuizStudyAS.Services
                         .ThenInclude(s => s.Flashcards) // Lấy số lượng thẻ
                     .Include(cm => cm.StudySet)
                         .ThenInclude(s => s.OwnerUser) // Lấy tên người tạo thẻ
-                    .Where(cm => allMyClassIds.Contains(cm.ClassRoomId) && cm.Status == "AVAILABLE")
+                    .Where(cm => allMyClassIds.Contains(cm.ClassRoomId) && (cm.Status == "Active" || cm.Status == "AVAILABLE"))
                     .ToListAsync();
 
                 // Gom nhóm (Group By) theo từng lớp học

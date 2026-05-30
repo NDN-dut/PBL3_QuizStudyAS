@@ -35,17 +35,20 @@
                 <div id="progress-bar" class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; transition: width 0.4s ease-out;"></div>
             </div>
 
-            <div class="flip-card-container mb-5 mx-auto" style="max-width: 700px;">
-                <div class="flip-card" id="flashcard">
-                    <div class="flip-card-inner shadow-focus">
-                        <div class="flip-card-front bg-white border border-2 border-light-subtle rounded-4 d-flex flex-column align-items-center justify-content-center p-4 p-md-5">
+            <div id="flashcard-anim-wrapper" class="mb-5 mx-auto" style="max-width: 700px;">
+                <div class="flip-card-container" style="perspective: 1500px; width: 100%; height: 380px;">
+                    <div class="flip-card shadow-focus" id="flashcard" style="position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); transform-style: preserve-3d; -webkit-transform-style: preserve-3d; cursor: pointer; border-radius: 1rem;">
+
+                        <div class="flip-card-front bg-white border border-2 border-light-subtle rounded-4 d-flex flex-column align-items-center justify-content-center p-4 p-md-5" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden;">
                             <div class="card-content text-dark display-6 fw-bold text-center" id="card-term">Đang tải...</div>
                             <div class="text-muted small position-absolute bottom-0 mb-4 fw-semibold"><i class="bi bi-hand-index-thumb me-1"></i> Bấm để lật thẻ</div>
                         </div>
-                        <div class="flip-card-back bg-white border border-2 border-primary border-opacity-25 rounded-4 d-flex flex-column align-items-center justify-content-center p-4 p-md-5">
+
+                        <div class="flip-card-back bg-white border border-2 border-primary border-opacity-25 rounded-4 d-flex flex-column align-items-center justify-content-center p-4 p-md-5" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateX(180deg); -webkit-transform: rotateX(180deg); background: linear-gradient(to bottom right, #ffffff, #f0f9ff);">
                             <div class="card-content text-primary display-6 fw-bold text-center" id="card-def">Đang tải...</div>
                             <div class="text-primary opacity-75 small position-absolute bottom-0 mb-4 fw-semibold"><i class="bi bi-check2-circle me-1"></i> Định nghĩa</div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -112,57 +115,29 @@
 </div>
 
 <style>
+    /* Nền giao diện */
     .focus-mode-bg {
         background-color: #f8fafc;
         margin: -1.5rem;
         padding: 1.5rem;
     }
 
-    .flip-card-container {
-        perspective: 1500px;
-        height: 380px;
-        width: 100%;
+    /* ==================================================== */
+    /* LỆNH LẬT THẺ ÉP BUỘC TỐI CAO (!important) */
+    /* ==================================================== */
+    .flip-card.flipped {
+        transform: rotateX(180deg) !important;
+        -webkit-transform: rotateX(180deg) !important;
     }
 
-    .flip-card {
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
-    }
-
-    .flip-card-inner {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-        transform-style: preserve-3d;
-        border-radius: 1rem;
-    }
-
+    /* Hiệu ứng bóng đổ thẻ */
     .shadow-focus {
         box-shadow: 0 15px 35px rgba(15, 23, 42, 0.05);
-        transition: box-shadow 0.3s ease;
+        transition: box-shadow 0.3s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    .flip-card:hover .shadow-focus {
-        box-shadow: 0 20px 40px rgba(13, 110, 253, 0.1);
-    }
-
-    .flip-card.flipped .flip-card-inner {
-        transform: rotateX(180deg);
-    }
-
-    .flip-card-front, .flip-card-back {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        backface-visibility: hidden;
-    }
-
-    .flip-card-back {
-        transform: rotateX(180deg);
-        background: linear-gradient(to bottom right, #ffffff, #f0f9ff);
+    .flip-card-container:hover .shadow-focus {
+        box-shadow: 0 20px 40px rgba(13, 110, 253, 0.15);
     }
 
     .card-content {
@@ -171,10 +146,13 @@
         white-space: pre-wrap;
     }
 
-    /* HIỆU ỨNG TRƯỢT 2 CHIỀU TỚI - LUI */
+    /* ==================================================== */
+    /* HIỆU ỨNG TRƯỢT 2 CHIỀU TỚI - LUI (ĐÃ FIX RAZOR SYNTAX) */
+    /* ==================================================== */
     .slide-in-right {
         animation: slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
+
     @@keyframes slideInRight {
         0% {
             opacity: 0;
@@ -190,6 +168,7 @@
     .slide-in-left {
         animation: slideInLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
+
     @@keyframes slideInLeft {
         0% {
             opacity: 0;
@@ -202,7 +181,9 @@
         }
     }
 
-    /* ĐỊNH DẠNG NÚT PREV/NEXT */
+    /* ==================================================== */
+    /* ĐỊNH DẠNG NÚT PREV/NEXT & NÚT CHỨC NĂNG CỦA BẠN */
+    /* ==================================================== */
     .btn-circle-nav {
         width: 55px;
         height: 55px;
@@ -259,38 +240,33 @@
 
 @section Scripts {
     <script>
-        // 1. NHẬN DỮ LIỆU TỪ C#
         const allCards = @Html.Raw(Json.Serialize(Model.Flashcards.Select(f => new { term = f.Term, def = f.Definition })));
-
-        // CẤU TRÚC LẠI: Thêm thuộc tính status (null, 'known', 'unknown') để an toàn khi lướt lùi lại
         let currentDeck = allCards.map(c => ({ ...c, status: null }));
         let currentIndex = 0;
         let knownCards = [];
         let unknownCards = [];
 
-        // 2. UI ELEMENTS
         const uiCard = document.getElementById('flashcard');
         const uiInner = document.querySelector('.flip-card-inner');
         const uiTerm = document.getElementById('card-term');
         const uiDef = document.getElementById('card-def');
         const uiProgress = document.getElementById('progress-bar');
         const uiProgressText = document.getElementById('progress-text');
-
         const uiLiveKnown = document.getElementById('live-known');
         const uiLiveUnknown = document.getElementById('live-unknown');
-
         const studyScreen = document.getElementById('study-screen');
         const resultScreen = document.getElementById('result-screen');
+
+        // CHỈ KHAI BÁO 1 LẦN DUY NHẤT Ở ĐÂY
+        const uiWrapper = document.getElementById('flashcard-anim-wrapper');
 
         document.addEventListener('DOMContentLoaded', () => {
             loadCard('right');
         });
 
-        uiCard.addEventListener('click', () => {
-            uiCard.classList.toggle('flipped');
-        });
-
-        // 3. CẬP NHẬT THỐNG KÊ LIVE (Trực tiếp tính toán từ trạng thái các thẻ)
+        document.getElementById('flashcard').onclick = function () {
+            this.classList.toggle('flipped');
+        };
         function updateLiveStats() {
             let k = 0, u = 0;
             currentDeck.forEach(c => {
@@ -301,7 +277,7 @@
             uiLiveUnknown.innerText = u;
         }
 
-        // 4. HÀM TẢI THẺ (HỖ TRỢ TRƯỢT 2 CHIỀU TRÁI / PHẢI)
+        // HÀM TẢI THẺ (ĐÃ FIX LỖI MẤT 3D VÀ TRƯỢT MƯỢT MÀ)
         function loadCard(direction = 'right') {
             if (currentIndex >= currentDeck.length) {
                 showResults();
@@ -310,15 +286,19 @@
 
             uiCard.classList.remove('flipped');
 
-            // Xử lý Animation trượt
-            uiInner.classList.remove('slide-in-right', 'slide-in-left');
-            void uiInner.offsetWidth; // Trigger reflow để reset animation
-            uiInner.classList.add(direction === 'right' ? 'slide-in-right' : 'slide-in-left');
+            uiWrapper.classList.remove('slide-in-right', 'slide-in-left');
+            void uiWrapper.offsetWidth;
+            uiWrapper.classList.add(direction === 'right' ? 'slide-in-right' : 'slide-in-left');
 
             setTimeout(() => {
                 uiTerm.innerText = currentDeck[currentIndex].term;
                 uiDef.innerText = currentDeck[currentIndex].def;
             }, 100);
+
+            // Xóa class trượt sau 450ms để trả lại không gian 3D cho thẻ lật
+            setTimeout(() => {
+                uiWrapper.classList.remove('slide-in-right', 'slide-in-left');
+            }, 450);
 
             let percent = (currentIndex / currentDeck.length) * 100;
             uiProgress.style.width = percent + '%';
@@ -327,7 +307,6 @@
             updateLiveStats();
         }
 
-        // 5. GẮN TRẠNG THÁI (ĐÃ THUỘC / CHƯA THUỘC)
         function markCard(isKnown) {
             currentDeck[currentIndex].status = isKnown ? 'known' : 'unknown';
             currentIndex++;
@@ -337,27 +316,22 @@
         document.getElementById('btn-known').addEventListener('click', () => markCard(true));
         document.getElementById('btn-unknown').addEventListener('click', () => markCard(false));
 
-        // 6. NÚT PREVIOUS VÀ NEXT (Chỉ để lướt thẻ, không chấm điểm)
         document.getElementById('btn-prev-card').addEventListener('click', () => {
             if (currentIndex > 0) {
                 currentIndex--;
-                loadCard('left'); // Trượt từ trái sang
+                loadCard('left');
             }
         });
 
         document.getElementById('btn-next-card').addEventListener('click', () => {
-            // Lướt qua không chấm điểm (thẻ sẽ bị coi là chưa thuộc ở vòng sau)
             currentIndex++;
             loadCard('right');
         });
 
-        // 7. HIỂN THỊ KẾT QUẢ VÀ TÍNH ĐIỂM
         function showResults() {
             studyScreen.style.display = 'none';
             resultScreen.style.display = 'block';
 
-            // Phân loại lại giỏ dựa trên Status cuối cùng
-            // Những thẻ bị người dùng bấm "Next" bỏ qua (status null) sẽ bị ép vào giỏ Unknown để học lại
             knownCards = currentDeck.filter(c => c.status === 'known');
             unknownCards = currentDeck.filter(c => c.status !== 'known');
 
@@ -399,14 +373,12 @@
                         const rewardBox = document.querySelector('#gamification-reward-learn');
                         if (rewardBox) rewardBox.style.display = 'none';
                     });
-
             } else {
                 document.getElementById('btn-study-again').style.display = 'block';
                 document.getElementById('perfect-msg').style.display = 'none';
             }
         }
 
-        // BẮN PHÁO HOA
         function triggerConfetti() {
             var duration = 3 * 1000;
             var end = Date.now() + duration;
@@ -417,7 +389,6 @@
             }());
         }
 
-        // 8. HỌC LẠI (Chỉ nạp vào các thẻ chưa thuộc và reset status)
         document.getElementById('btn-study-again').addEventListener('click', () => {
             currentDeck = unknownCards.map(c => ({ ...c, status: null }));
             currentIndex = 0;
