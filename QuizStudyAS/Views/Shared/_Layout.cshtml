@@ -163,25 +163,25 @@
                 @* --- QUYỀN DÀNH CHO USER --- *@
                 else if (userRole == "User")
                 {
-                    <li class="nav-item">
+                    <li class="nav-item bg-white">
                         <a asp-controller="StudySet" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("StudySet")">
                             <i class="bi bi-card-heading fs-5 text-success menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Học phần của tôi</span>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item bg-white">
                         <a asp-controller="Classroom" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetClassroomActive()">
                             <i class="bi bi-people fs-5 text-primary menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Lớp học</span>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item bg-white">
                         <a asp-controller="Classroom" asp-action="Request" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "Request")">
                             <i class="bi bi-bell fs-5 text-info menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Thông báo</span>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item bg-white">
                         <a asp-controller="Leaderboard" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Leaderboard")">
                             <i class="bi bi-trophy-fill fs-5 text-warning menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Bảng xếp hạng</span>
@@ -206,7 +206,7 @@
 
                         @if (isLoggedIn)
                         {
-                            <li class="nav-item">
+                            <li class="nav-item ">
                                 <a asp-controller="User" asp-action="Profile" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 text-dark sub-menu-link">
                                     <i class="bi bi-person-vcard fs-6 text-primary"></i>
                                     <span class="sidebar-text ms-2 fw-semibold" style="font-size: 0.95rem;">Tài khoản</span>
@@ -221,7 +221,7 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
+                        <li class="nav-item ">
                             <a href="#" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 text-dark sub-menu-link">
                                 <i class="bi bi-globe fs-6 text-info"></i>
                                 <span class="sidebar-text ms-2 fw-semibold" style="font-size: 0.95rem;">Ngôn ngữ</span>
