@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
+    @await RenderSectionAsync("Styles", required: false)
     <script>
             // 1. Phủ màu tối ngay lập tức vào thẻ gốc <html>
             if (localStorage.getItem('quiz_study_theme') === 'dark') {
@@ -40,6 +41,7 @@
         var userLevel = HttpContextAccessor.HttpContext.Session.GetInt32("UserLevel") ?? 1;
         var userStreak = HttpContextAccessor.HttpContext.Session.GetInt32("UserStreak") ?? 0;
         // Biến kiểm tra trạng thái đăng nhập
+        var userAvatar = HttpContextAccessor.HttpContext.Session.GetString("UserAvatar");
         bool isLoggedIn = !string.IsNullOrEmpty(currentUserName);
     }
 
@@ -58,17 +60,26 @@
             {
                 <div class="dropdown">
                     <div class="d-flex align-items-center cursor-pointer" data-bs-toggle="dropdown" style="cursor:pointer">
-                        <div class="text-end me-3 d-none d-md-block">
-                            <div class="fw-bold text-dark lh-1">@currentUserName</div>
 
-                            <div class="small fw-bold mt-1">
+                        <div class="text-end me-3 d-none d-md-block">
+                            <div class="fw-bold text-dark lh-1 mb-1">@currentUserName</div>
+                            <div class="small fw-semibold">
                                 <span class="text-success"><i class="bi bi-star-fill text-warning small"></i> Lv.<span id="nav-user-level">@userLevel</span></span>
                                 <span class="text-muted mx-1">|</span>
                                 <span class="text-danger"><i class="bi bi-fire"></i> <span id="nav-user-streak">@userStreak</span> ngày</span>
                             </div>
                         </div>
-                        <i class="bi bi-person-circle fs-2 text-primary"></i>
+
+                        @if (!string.IsNullOrEmpty(userAvatar))
+                        {
+                            <img src="@userAvatar" class="rounded-circle border border-2 border-primary shadow-sm" style="width: 45px; height: 45px; object-fit: cover;" alt="Avatar" />
+                        }
+                        else
+                        {
+                            <i class="bi bi-person-circle fs-2 text-primary"></i>
+                        }
                     </div>
+
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
                         <li>
                             <a class="dropdown-item text-danger fw-bold py-2" asp-controller="Auth" asp-action="Logout">
@@ -78,99 +89,104 @@
                     </ul>
                 </div>
             }
-       
-               else
-                {
-                    <button class="btn btn-primary fw-bold rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#authModal">
-                        Đăng nhập / Đăng ký
-                    </button>
-                }
-           
+            else
+            {
+                <button class="btn btn-primary fw-bold rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#authModal">
+                    Đăng nhập / Đăng ký
+                </button>
+            }
         </div>
     </header>
 
     <div class="app-wrapper">
         <nav id="sidebar" class="bg-white border-end shadow-sm d-flex flex-column" style="height: calc(100vh - 70px); overflow-y: auto;">
-            
+
+            @{
+                // Ép tất cả về chữ thường (.ToLower()) và đặt mặc định là "index" nếu null
+                var currentCtrl = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLower();
+                var currentAct = (ViewContext.RouteData.Values["action"]?.ToString() ?? "index").ToLower();
+
+                // Hàm 1: Dành cho các mục thông thường
+                string GetActive(string c, string a = "")
+                {
+                    if (currentCtrl != c.ToLower()) return "text-muted";
+                    if (string.IsNullOrEmpty(a)) return "active-sidebar-item";
+                    return currentAct == a.ToLower() ? "active-sidebar-item" : "text-muted";
+                }
+
+                // Hàm 2: Dành ĐẶC BIỆT cho Lớp học
+                // Mục Lớp học sẽ sáng lên ở mọi Action (Index, Detail, Share...) NGOẠI TRỪ trang Request (Thông báo)
+                string GetClassroomActive()
+                {
+                    return (currentCtrl == "classroom" && currentAct != "request") ? "active-sidebar-item" : "text-muted";
+                }
+            }
+
             <ul class="nav nav-pills flex-column px-2 py-3 gap-2 mb-auto">
                 <li class="nav-item">
-                    <a asp-controller="Home" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2">
-                        <i class="bi bi-house-door fs-5"></i>
+                    <a asp-controller="Home" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Home")">
+                        <i class="bi bi-house-door fs-5 menu-icon"></i>
                         <span class="sidebar-text ms-3 fw-bold">Trang chủ</span>
-                    </a>
-                </li>
-
-              @*   <li class="nav-item">
-                    <a asp-controller="StudySet" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2">
-                        <i class="bi bi-card-heading fs-5"></i>
-                        <span class="sidebar-text ms-3 fw-bold">Bộ thẻ của tôi</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a asp-controller="Classroom" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2">
-                        <i class="bi bi-people fs-5"></i>
-                        <span class="sidebar-text ms-3 fw-bold">Lớp học</span> *@
                     </a>
                 </li>
 
                 @* --- QUYỀN DÀNH RIÊNG CHO ADMIN --- *@
                 @if (userRole == "Admin")
                 {
-                    <hr class="my-1 text-secondary" /> 
+                    <hr class="my-1 text-secondary opacity-25" />
 
                     <li class="nav-item">
-                        <a asp-controller="Admin" asp-action="Dashboard" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 text-danger">
-                            <i class="bi bi-speedometer2 fs-5"></i>
+                        <a asp-controller="Admin" asp-action="Dashboard" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Admin", "Dashboard")">
+                            <i class="bi bi-speedometer2 fs-5 text-danger menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Hệ thống</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a asp-controller="Admin" asp-action="ManageUsers" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2">
-                            <i class="bi bi-people-fill fs-5"></i>
+                        <a asp-controller="Admin" asp-action="ManageUsers" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Admin", "ManageUsers")">
+                            <i class="bi bi-people-fill fs-5 text-primary menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Người dùng</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a asp-controller="Classroom" asp-action="Request" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2">
-                            <i class="bi bi-bell fs-5"></i>
+                        <a asp-controller="Classroom" asp-action="Request" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "Request")">
+                            <i class="bi bi-bell fs-5 text-info menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Thông báo</span>
                         </a>
                     </li>
-
-            <li class="nav-item">
-                <a asp-controller="Leaderboard" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2">
-                    <i class="bi bi-trophy-fill fs-5 text-warning"></i>
-                    <span class="sidebar-text ms-3 fw-bold">Bảng xếp hạng</span>
-                </a>
-            </li>
+                    <li class="nav-item">
+                        <a asp-controller="Leaderboard" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Leaderboard")">
+                            <i class="bi bi-trophy-fill fs-5 text-warning menu-icon"></i>
+                            <span class="sidebar-text ms-3 fw-bold">Bảng xếp hạng</span>
+                        </a>
+                    </li>
                 }
+                @* --- QUYỀN DÀNH CHO USER --- *@
                 else if (userRole == "User")
                 {
                     <li class="nav-item">
-                        <a asp-controller="StudySet" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2">
-                            <i class="bi bi-card-heading fs-5"></i>
+                        <a asp-controller="StudySet" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("StudySet")">
+                            <i class="bi bi-card-heading fs-5 text-success menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Học phần của tôi</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a asp-controller="Classroom" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2">
-                            <i class="bi bi-people fs-5"></i>
+                        <a asp-controller="Classroom" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetClassroomActive()">
+                            <i class="bi bi-people fs-5 text-primary menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Lớp học</span>
                         </a>
                     </li>
-                    
                     <li class="nav-item">
-                        <a asp-controller="Classroom" asp-action="Request" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2">
-                            <i class="bi bi-bell fs-5"></i>
+                        <a asp-controller="Classroom" asp-action="Request" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "Request")">
+                            <i class="bi bi-bell fs-5 text-info menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Thông báo</span>
                         </a>
                     </li>
-            <li class="nav-item">
-                <a asp-controller="Leaderboard" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2">
-                    <i class="bi bi-trophy-fill fs-5 text-warning"></i>
-                    <span class="sidebar-text ms-3 fw-bold">Bảng xếp hạng</span>
-                </a>
-            </li>
+                    <li class="nav-item">
+                        <a asp-controller="Leaderboard" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Leaderboard")">
+                            <i class="bi bi-trophy-fill fs-5 text-warning menu-icon"></i>
+                            <span class="sidebar-text ms-3 fw-bold">Bảng xếp hạng</span>
+                        </a>
+                    </li>
                 }
             </ul>
 

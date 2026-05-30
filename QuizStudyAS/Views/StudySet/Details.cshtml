@@ -4,99 +4,106 @@
     ViewData["Title"] = "Học phần: " + Model.Title;
 }
 
-<div class="container py-4 mb-5 mx-auto" style="max-width: 900px;">
-    
-    <div class="mb-4">
-        <h1 class="fw-bold text-dark mb-3">@Model.Title</h1>
-        
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <div class="d-flex align-items-center">
-                <div class="avatar-circle bg-primary text-white shadow-sm me-3 d-flex align-items-center justify-content-center fw-bold">
-                    <i class="bi bi-person-fill fs-5"></i>
-                </div>
-                <div>
-                    <div class="text-muted small">Tạo bởi học viên</div>
-                    <div class="fw-bold text-dark">@(Model.OwnerUser != null ? Model.OwnerUser.UserName : "Người dùng hệ thống")</div>
-                </div>
-            </div>
+<div class="container py-4 mb-5 mx-auto page-fade-in" style="max-width: 950px;">
 
-            <span class="badge bg-light text-secondary border rounded-pill px-3 py-2 fw-bold fs-6">
-                <i class="bi bi-collection-play me-1 text-primary"></i> @Model.Flashcards.Count thuật ngữ
-            </span>
-        </div>
-        
-        @if (!string.IsNullOrEmpty(Model.Description))
-        {
-            <p class="text-muted fs-5 mt-3 bg-white p-3 rounded-3 shadow-sm border-start border-primary border-4">
-                @Model.Description
-            </p>
-        }
-    </div>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-3">
+        <div>
+            <h1 class="fw-bold text-dark mb-3" style="font-size: 2rem;">@Model.Title</h1>
 
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white">
-        <div class="card-body p-4 position-relative">
-            
-            <div class="flip-card-container mx-auto" id="flashcard-player">
-                <div class="flip-card" id="flashcard-inner">
-                    <div class="flip-card-front d-flex align-items-center justify-content-center p-4 rounded-4 shadow-inner border bg-white">
-                        <h2 class="fw-bold m-0 text-center text-dark" id="card-term">Đang tải...</h2>
-                        <span class="text-muted small position-absolute bottom-0 mb-3"><i class="bi bi-cursor-fill me-1"></i> Bấm vào giữa thẻ để lật</span>
-                    </div>
-                    <div class="flip-card-back d-flex align-items-center justify-content-center p-4 rounded-4 shadow-inner border bg-light">
-                        <h2 class="fw-bold m-0 text-center text-success" id="card-def">...</h2>
-                        <span class="text-muted small position-absolute bottom-0 mb-3"><i class="bi bi-check-circle-fill me-1"></i> Định nghĩa</span>
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center">
+                    @if (Model.OwnerUser != null && !string.IsNullOrEmpty(Model.OwnerUser.AvatarUrl))
+                    {
+                        <img src="@Model.OwnerUser.AvatarUrl" class="rounded-circle shadow-sm me-2" style="width: 40px; height: 40px; object-fit: cover;" alt="Avatar" />
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-light text-primary border shadow-sm me-2 d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px; font-size: 16px;">
+                            @(Model.OwnerUser != null ? Model.OwnerUser.UserName.Substring(0, 1).ToUpper() : "S")
+                        </div>
+                    }
+                    <div>
+                        <div class="text-muted" style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">Tạo bởi</div>
+                        <div class="fw-bold text-dark" style="font-size: 0.95rem;">@(Model.OwnerUser != null ? Model.OwnerUser.UserName : "Hệ thống")</div>
                     </div>
                 </div>
+                <div class="vr bg-secondary opacity-25"></div>
+                <span class="fw-bold text-primary bg-primary bg-opacity-10 px-3 py-1 rounded-pill" style="font-size: 0.85rem;">
+                    @Model.Flashcards.Count thuật ngữ
+                </span>
             </div>
-
-            <div class="d-flex align-items-center justify-content-center gap-4 mt-4">
-                <button class="btn btn-outline-primary btn-circle shadow-sm" id="btn-prev-card">
-                    <i class="bi bi-arrow-left-short fs-3"></i>
-                </button>
-                
-                <span class="fw-bold text-muted fs-5" id="card-counter-text">1 / @Model.Flashcards.Count</span>
-                
-                <button class="btn btn-outline-primary btn-circle shadow-sm" id="btn-next-card">
-                    <i class="bi bi-arrow-right-short fs-3"></i>
-                </button>
-            </div>
-
-            <div class="progress mt-4 mx-auto style-progress" style="height: 6px; max-width: 500px; border-radius: 10px;">
-                <div id="card-progress-bar" class="progress-bar bg-primary" role="progressbar" style="width: 0%; transition: width 0.3s ease;"></div>
-            </div>
-
         </div>
     </div>
 
-    <div class="bg-white rounded-4 p-2 shadow-sm d-flex gap-2 align-items-center mb-5 overflow-x-auto border">
-        <a asp-action="Learn" asp-route-id="@Model.StudySetId" class="btn btn-primary rounded-3 flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 active-tab text-white text-decoration-none">
-            <i class="bi bi-card-heading fs-5"></i>
-            <span>Thẻ ghi nhớ</span>
-        </a>
-        
-        <button class="btn btn-primary rounded-3 flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 active-tab" data-bs-toggle="modal" data-bs-target="#gameSetupModal">
-            <i class="bi bi-controller fs-5 text-white"></i>
-            <span>Game</span>
-        </button>
+    @if (!string.IsNullOrEmpty(Model.Description))
+    {
+        <div class="mb-4 text-secondary fs-6">
+            @Model.Description
+        </div>
+    }
 
-        <button class="btn btn-light rounded-3 flex-grow-1 py-3 fw-bold text-secondary d-flex align-items-center justify-content-center gap-2 hover-toolbar-btn" data-bs-toggle="modal" data-bs-target="#addToClassModal" onclick="loadMyClasses(@Model.StudySetId)">
-            <i class="bi bi-share fs-5 text-warning"></i>
-            <span class="text-dark">Thêm vào lớp</span>
-        </button>
+    <div class="qz-flashcard-section mb-4">
+        <div class="flip-card-container mx-auto" id="flashcard-player">
+            <div class="flip-card shadow-sm" id="flashcard-inner">
+                <div class="flip-card-front d-flex flex-column align-items-center justify-content-center p-4 bg-white">
+                    <h2 class="fw-bold m-0 text-center text-dark" id="card-term">Đang tải...</h2>
+                    <div class="hint-text text-muted"><i class="bi bi-hand-index-thumb me-1"></i> Bấm để lật</div>
+                </div>
+                <div class="flip-card-back d-flex flex-column align-items-center justify-content-center p-4 bg-white">
+                    <h2 class="fw-bold m-0 text-center text-dark" id="card-def">...</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="qz-controls d-flex align-items-center justify-content-between mt-4 mx-auto" style="max-width: 650px;">
+            <div class="d-flex align-items-center gap-4 mx-auto">
+                <button class="btn btn-qz-nav shadow-sm" id="btn-prev-card">
+                    <i class="bi bi-arrow-left fs-4"></i>
+                </button>
+                <span class="fw-bold fs-5 text-dark" id="card-counter-text" style="min-width: 60px; text-align: center;">1 / @Model.Flashcards.Count</span>
+                <button class="btn btn-qz-nav shadow-sm" id="btn-next-card">
+                    <i class="bi bi-arrow-right fs-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="progress mt-4 mx-auto shadow-sm" style="height: 6px; max-width: 650px; background-color: #e2e8f0;">
+            <div id="card-progress-bar" class="progress-bar bg-primary" role="progressbar" style="width: 0%; transition: width 0.3s ease-out;"></div>
+        </div>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold text-dark m-0">Thuật ngữ trong học phần này</h3>
-        <span class="text-muted small fw-semibold">Cuộn để xem nhanh</span>
+    <div class="row g-3 mb-5 mx-auto" style="max-width: 650px;">
+        <div class="col-12 col-md-4">
+            <a asp-action="Learn" asp-route-id="@Model.StudySetId" class="btn btn-qz-action-primary w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm text-decoration-none">
+                <i class="bi bi-layer-backward fs-5"></i>
+                <span>Học Ghi Nhớ</span>
+            </a>
+        </div>
+        <div class="col-12 col-md-4">
+            <button class="btn btn-qz-action-secondary w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#gameSetupModal">
+                <i class="bi bi-controller fs-5"></i>
+                <span>Luyện Tập Quiz</span>
+            </button>
+        </div>
+        <div class="col-12 col-md-4">
+            <button class="btn btn-qz-action-outline w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#addToClassModal" onclick="loadMyClasses(@Model.StudySetId)">
+                <i class="bi bi-share-fill fs-5"></i>
+                <span>Thêm Vào Lớp</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-5">
+        <h4 class="fw-bold text-dark m-0">Thuật ngữ trong học phần này (@Model.Flashcards.Count)</h4>
     </div>
 
     <div class="d-flex flex-column gap-3">
         @foreach (var card in Model.Flashcards)
         {
-            <div class="card shadow-sm border rounded-4 bg-white list-card-item">
-                <div class="card-body row align-items-center p-4">
-                    <div class="col-md-4 fw-bold fs-5 text-dark border-end-md py-1">@card.Term</div>
-                    <div class="col-md-8 fs-5 ps-md-4 text-secondary py-1">@card.Definition</div>
+            <div class="card border-0 shadow-sm rounded-3 bg-white qz-list-item">
+                <div class="card-body row align-items-center p-3 p-md-4">
+                    <div class="col-md-4 fw-bold fs-5 text-dark qz-border-end py-2">@card.Term</div>
+                    <div class="col-md-8 fs-5 ps-md-4 text-dark py-2">@card.Definition</div>
                 </div>
             </div>
         }
@@ -104,62 +111,61 @@
 </div>
 
 <div class="modal fade" id="addToClassModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header bg-light border-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold text-dark fs-4"><i class="bi bi-people-fill text-primary me-2"></i>Thêm học phần vào lớp</h5>
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header bg-white border-bottom px-4 pt-4 pb-3">
+                <h6 class="modal-title fw-bold text-dark"><i class="bi bi-people-fill text-primary me-2"></i>Thêm vào lớp của bạn</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4" id="classListContainer">
                 <div class="text-center text-muted py-3">
-                    <div class="spinner-border spinner-border-sm text-primary me-2"></div> Đang tải danh sách lớp...
+                    <div class="spinner-border spinner-border-sm text-primary me-2"></div> Đang nạp danh sách...
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-
 <div class="modal fade" id="gameSetupModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header bg-light border-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold text-dark fs-4"><i class="bi bi-sliders text-success me-2"></i>Thiết lập trò chơi</h5>
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header bg-white border-bottom px-4 pt-4 pb-3">
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-controller text-primary me-2"></i>Thiết lập Luyện Tập</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
                 <form action="/StudySet/Quiz" method="get">
                     <input type="hidden" name="id" value="@Model.StudySetId" />
-                    
+
                     <div class="mb-4">
-                        <label class="form-label fw-bold text-secondary small text-uppercase">Hình thức kiểm tra</label>
-                        <select class="form-select form-select-lg rounded-3 border-2" name="mode">
-                            <option value="multiple" selected>Chế độ: Trắc nghiệm (4 lựa chọn)</option>
-                            <option value="written">Chế độ: Tự luận (Gõ nghĩa của từ)</option>
-                            <option value="mixed">Chế độ: Trộn lẫn (Kết hợp cả hai)</option>
+                        <label class="form-label fw-bold text-dark">Hình thức luyện tập</label>
+                        <select class="form-select form-select-lg rounded-3 bg-light border-0 shadow-none" name="mode">
+                            <option value="multiple" selected>Trắc nghiệm (4 lựa chọn)</option>
+                            <option value="written">Tự luận (Gõ định nghĩa)</option>
+                            <option value="mixed">Trộn lẫn cả hai</option>
                         </select>
                     </div>
 
                     <div class="mb-4 bg-light p-3 rounded-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label fw-bold text-secondary small text-uppercase mb-0">Thời gian đếm ngược</label>
+                            <label class="form-label fw-bold text-dark mb-0">Giới hạn thời gian</label>
                             <div class="form-check form-switch fs-5 mb-0">
                                 <input class="form-check-input cursor-pointer" type="checkbox" id="timerToggle" checked>
                             </div>
                         </div>
-                        
-                        <div id="timerInputContainer" class="mt-2">
-                            <div class="input-group input-group-lg">
-                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-stopwatch text-danger"></i></span>
-                                <input type="number" name="timer" id="timerInput" class="form-control bg-white border-start-0 text-center fw-bold text-danger" value="15" min="5" max="120" />
-                                <span class="input-group-text bg-white fw-semibold">giây / câu</span>
+
+                        <div id="timerInputContainer" class="mt-3">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-0"><i class="bi bi-stopwatch text-muted"></i></span>
+                                <input type="number" name="timer" id="timerInput" class="form-control bg-white border-0 text-center fw-bold" value="15" min="5" max="120" />
+                                <span class="input-group-text bg-white border-0 text-muted">giây / câu</span>
                             </div>
                         </div>
-                        <p class="small text-muted m-0 mt-2" id="timerHelp">Hết thời gian đếm ngược câu hỏi tự động tính là sai.</p>
+                        <p class="small m-0 mt-2 text-muted" id="timerHelp">Sẽ tự động chuyển sang câu tiếp theo khi hết thời gian.</p>
                     </div>
 
-                    <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill fw-bold shadow-sm py-3 mt-2">
-                        Bắt đầu thách thức <i class="bi bi-play-circle-fill ms-2"></i>
+                    <button type="submit" class="btn btn-qz-action-primary btn-lg w-100 rounded-3 fw-bold py-3 mt-2">
+                        Bắt đầu ngay <i class="bi bi-arrow-right ms-1"></i>
                     </button>
                 </form>
             </div>
@@ -167,7 +173,38 @@
     </div>
 </div>
 
+<div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-danger bg-opacity-10 border-0 px-4 pt-4 pb-2">
+                <h5 class="modal-title fw-bold text-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Thông báo
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <p class="fs-6 fw-semibold text-dark mb-4">@TempData["ErrorMessage"]</p>
+                <button type="button" class="btn btn-danger w-100 rounded-pill fw-bold shadow-sm py-2" data-bs-dismiss="modal">
+                    Đã hiểu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // Sử dụng API của Bootstrap để gọi Modal lên
+                var errorModalElement = document.getElementById('errorModal');
+                var myModal = new bootstrap.Modal(errorModalElement);
+                myModal.show();
+            });
+        </script>
+    }
     <script>
         // Nạp dữ liệu danh sách thẻ từ C# sang JS để xử lý mượt mà không load lại trang
         const deck = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Flashcards.Select(f => new { term = f.Term, definition = f.Definition })));
@@ -196,7 +233,7 @@
             document.getElementById('btn-next-card').addEventListener('click', (e) => {
                 e.stopPropagation(); // Không cho kích hoạt lật thẻ khi bấm nút điều khiển
                 if (deck.length === 0) return;
-                
+
                 // Trở về mặt trước trước khi chuyển câu
                 elCard.classList.remove('flipped');
                 setTimeout(() => {
@@ -221,76 +258,74 @@
             const currentItem = deck[currentIndex];
             elTerm.innerText = currentItem.term;
             elDef.innerText = currentItem.definition;
-            
+
             // Cập nhật text số thứ tự và tiến độ thanh progress
             elCounter.innerText = `${currentIndex + 1} / ${deck.length}`;
             elProgress.style.width = `${((currentIndex + 1) / deck.length) * 100}%`;
         }
 
-        // --- HÀM AJAX CHO MODAL CHIA SẺ VÀO LỚP HỌC MỚI ĐÃ LÀM ---
+        // --- HÀM AJAX CHO MODAL CHIA SẺ VÀO LỚP HỌC ---
         function loadMyClasses(studySetId) {
             fetch(`/StudySet/GetMyClassesForShare?studySetId=${studySetId}`)
                 .then(res => res.json())
                 .then(data => {
                     const container = document.getElementById('classListContainer');
                     if (data.length === 0) {
-                        container.innerHTML = '<p class="text-muted text-center py-4 mb-0">Bạn chưa tham gia hoặc sở hữu lớp học nào.</p>';
+                        container.innerHTML = '<p class="text-muted text-center py-4 mb-0">Bạn chưa tạo lớp học nào để chia sẻ.</p>';
                         return;
                     }
-                    
+
                     let html = '<div class="list-group list-group-flush">';
                     data.forEach(c => {
                         let btnHtml = c.isAdded
-                            ? `<button class="btn btn-sm btn-success disabled px-3 rounded-pill"><i class="bi bi-check-lg"></i> Đã thêm</button>`
-                            : `<button class="btn btn-sm btn-outline-primary fw-bold px-3 rounded-pill" onclick="addToClass(${studySetId}, ${c.classroomId}, this)"><i class="bi bi-plus-lg"></i> Thêm</button>`;
-
+                            ? `<button class="btn btn-sm btn-success disabled px-3 rounded-pill fw-bold"><i class="bi bi-check-lg"></i> Đã thêm</button>`
+                            : `<button class="btn btn-sm btn-qz-action-outline fw-bold px-3 rounded-pill" onclick="addToClass(${studySetId}, '${c.classCode}', this)"><i class="bi bi-plus-lg"></i> Thêm</button>`;
                         html += `
-                            <div class="list-group-item d-flex justify-content-between align-items-center py-3 border-0 border-bottom">
-                                <div class="fw-bold text-dark fs-5"><i class="bi bi-backpack text-muted me-2"></i>${c.className}</div>
-                                ${btnHtml}
-                            </div>
-                        `;
+                                    <div class="list-group-item d-flex justify-content-between align-items-center py-3 px-0 border-0 border-bottom">
+                                        <div class="fw-bold text-dark fs-6"><i class="bi bi-journal-text text-primary me-2"></i>${c.className}</div>
+                                        ${btnHtml}
+                                    </div>
+                                `;
                     });
                     html += '</div>';
                     container.innerHTML = html;
                 });
         }
 
-        function addToClass(studySetId, classroomId, btn) {
+        function addToClass(studySetId, classCode, btn) {
             btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
             btn.disabled = true;
 
             fetch(`/StudySet/AddSetToClass`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ studySetId: studySetId, classroomId: classroomId })
+                body: JSON.stringify({ studySetId: studySetId, classCode: classCode })
             })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    btn.className = 'btn btn-sm btn-success px-3 rounded-pill';
-                    btn.innerHTML = '<i class="bi bi-check-lg"></i> Đã thêm';
-                }
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        btn.className = 'btn btn-sm btn-success px-3 rounded-pill fw-bold';
+                        btn.innerHTML = '<i class="bi bi-check-lg"></i> Đã thêm';
+                    }
+                });
         }
-        // Logic điều khiển Modal cấu hình Game
-            const timerToggle = document.getElementById('timerToggle');
-            const timerContainer = document.getElementById('timerInputContainer');
-            const timerInput = document.getElementById('timerInput');
-            const timerHelp = document.getElementById('timerHelp');
 
-            timerToggle.addEventListener('change', function() {
-                if (this.checked) {
-                    timerContainer.style.display = 'block';
-                    timerInput.value = '15';
-                    timerHelp.innerHTML = 'Hết thời gian đếm ngược câu hỏi tự động tính là sai.';
-                    timerHelp.className = 'small text-muted m-0 mt-2';
-                } else {
-                    timerContainer.style.display = 'none';
-                    timerInput.value = '0'; // Giá trị 0 quy định là không giới hạn thời gian
-                    timerHelp.innerHTML = 'Chế độ luyện tập thoải mái, không áp lực thời gian.';
-                    timerHelp.className = 'small text-success fw-bold m-0 mt-2';
-                }
-            });
+        // Logic điều khiển Modal cấu hình Game
+        const timerToggle = document.getElementById('timerToggle');
+        const timerContainer = document.getElementById('timerInputContainer');
+        const timerInput = document.getElementById('timerInput');
+        const timerHelp = document.getElementById('timerHelp');
+
+        timerToggle.addEventListener('change', function () {
+            if (this.checked) {
+                timerContainer.style.display = 'block';
+                timerInput.value = '15';
+                timerHelp.innerHTML = 'Sẽ tự động chuyển sang câu tiếp theo khi hết thời gian.';
+            } else {
+                timerContainer.style.display = 'none';
+                timerInput.value = '0'; // Giá trị 0 quy định là không giới hạn thời gian
+                timerHelp.innerHTML = 'Chế độ tự luyện tập thoải mái, không áp lực thời gian.';
+            }
+        });
     </script>
 }
