@@ -1,0 +1,103 @@
+﻿@model IEnumerable<QuizStudyAS.Models.StudySet>
+
+@{
+    ViewData["Title"] = "Quản lý Học phần";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-danger fw-bold">Danh sách Học phần</h2>
+    </div>
+
+    <form method="get" asp-action="ManageStudySets" class="mb-4 bg-light p-3 rounded border shadow-sm">
+        <div class="row g-2">
+            <div class="col-md-5">
+                <input type="text" name="searchString" value="@ViewBag.CurrentSearch"
+                       class="form-control" placeholder="Tìm theo tiêu đề học phần..." />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+            </div>
+            <div class="col-md-2">
+                <a asp-action="ManageStudySets" class="btn btn-secondary w-100">Đặt lại</a>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Tiêu đề</th>
+                    <th>Người tạo</th>
+                    <th>Ngày tạo</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var set in Model)
+                    {
+                        <tr>
+                            <td>@set.StudySetId</td>
+                            <td class="fw-bold">@set.Title</td>
+                            <td>@(set.OwnerUser?.UserName ?? "N/A")</td>
+                            <td>@set.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @if (set.IsActive)
+                                {
+                                    <span class="badge bg-success">Hoạt động</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Bị khóa</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-sm @(set.IsActive ? "btn-outline-danger" : "btn-outline-success")"
+                                        onclick="toggleStudySetStatus(@set.StudySetId, @(set.IsActive.ToString().ToLower()))">
+                                    @(set.IsActive ? "Khóa học phần" : "Mở khóa")
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">Không tìm thấy học phần nào.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function toggleStudySetStatus(id, currentStatus) {
+            const action = currentStatus ? "KHÓA" : "MỞ KHÓA";
+            if (confirm(`Bạn có hầu như chắc chắn muốn ${action} học phần này không?`)) {
+                const formData = new FormData();
+                formData.append('id', id);
+
+                try {
+                    const response = await fetch('/Admin/ToggleStudySetStatus', { method: 'POST', body: formData });
+                    if (!response.ok) throw new Error("Lỗi kết nối tới máy chủ.");
+
+                    const result = await response.json();
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    alert("Lỗi xử lý: " + error.message);
+                }
+            }
+        }
+    </script>
+}

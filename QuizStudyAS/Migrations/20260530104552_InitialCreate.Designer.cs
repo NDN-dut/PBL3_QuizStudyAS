@@ -12,8 +12,8 @@ using QuizStudyAS.Data;
 namespace QuizStudyAS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260416085851_InitialProjectSetup")]
-    partial class InitialProjectSetup
+    [Migration("20260530104552_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,31 +25,111 @@ namespace QuizStudyAS.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("QuizStudyAS.Models.Achievement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IconUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RequiredXP")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Achievements");
+                });
+
             modelBuilder.Entity("QuizStudyAS.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("CurrentStreak")
+                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<int>("HighestStreak")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastStudyDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ResetPasswordExpiry")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ResetPasswordToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("XP")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("RoleId");
+
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("QuizStudyAS.Models.ClassRoomMaterial", b =>
+                {
+                    b.Property<int>("ClassRoomId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudySetId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("ClassRoomId", "StudySetId");
+
+                    b.HasIndex("StudySetId");
+
+                    b.ToTable("ClassRoom_Material", (string)null);
                 });
 
             modelBuilder.Entity("QuizStudyAS.Models.Classroom", b =>
@@ -69,6 +149,9 @@ namespace QuizStudyAS.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("OwnerUserId")
                         .IsRequired()
@@ -230,6 +313,44 @@ namespace QuizStudyAS.Migrations
                     b.ToTable("QuizQuestionResults", (string)null);
                 });
 
+            modelBuilder.Entity("QuizStudyAS.Models.RequestJoinClass", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ClassroomId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("UserId", "ClassroomId");
+
+                    b.HasIndex("ClassroomId");
+
+                    b.ToTable("Request_Join_Class", (string)null);
+                });
+
+            modelBuilder.Entity("QuizStudyAS.Models.Role", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleId"));
+
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("RoleId");
+
+                    b.ToTable("Roles", (string)null);
+                });
+
             modelBuilder.Entity("QuizStudyAS.Models.StudySet", b =>
                 {
                     b.Property<int>("StudySetId")
@@ -238,14 +359,10 @@ namespace QuizStudyAS.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StudySetId"));
 
-                    b.Property<int?>("ClassroomId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OwnerUserId")
@@ -262,11 +379,66 @@ namespace QuizStudyAS.Migrations
 
                     b.HasKey("StudySetId");
 
-                    b.HasIndex("ClassroomId");
-
                     b.HasIndex("OwnerUserId");
 
                     b.ToTable("StudySets", (string)null);
+                });
+
+            modelBuilder.Entity("QuizStudyAS.Models.UserAchievement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AchievementId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UnlockedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AchievementId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserAchievements");
+                });
+
+            modelBuilder.Entity("QuizStudyAS.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("QuizStudyAS.Models.Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("QuizStudyAS.Models.ClassRoomMaterial", b =>
+                {
+                    b.HasOne("QuizStudyAS.Models.Classroom", "ClassRoom")
+                        .WithMany("Materials")
+                        .HasForeignKey("ClassRoomId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("QuizStudyAS.Models.StudySet", "StudySet")
+                        .WithMany("MaterialsOf")
+                        .HasForeignKey("StudySetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ClassRoom");
+
+                    b.Navigation("StudySet");
                 });
 
             modelBuilder.Entity("QuizStudyAS.Models.Classroom", b =>
@@ -367,27 +539,65 @@ namespace QuizStudyAS.Migrations
                     b.Navigation("GameSession");
                 });
 
-            modelBuilder.Entity("QuizStudyAS.Models.StudySet", b =>
+            modelBuilder.Entity("QuizStudyAS.Models.RequestJoinClass", b =>
                 {
                     b.HasOne("QuizStudyAS.Models.Classroom", "Classroom")
-                        .WithMany("StudySets")
+                        .WithMany("JoinRequests")
                         .HasForeignKey("ClassroomId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
+                    b.HasOne("QuizStudyAS.Models.ApplicationUser", "User")
+                        .WithMany("JoinClassRooms")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Classroom");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("QuizStudyAS.Models.StudySet", b =>
+                {
                     b.HasOne("QuizStudyAS.Models.ApplicationUser", "OwnerUser")
                         .WithMany("StudySets")
                         .HasForeignKey("OwnerUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Classroom");
-
                     b.Navigation("OwnerUser");
+                });
+
+            modelBuilder.Entity("QuizStudyAS.Models.UserAchievement", b =>
+                {
+                    b.HasOne("QuizStudyAS.Models.Achievement", "Achievement")
+                        .WithMany("UserAchievements")
+                        .HasForeignKey("AchievementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QuizStudyAS.Models.ApplicationUser", "User")
+                        .WithMany("UserAchievements")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Achievement");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("QuizStudyAS.Models.Achievement", b =>
+                {
+                    b.Navigation("UserAchievements");
                 });
 
             modelBuilder.Entity("QuizStudyAS.Models.ApplicationUser", b =>
                 {
                     b.Navigation("GameSessions");
+
+                    b.Navigation("JoinClassRooms");
 
                     b.Navigation("JoinedClassrooms");
 
@@ -396,13 +606,17 @@ namespace QuizStudyAS.Migrations
                     b.Navigation("OwnedClassrooms");
 
                     b.Navigation("StudySets");
+
+                    b.Navigation("UserAchievements");
                 });
 
             modelBuilder.Entity("QuizStudyAS.Models.Classroom", b =>
                 {
                     b.Navigation("ClassroomUsers");
 
-                    b.Navigation("StudySets");
+                    b.Navigation("JoinRequests");
+
+                    b.Navigation("Materials");
                 });
 
             modelBuilder.Entity("QuizStudyAS.Models.GameSession", b =>
@@ -410,9 +624,16 @@ namespace QuizStudyAS.Migrations
                     b.Navigation("QuizQuestionResults");
                 });
 
+            modelBuilder.Entity("QuizStudyAS.Models.Role", b =>
+                {
+                    b.Navigation("Users");
+                });
+
             modelBuilder.Entity("QuizStudyAS.Models.StudySet", b =>
                 {
                     b.Navigation("Flashcards");
+
+                    b.Navigation("MaterialsOf");
                 });
 #pragma warning restore 612, 618
         }

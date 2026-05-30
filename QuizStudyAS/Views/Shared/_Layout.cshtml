@@ -116,10 +116,11 @@
 
                 // Hàm 2: Dành ĐẶC BIỆT cho Lớp học
                 // Mục Lớp học sẽ sáng lên ở mọi Action (Index, Detail, Share...) NGOẠI TRỪ trang Request (Thông báo)
-                string GetClassroomActive()
-                {
-                    return (currentCtrl == "classroom" && currentAct != "request") ? "active" : "text-muted";
-                }
+                // string GetClassroomActive()
+                // {
+                    // Sửa "request" thành "joinrequests"
+                //     return (currentCtrl == "classroom" && currentAct != "joinrequests") ? "active-sidebar-item" : "text-muted";
+                // }
             }
 
             <ul class="nav nav-pills flex-column px-2 py-3 gap-2 mb-auto">
@@ -147,22 +148,39 @@
                             <span class="sidebar-text ms-3 fw-bold">Người dùng</span>
                         </a>
                     </li>
+
                     <li class="nav-item">
-                        <a asp-controller="Classroom" asp-action="Request" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "Request")">
+                        <a asp-controller="Admin" asp-action="ManageClassrooms" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Admin", "ManageClassrooms")">
+                            <i class="bi bi-easel-fill fs-5 text-success menu-icon"></i>
+                            <span class="sidebar-text ms-3 fw-bold">Quản lý lớp học</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a asp-controller="Admin" asp-action="ManageStudySets" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Admin", "ManageStudySets")">
+                            <i class="bi bi-journal-text fs-5 text-warning menu-icon"></i>
+                            <span class="sidebar-text ms-3 fw-bold">Quản lý học phần</span>
+                        </a>
+                    </li>
+
+                    @* <li class="nav-item">
+                        <a asp-controller="Classroom" asp-action="JoinRequests" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "JoinRequests")">
                             <i class="bi bi-bell fs-5 text-info menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Thông báo</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a asp-controller="Leaderboard" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Leaderboard")">
-                            <i class="bi bi-trophy-fill fs-5 text-warning menu-icon"></i>
+                            <i class="bi bi-trophy-fill fs-5 text-secondary menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Bảng xếp hạng</span>
                         </a>
-                    </li>
+                    </li> *@
                 }
                 @* --- QUYỀN DÀNH CHO USER --- *@
-                else if (userRole == "User")
+                @if (userRole == "User" || userRole == "Admin")
                 {
+                    <hr class="my-1 text-secondary opacity-25" />
+
                     <li class="nav-item">
                         <a asp-controller="StudySet" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("StudySet")">
                             <i class="bi bi-card-heading fs-5 text-success menu-icon"></i>
@@ -170,13 +188,13 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a asp-controller="Classroom" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetClassroomActive()">
+                        <a asp-controller="Classroom" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "Index")">
                             <i class="bi bi-people fs-5 text-secondary menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Lớp học</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a asp-controller="Classroom" asp-action="Request" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "Request")">
+                        <a asp-controller="Classroom" asp-action="JoinRequests" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "JoinRequests")">
                             <i class="bi bi-bell fs-5 text-info menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Thông báo</span>
                         </a>
@@ -261,6 +279,36 @@
     </div>
 
     <partial name="_AuthModal" />
+
+    @if (TempData["LockedMessage"] != null)
+    {
+        <div class="modal fade" id="lockedContentModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title fw-bold">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> Hệ thống
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center py-4">
+                        <i class="bi bi-lock-fill text-danger mb-3" style="font-size: 3.5rem;"></i>
+                        <h5 class="text-dark fw-semibold">Truy cập bị từ chối</h5>
+                        <p class="mt-2 text-muted fs-6">@TempData["LockedMessage"]</p>
+                    </div>
+                    <div class="modal-footer justify-content-center border-0 pb-4">
+                        <button type="button" class="btn btn-secondary px-4 fw-bold rounded-pill" data-bs-dismiss="modal">Đã hiểu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var lockModal = new bootstrap.Modal(document.getElementById('lockedContentModal'));
+                lockModal.show();
+            });
+        </script>
+    }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
