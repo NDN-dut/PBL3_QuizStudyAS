@@ -149,7 +149,9 @@
                     </li>
                     <li class="nav-item">
                         <a asp-controller="Classroom" asp-action="Request" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "Request")">
-                            <i class="bi bi-bell fs-5 text-info menu-icon"></i>
+                            <i class="bi bi-bell fs-5 text-info menu-icon position-relative">
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger request-badge-count" style="font-size: 0.55rem; padding: 0.35em 0.5em; display: none; transition: all 0.3s ease;">0</span>
+                              </i>
                             <span class="sidebar-text ms-3 fw-bold">Thông báo</span>
                         </a>
                     </li>
@@ -177,7 +179,9 @@
                     </li>
                     <li class="nav-item">
                         <a asp-controller="Classroom" asp-action="Request" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "Request")">
-                            <i class="bi bi-bell fs-5 text-info menu-icon"></i>
+                            <i class="bi bi-bell fs-5 text-info menu-icon position-relative">
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger request-badge-count" style="font-size: 0.55rem; padding: 0.35em 0.5em; display: none; transition: all 0.3s ease;">0</span>
+                            </i>
                             <span class="sidebar-text ms-3 fw-bold">Thông báo</span>
                         </a>
                     </li>
@@ -318,6 +322,29 @@
                 localStorage.setItem('quiz_study_theme', nowDark ? 'dark' : 'light');
                 });
                 });
+
+                // ==========================================
+                // 3. TẢI SỐ LƯỢNG THÔNG BÁO (BADGE)
+                // ==========================================
+                function fetchRequestCount() {
+                    fetch('/Classroom/GetPendingRequestCount')
+                        .then(res => res.json())
+                        .then(data => {
+                            const badges = document.querySelectorAll('.request-badge-count');
+                            badges.forEach(badge => {
+                                if (data.count > 0) {
+                                    badge.innerText = data.count > 99 ? '99+' : data.count;
+                                    badge.style.display = 'inline-block';
+                                } else {
+                                    badge.style.display = 'none';
+                                }
+                            });
+                        })
+                        .catch(err => console.error("Lỗi tải thông báo", err));
+                }
+                
+                // Gọi ngay khi load trang
+                fetchRequestCount();
             });
     </script>
 

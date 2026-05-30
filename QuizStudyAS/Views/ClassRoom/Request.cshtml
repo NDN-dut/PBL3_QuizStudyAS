@@ -1,164 +1,113 @@
 ﻿@model QuizStudyAS.ViewModels.ListRequestJoinVM
 
-<div class="request-list-container">
-    @if(Model.RequestJoinVMs.Any()!=true)
-    {
-        <h1>Không có yêu cầu</h1>
-    }else{
-        @foreach (var item in Model.RequestJoinVMs)
+@{
+    ViewData["Title"] = "Thông báo yêu cầu";
+}
+
+<div class="container py-4 page-fade-in mx-auto" style="max-width: 900px;">
+    
+    <div class="mb-5 d-flex align-items-center gap-3">
+        <div class="bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 50px; height: 50px;">
+            <i class="bi bi-bell-fill fs-4"></i>
+        </div>
+        <h2 class="fw-black text-dark m-0" style="letter-spacing: -0.5px;">Thông báo yêu cầu</h2>
+    </div>
+
+    <div class="request-list-container">
+        @if (Model.RequestJoinVMs == null || !Model.RequestJoinVMs.Any())
         {
-            <div class="request-row-card">
-        
-                <!-- GÓC TRÁI: Thông tin User và Lớp học -->
-                <div class="card-left-info">
-                    <div class="user-row">
-                        <span class="user-name">@item.UserName</span>
-                        <span class="user-id">- @item.UserId</span>
-                    </div>
-                    <div class="class-row">
-                        Yêu cầu tham gia: <span class="class-name">@item.ClassName</span>
-                    </div>
+            <div class="text-center py-5 bg-white rounded-4 shadow-sm border border-light-subtle mt-4">
+                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
+                    <i class="bi bi-check2-circle text-success opacity-50" style="font-size: 3.5rem;"></i>
                 </div>
-
-                <!-- GÓC PHẢI: 2 Nút tùy chọn -->
-                <div class="card-right-actions">
-                    <form asp-controller="ClassRoom" asp-action="DeniedRequest" method="post" class="ajax-action-form m-0">
-                        <input type="hidden" name="userId" value="@item.UserId" />
-                        <input type="hidden" name="classroomId" value="@item.ClassRoomId" />
-                        <button type="submit" class="btn-req btn-reject">Từ chối</button>
-                    </form>
-
-           
-                    <form asp-controller="ClassRoom" asp-action="AcceptRequest" method="post" class="ajax-action-form m-0">
-                        <input type="hidden" name="userId" value="@item.UserId" />
-                        <input type="hidden" name="classroomId" value="@item.ClassRoomId" />
-                        <button type="submit" class="btn-req btn-accept">Đồng ý</button>
-                    </form>
-                </div>
-
+                <h4 class="fw-bold text-dark">Bạn đã xem hết thông báo!</h4>
+                <p class="text-muted mb-0">Hiện tại không có yêu cầu tham gia lớp học nào đang chờ duyệt.</p>
             </div>
         }
-    }
-    
+        else
+        {
+            <div class="d-flex flex-column gap-3">
+                @foreach (var item in Model.RequestJoinVMs)
+                {
+                    <div class="card border border-light-subtle shadow-sm rounded-4 request-row-card bg-white overflow-hidden transition-smooth position-relative">
+                        <div class="card-accent-left"></div>
+                        <div class="card-body p-3 p-md-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 ms-2">
+                    
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 45px; height: 45px;">
+                                    <i class="bi bi-person-fill fs-5"></i>
+                                </div>
+                                <div>
+                                    <div class="text-dark mb-1">
+                                        <span class="fw-bold fs-5">@item.UserName</span> 
+                                        <span class="text-muted small ms-1">#@item.UserId</span>
+                                    </div>
+                                    <div class="text-muted small fw-medium">
+                                        Xin tham gia lớp: <span class="text-primary fw-bold">@item.ClassName</span>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <div class="d-flex gap-2 justify-content-end mt-3 mt-md-0">
+                                <form asp-controller="ClassRoom" asp-action="DeniedRequest" method="post" class="ajax-action-form m-0">
+                                    <input type="hidden" name="userId" value="@item.UserId" />
+                                    <input type="hidden" name="classroomId" value="@item.ClassRoomId" />
+                                    <button type="submit" class="btn btn-outline-danger fw-bold rounded-pill px-4 transition-smooth">Từ chối</button>
+                                </form>
 
+                                <form asp-controller="ClassRoom" asp-action="AcceptRequest" method="post" class="ajax-action-form m-0">
+                                    <input type="hidden" name="userId" value="@item.UserId" />
+                                    <input type="hidden" name="classroomId" value="@item.ClassRoomId" />
+                                    <button type="submit" class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm transition-smooth">Đồng ý</button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
 </div>
 
 <style>
-
-    /* --- BỐ CỤC COMPONENT (Dựa theo ảnh mẫu) --- */
-    .request-row-card {
-        display: flex;
-        justify-content: space-between; /* Đẩy khối trái và phải ra 2 mép */
-        align-items: center; /* Căn giữa theo chiều dọc */
+    /* CSS Giao diện Focus Mode */
+    body { background-color: #f6f7fb; }
     
-        background-color: #ffffff;
-        border: 1.5px solid #3b82f6; /* Viền màu xanh dương giống trong ảnh */
-        border-radius: 12px; /* Bo góc mềm mại giống trong ảnh */
-        padding: 16px 24px; /* Khoảng cách chữ tới viền */
-        margin-bottom: 16px; /* Khoảng cách giữa các hàng */
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02); /* Đổ bóng mờ tạo chiều sâu */
-        transition: all 0.2s ease-in-out;
+    .request-row-card {
+        border-left: none !important;
+        top: 0;
     }
 
-        .request-row-card:hover {
-            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.15); /* Sáng viền lên khi di chuột */
-        }
-
-    /* --- GÓC TRÁI: THÔNG TIN --- */
-    .card-left-info {
-        display: flex;
-        flex-direction: column; /* Xếp tên và lớp theo chiều dọc */
-        gap: 6px;
+    .request-row-card:hover {
+        top: -3px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
+        border-color: #cbd5e1 !important;
     }
 
-    .user-row {
-        font-size: 1.1rem;
-        color: #333;
+    .card-accent-left {
+        position: absolute;
+        top: 0; left: 0; width: 4px; height: 100%;
+        background: linear-gradient(180deg, #4255ff, #0ea5e9);
     }
 
-    .user-name {
-        font-weight: 700; /* In đậm tên */
-        color: #1e293b;
-    }
-
-    .user-id {
-        color: #64748b; /* Màu xám nhạt cho ID */
-        font-size: 0.95rem;
-    }
-
-    .class-row {
-        color: #475569;
-        font-size: 0.95rem;
-    }
-
-    .class-name {
-        font-weight: 600;
-        color: #3b82f6; /* Tên lớp học màu xanh cho tone-sur-tone với viền */
-    }
-
-    /* --- GÓC PHẢI: NÚT BẤM --- */
-    .card-right-actions {
-        display: flex;
-        gap: 12px; /* Khoảng cách giữa 2 nút */
-    }
-
-    /* Nút cơ bản */
-    .btn-req {
-        padding: 8px 20px;
-        border-radius: 6px;
-        font-weight: 600;
-        font-size: 0.95rem;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    /* Nút Từ chối (Viền đỏ, chữ đỏ) */
-    .btn-reject {
-        background-color: transparent;
-        border: 1.5px solid #ef4444;
-        color: #ef4444;
-    }
-
-        .btn-reject:hover {
-            background-color: #ef4444;
-            color: #ffffff;
-        }
-
-    /* Nút Đồng ý (Nền xanh, chữ trắng) */
-    .btn-accept {
-        background-color: #3b82f6;
-        border: 1.5px solid #3b82f6;
-        color: #ffffff;
-    }
-
-        .btn-accept:hover {
-            background-color: #2563eb;
-        }
-
-    /* Responsive: Ép xuống thành 1 khối dọc nếu xem trên điện thoại nhỏ */
-    @@media (max-width: 600px) {
-        .request-row-card {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 16px;
-        }
-
-        .card-right-actions {
-            width: 100%;
-            justify-content: flex-end;
-        }
-    }
+    .transition-smooth { transition: all 0.2s ease; }
+    .transition-smooth:hover { transform: translateY(-2px); }
 </style>
 
 @section Scripts {
     <script>
-        // CHỈ LẤY các form có gắn class 'ajax-action-form'
         const forms = document.querySelectorAll('.ajax-action-form');
 
         forms.forEach(form => {
             form.addEventListener('submit', async function (e) {
                 e.preventDefault();
+                
+                // Disable nút để tránh spam click
+                const btn = this.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
                 const url = this.action;
                 const formData = new FormData(this);
@@ -174,14 +123,33 @@
                     if (result.success) {
                         const card = this.closest('.request-row-card');
                         card.style.opacity = '0';
+                        card.style.transform = 'translateX(-20px)';
+                        card.style.transition = 'all 0.4s ease';
+                        
                         setTimeout(() => {
                             card.remove();
-                        }, 300);
+                            
+                            // Cập nhật lại số đếm trên chuông Sidebar ngay lập tức (Nếu hàm fetchRequestCount tồn tại trong Layout)
+                            if (typeof fetchRequestCount === "function") {
+                                fetchRequestCount();
+                            }
+                            
+                            // NẾU HẾT THÔNG BÁO THÌ F5 LẠI TRANG ĐỂ HIỆN EMPTY STATE
+                            if(document.querySelectorAll('.request-row-card').length === 0){
+                                window.location.reload();
+                            }
+                        }, 400);
+
                     } else {
                         alert('Có lỗi xảy ra, vui lòng thử lại!');
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
                     }
                 } catch (error) {
                     console.error('Lỗi mạng:', error);
+                    alert('Lỗi kết nối máy chủ!');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
                 }
             });
         });

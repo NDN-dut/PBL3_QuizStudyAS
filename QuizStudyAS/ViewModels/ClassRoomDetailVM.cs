@@ -6,5 +6,6 @@
         public string OwnerName { get; set; }
         public string ClassCode { get; set; } 
         public List<StudySetItemVM> StudySets { get; set; }
+        public string? ExistingAvatarUrl { get; set; }
     }
 }

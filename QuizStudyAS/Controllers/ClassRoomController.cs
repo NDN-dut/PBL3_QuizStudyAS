@@ -89,5 +89,15 @@ namespace QuizStudyAS.Controllers
             bool result = await _ClassRoomServices.DeleteStudySet(classCode, studysetid);
             return Json(new { success = result });
         }
+
+        // THÊM API NÀY ĐỂ LẤY SỐ LƯỢNG THÔNG BÁO CHO SIDEBAR
+        [HttpGet]
+        public async Task<IActionResult> GetPendingRequestCount()
+        {
+            // Tận dụng lại hàm GetJoinVMs đã có sẵn
+            var listRequest = await _ClassRoomServices.GetJoinVMs();
+            int count = listRequest.RequestJoinVMs?.Count ?? 0;
+            return Json(new { count = count });
+        }
     }
 }
