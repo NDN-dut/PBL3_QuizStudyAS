@@ -1,14 +1,23 @@
-﻿.avatar-circle {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
+﻿/* TÔNG MÀU CHỦ ĐẠO TƯƠI SÁNG */
+body {
+    background-color: #f6f7fb; /* Nền xám nhạt đặc trưng giúp nội dung nổi bật */
 }
 
-/* ĐỊNH DẠNG LẬT THẺ 3D */
+.bg-qz-primary {
+    background-color: #4255ff; /* Màu xanh dương thương hiệu */
+}
+
+.text-qz-primary {
+    color: #4255ff;
+}
+
+/* =======================================
+   1. KHU VỰC LẬT THẺ TRUNG TÂM
+   ======================================= */
 .flip-card-container {
     width: 100%;
     max-width: 650px;
-    height: 350px;
+    height: 400px; /* Thẻ to, rõ ràng */
     perspective: 1000px;
     cursor: pointer;
 }
@@ -18,7 +27,8 @@
     height: 100%;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    border-radius: 1rem;
 }
 
     .flip-card.flipped {
@@ -30,52 +40,122 @@
     height: 100%;
     position: absolute;
     backface-visibility: hidden;
-    border-radius: 16px;
+    border-radius: 1rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08); /* Bóng sắc nét */
+    border: 2px solid transparent;
 }
+
+    .flip-card-front:hover {
+        border-color: #e2e8f0;
+    }
 
 .flip-card-back {
     transform: rotateX(180deg);
 }
 
-/* Thanh điều khiển nút tròn */
-.btn-circle {
+    .flip-card-front h2, .flip-card-back h2 {
+        font-size: 2.2rem;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+
+.hint-text {
+    position: absolute;
+    bottom: 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Nút bấm chuyển câu dưới thẻ */
+.btn-qz-nav {
     width: 50px;
     height: 50px;
     border-radius: 50%;
+    background-color: #ffffff;
+    color: #4255ff;
+    border: 2px solid #e2e8f0;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
-    transition: all 0.2s;
+    transition: all 0.1s ease-in-out;
 }
 
-    .btn-circle:hover {
-        transform: scale(1.1);
+    .btn-qz-nav:hover {
+        background-color: #f1f5f9;
+        color: #1d4ed8;
+        transform: scale(1.05);
     }
 
-/* Tinh chỉnh thanh dài công cụ */
-.hover-toolbar-btn:hover {
-    background-color: #f1f3f4 !important;
+    .btn-qz-nav:active {
+        transform: scale(0.95);
+    }
+
+/* =======================================
+   2. NÚT BẤM CHỨC NĂNG (TO, RÕ, ĐẸP)
+   ======================================= */
+.btn-qz-action-primary {
+    background-color: #4255ff; /* Xanh dương đậm */
+    color: #ffffff;
+    border: 2px solid #4255ff;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
 }
 
-.border-end-md {
-    border-right: 1px solid #e0e0e0;
+    .btn-qz-action-primary:hover {
+        background-color: #3b4cca;
+        border-color: #3b4cca;
+        color: #ffffff;
+    }
+
+.btn-qz-action-secondary {
+    background-color: #ebf0ff; /* Xanh nhạt */
+    color: #4255ff;
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+    .btn-qz-action-secondary:hover {
+        background-color: #dbeafe;
+        color: #1d4ed8;
+    }
+
+.btn-qz-action-outline {
+    background-color: #ffffff;
+    color: #475569;
+    border: 2px solid #e2e8f0;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+    .btn-qz-action-outline:hover {
+        border-color: #cbd5e1;
+        color: #1e293b;
+        background-color: #f8fafc;
+    }
+
+/* =======================================
+   3. DANH SÁCH TỪ VỰNG CHUẨN QUIZLET
+   ======================================= */
+.qz-list-item {
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    border-left: 4px solid transparent !important;
+}
+
+    .qz-list-item:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+        border-left-color: #4255ff !important; /* Dải màu xanh highlight xuất hiện bên trái khi hover */
+    }
+
+.qz-border-end {
+    border-right: 2px solid #f1f5f9;
 }
 
 @media (max-width: 767.98px) {
-    .border-end-md {
+    .qz-border-end {
         border-right: none;
-        border-bottom: 1px solid #e0e0e0;
-        padding-bottom: 10px;
-        margin-bottom: 10px;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 15px;
+        margin-bottom: 5px;
     }
 }
-
-/* Card hiển thị từ vựng */
-.list-card-item {
-    transition: box-shadow 0.2s;
-}
-
-    .list-card-item:hover {
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important;
-    }

@@ -104,6 +104,9 @@ namespace QuizStudyAS.Controllers
 
             HttpContext.Session.SetString("UserName", vm.UserName);
 
+            // ---THÊM DÒNG NÀY ĐỂ NAVBAR CẬP NHẬT ẢNH NGAY LẬP TỨC ---
+            HttpContext.Session.SetString("UserAvatar", user.AvatarUrl ?? "");
+
             TempData["SuccessMessage"] = "Cập nhật thông tin và ảnh đại diện thành công!";
             return RedirectToAction(nameof(Profile));
         }
