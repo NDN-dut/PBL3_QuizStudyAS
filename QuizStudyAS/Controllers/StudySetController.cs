@@ -213,9 +213,18 @@ namespace QuizStudyAS.Controllers
             var studySet = await _studySetService.GetStudySetByIdAsync(id);
             if (studySet == null) return NotFound();
 
-            if (studySet.Flashcards.Count < 4)
+            // 1. Ràng buộc cơ bản: Phải có ít nhất 1 thẻ để chơi (dành cho chế độ Tự luận)
+            if (studySet.Flashcards.Count < 1)
             {
-                TempData["ErrorMessage"] = "Học phần này cần ít nhất 4 thuật ngữ để chạy chế độ Game!";
+                TempData["ErrorMessage"] = "Học phần này chưa có thuật ngữ nào để chơi!";
+                return RedirectToAction(nameof(Details), new { id = id });
+            }
+
+            // 2. Ràng buộc trắc nghiệm: Nếu chọn Trắc nghiệm hoặc Trộn lẫn, phải có >= 4 thẻ
+            if ((mode == "multiple" || mode == "mixed") && studySet.Flashcards.Count < 4)
+            {
+                // Gắn câu thông báo bạn yêu cầu vào TempData
+                TempData["ErrorMessage"] = "Học phần này không đủ số thẻ quy định. Cần ít nhất 4 thẻ để tạo bộ câu hỏi trắc nghiệm!!";
                 return RedirectToAction(nameof(Details), new { id = id });
             }
 
@@ -225,7 +234,6 @@ namespace QuizStudyAS.Controllers
 
             return View(studySet);
         }
-
         // ==========================================
         // API: LƯU TIẾN ĐỘ GAME HÓA (XP, STREAK)
         // Gọi bằng AJAX từ View khi người dùng hoàn thành bài
