@@ -1,0 +1,278 @@
+﻿.classroom-detail-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    color: #fff;
+}
+
+.class-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid #2e3856;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.class-title {
+    font-size: 2.5rem;
+    margin: 0 0 10px 0;
+    color: #ffffff;
+}
+
+.owner-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #b8bbff;
+}
+
+.class-code-badge {
+    background: #2e3856;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #fff;
+    margin-left: 15px;
+}
+
+.studyset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.studyset-card {
+    background: #2e3856;
+    padding: 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, background 0.2s;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+    .studyset-card:hover {
+        transform: translateY(-5px);
+        background: #3c476e;
+        border-color: #7b79ff;
+    }
+
+.set-title {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+}
+
+.card-count {
+    font-size: 0.9rem;
+    color: #939bb4;
+    background: #1a1d3d;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.set-icon {
+    font-size: 1.5rem;
+    color: #7b79ff;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px;
+    background: #1a1d3d;
+    border-radius: 12px;
+    color: #64748b;
+}
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+
+.btn-add-set {
+    background-color: #4255ff;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .btn-add-set:hover {
+        background-color: #3144eb;
+    }
+
+.btn-delete-card {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 1.2rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    transition: all 0.2s ease;
+}
+
+    .btn-delete-card:hover {
+        color: #ff4757;
+        background-color: rgba(255, 71, 87, 0.1);
+        transform: scale(1.1);
+    }
+
+/* -------------------------------------
+       CSS BỔ SUNG CHO POPUP (Đồng bộ Dark Mode)
+    -------------------------------------- */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Nền đen đậm hơn một chút */
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    visibility: visible;
+    transition: all 0.2s ease;
+}
+
+    .custom-modal-overlay.hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+.custom-modal-content {
+    background-color: #1a1d3d; /* Khớp màu với empty-state của bạn */
+    width: 500px;
+    max-width: 90%;
+    border-radius: 12px;
+    border: 1px solid #2e3856;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+    color: #fff;
+}
+
+.custom-modal-overlay.hidden .custom-modal-content {
+    transform: translateY(20px);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #2e3856;
+}
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        color: #fff;
+    }
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #64748b;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .btn-close-modal:hover {
+        color: #ff4757;
+    }
+
+.modal-body {
+    padding: 24px;
+    max-height: 450px;
+    overflow-y: auto;
+}
+    /* Tùy chỉnh thanh cuộn cho Modal */
+    .modal-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+        background: #1a1d3d;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+        background: #2e3856;
+        border-radius: 4px;
+    }
+
+.modal-subtitle {
+    margin: 0 0 16px 0;
+    color: #b8bbff;
+    font-size: 0.95rem;
+}
+
+.loading-text {
+    color: #64748b;
+    font-style: italic;
+    text-align: center;
+}
+
+.modal-studyset-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.modal-studyset-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #2e3856;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    background: #0a092d;
+}
+
+    .modal-studyset-item h4 {
+        margin: 0;
+        font-size: 1.05rem;
+        color: #fff;
+    }
+
+.btn-modal-add {
+    background-color: #4255ff;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+    .btn-modal-add:hover {
+        background-color: #3144eb;
+    }
+
+    .btn-modal-add:disabled {
+        background-color: #2e3856;
+        color: #64748b;
+        cursor: not-allowed;
+    }
