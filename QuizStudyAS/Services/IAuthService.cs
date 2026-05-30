@@ -1,4 +1,5 @@
 ﻿using QuizStudyAS.Models;
+using QuizStudyAS.DTOs;
 
 namespace QuizStudyAS.Services
 {
@@ -12,5 +13,7 @@ namespace QuizStudyAS.Services
         ApplicationUser? GeneratePasswordResetToken(string email);
 
         (bool Success, string Message) ResetPassword(string token, string newPassword);
+
+        Task<AuthResult> AuthenticateGoogleUserAsync(string email, string fullName);
     }
 }
