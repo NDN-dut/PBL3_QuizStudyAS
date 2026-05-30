@@ -116,11 +116,11 @@
 
                 // Hàm 2: Dành ĐẶC BIỆT cho Lớp học
                 // Mục Lớp học sẽ sáng lên ở mọi Action (Index, Detail, Share...) NGOẠI TRỪ trang Request (Thông báo)
-                string GetClassroomActive()
-                {
+                // string GetClassroomActive()
+                // {
                     // Sửa "request" thành "joinrequests"
-                    return (currentCtrl == "classroom" && currentAct != "joinrequests") ? "active-sidebar-item" : "text-muted";
-                }
+                //     return (currentCtrl == "classroom" && currentAct != "joinrequests") ? "active-sidebar-item" : "text-muted";
+                // }
             }
 
             <ul class="nav nav-pills flex-column px-2 py-3 gap-2 mb-auto">
@@ -188,7 +188,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a asp-controller="Classroom" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetClassroomActive()">
+                        <a asp-controller="Classroom" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "Index")">
                             <i class="bi bi-people fs-5 text-secondary menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Lớp học</span>
                         </a>
