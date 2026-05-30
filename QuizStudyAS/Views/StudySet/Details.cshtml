@@ -173,7 +173,38 @@
     </div>
 </div>
 
+<div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-danger bg-opacity-10 border-0 px-4 pt-4 pb-2">
+                <h5 class="modal-title fw-bold text-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Thông báo
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <p class="fs-6 fw-semibold text-dark mb-4">@TempData["ErrorMessage"]</p>
+                <button type="button" class="btn btn-danger w-100 rounded-pill fw-bold shadow-sm py-2" data-bs-dismiss="modal">
+                    Đã hiểu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // Sử dụng API của Bootstrap để gọi Modal lên
+                var errorModalElement = document.getElementById('errorModal');
+                var myModal = new bootstrap.Modal(errorModalElement);
+                myModal.show();
+            });
+        </script>
+    }
     <script>
         // Nạp dữ liệu danh sách thẻ từ C# sang JS để xử lý mượt mà không load lại trang
         const deck = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Flashcards.Select(f => new { term = f.Term, definition = f.Definition })));
