@@ -110,8 +110,8 @@
                 string GetActive(string c, string a = "")
                 {
                     if (currentCtrl != c.ToLower()) return "text-muted";
-                    if (string.IsNullOrEmpty(a)) return "active-sidebar-item";
-                    return currentAct == a.ToLower() ? "active-sidebar-item" : "text-muted";
+                    if (string.IsNullOrEmpty(a)) return "active";
+                    return currentAct == a.ToLower() ? "active" : "text-muted";
                 }
 
                 // Hàm 2: Dành ĐẶC BIỆT cho Lớp học
@@ -189,7 +189,7 @@
                     </li>
                     <li class="nav-item">
                         <a asp-controller="Classroom" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetClassroomActive()">
-                            <i class="bi bi-people fs-5 text-primary menu-icon"></i>
+                            <i class="bi bi-people fs-5 text-secondary menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Lớp học</span>
                         </a>
                     </li>
