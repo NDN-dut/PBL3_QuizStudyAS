@@ -40,10 +40,11 @@ namespace QuizStudyAS.Controllers
             return RedirectToAction("Index", new { NameClass = className });
         }
 
-        
+
         public async Task<IActionResult> Search() => RedirectToAction("Index");
 
-        public async Task<IActionResult> Request()
+        // ĐỔI TÊN TỪ Request KHÁI NIỆM TRÙNG THÀNH JoinRequests
+        public async Task<IActionResult> JoinRequests()
         {
             var ListRequesData = await _ClassRoomServices.GetJoinVMs();
             return View(ListRequesData);
@@ -73,6 +74,15 @@ namespace QuizStudyAS.Controllers
         public async Task<IActionResult> ClassRoomDetail(string LinkLop)
         {
             var ClassRoomDetailData = await _ClassRoomServices.GetClassRoomDetail(LinkLop);
+
+            if (ClassRoomDetailData == null) return NotFound();
+
+            // ĐOẠN KIỂM TRA NÀY ĐANG BỊ THIẾU TRONG CODE CỦA BẠN
+            if (!ClassRoomDetailData.IsActive)
+            {
+                return RedirectToRefererWithLockMessage("Lớp học này đã bị khóa bởi Quản trị viên hệ thống.");
+            }
+
             return View(ClassRoomDetailData);
         }
 
@@ -99,5 +109,18 @@ namespace QuizStudyAS.Controllers
             int count = listRequest.RequestJoinVMs?.Count ?? 0;
             return Json(new { count = count });
         }
+        private IActionResult RedirectToRefererWithLockMessage(string message)
+        {
+            TempData["LockedMessage"] = message;
+            string referer = Request.Headers["Referer"].ToString();
+
+            // Nếu không xác định được trang trước đó (ví dụ copy link dán thẳng vào trình duyệt), đẩy về Trang chủ
+            if (string.IsNullOrEmpty(referer))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return Redirect(referer);
+        }
+    
     }
 }

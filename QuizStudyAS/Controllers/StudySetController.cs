@@ -130,6 +130,10 @@ namespace QuizStudyAS.Controllers
             var studySet = await _studySetService.GetStudySetByIdAsync(id);
             if (studySet == null) return NotFound();
 
+            // THÊM DÒNG NÀY: Kiểm tra nếu bị khóa
+            if (!studySet.IsActive)
+                return RedirectToRefererWithLockMessage("Học phần này đã bị khóa bởi Quản trị viên hệ thống.");
+
             // Lệnh này sẽ tự động tìm và render file Views/StudySet/Learn.cshtml 
             // (Nơi chứa giao diện lật thẻ 3D cũ)
             return View(studySet);
@@ -141,6 +145,10 @@ namespace QuizStudyAS.Controllers
         {
             var studySet = await _studySetService.GetStudySetByIdAsync(id);
             if (studySet == null) return NotFound();
+
+            // THÊM DÒNG NÀY: Kiểm tra nếu bị khóa
+            if (!studySet.IsActive)
+                return RedirectToRefererWithLockMessage("Học phần này đã bị khóa bởi Quản trị viên hệ thống.");
 
             // Lệnh này sẽ tự động tìm và render file Views/StudySet/Details.cshtml
             // (Nơi chứa giao diện Hub mới gồm 3 nút chức năng)
@@ -213,6 +221,10 @@ namespace QuizStudyAS.Controllers
             var studySet = await _studySetService.GetStudySetByIdAsync(id);
             if (studySet == null) return NotFound();
 
+            // THÊM DÒNG NÀY: Kiểm tra nếu bị khóa
+            if (!studySet.IsActive)
+                return RedirectToRefererWithLockMessage("Học phần này đã bị khóa bởi Quản trị viên hệ thống.");
+
             // 1. Ràng buộc cơ bản: Phải có ít nhất 1 thẻ để chơi (dành cho chế độ Tự luận)
             if (studySet.Flashcards.Count < 1)
             {
@@ -278,6 +290,19 @@ namespace QuizStudyAS.Controllers
             public int StudySetId { get; set; }
             public string ActionType { get; set; } // "Learn" hoặc "Quiz"
             public int Score { get; set; }
+        }
+
+        private IActionResult RedirectToRefererWithLockMessage(string message)
+        {
+            TempData["LockedMessage"] = message;
+            string referer = Request.Headers["Referer"].ToString();
+
+            // Nếu không xác định được trang trước đó, đẩy về Trang chủ
+            if (string.IsNullOrEmpty(referer))
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return Redirect(referer);
         }
     }
 }
