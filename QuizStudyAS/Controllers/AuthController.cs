@@ -59,6 +59,9 @@ namespace QuizStudyAS.Controllers
                 HttpContext.Session.SetInt32("UserLevel", result.User.Level);
                 HttpContext.Session.SetInt32("UserStreak", result.User.CurrentStreak);
 
+                //Luu Avatar
+                HttpContext.Session.SetString("UserAvatar", result.User.AvatarUrl ?? "");
+
                 return Json(new { success = true });
             }
 

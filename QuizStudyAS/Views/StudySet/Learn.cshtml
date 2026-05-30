@@ -4,207 +4,336 @@
     ViewData["Title"] = "Học: " + Model.Title;
 }
 
-<div class="container mt-4 mb-5 max-w-md mx-auto" style="max-width: 800px;">
-    
-    <div id="study-screen">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold m-0">@Model.Title</h4>
-            <span class="badge bg-primary fs-6" id="progress-text">1 / @Model.Flashcards.Count</span>
-        </div>
+<div class="focus-mode-bg py-5" style="min-height: calc(100vh - 70px);">
+    <div class="container max-w-md mx-auto" style="max-width: 800px;">
 
-        <div class="progress mb-4" style="height: 10px;">
-            <div id="progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%;"></div>
-        </div>
+        <div id="study-screen" class="page-fade-in">
 
-        <div class="flip-card-container mb-4">
-            <div class="flip-card" id="flashcard">
-                <div class="flip-card-inner">
-                    <div class="flip-card-front shadow-sm border">
-                        <div class="card-content" id="card-term">Đang tải...</div>
-                        <div class="text-muted small position-absolute bottom-0 mb-3">Click để lật thẻ</div>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                <h4 class="fw-bold m-0 text-dark" style="font-size: 1.5rem;">@Model.Title</h4>
+
+                <div class="d-flex align-items-center justify-content-between gap-3">
+
+                    <div class="d-flex align-items-center gap-3 bg-white px-3 py-1 rounded-pill shadow-sm border fw-bold" style="font-size: 0.95rem;">
+                        <span class="text-danger d-flex align-items-center gap-1" title="Số thẻ chưa thuộc">
+                            <i class="bi bi-x-circle-fill"></i> <span id="live-unknown">0</span>
+                        </span>
+                        <span class="text-secondary opacity-50">|</span>
+                        <span class="text-success d-flex align-items-center gap-1" title="Số thẻ đã thuộc">
+                            <i class="bi bi-check-circle-fill"></i> <span id="live-known">0</span>
+                        </span>
                     </div>
-                    <div class="flip-card-back shadow-sm border bg-light">
-                        <div class="card-content text-success" id="card-def">Đang tải...</div>
-                        <div class="text-muted small position-absolute bottom-0 mb-3">Click để lật thẻ</div>
+
+                    <span class="fw-bold text-primary bg-white px-3 py-1 rounded-pill shadow-sm border" id="progress-text">1 / @Model.Flashcards.Count</span>
+                    <a asp-action="Details" asp-route-id="@Model.StudySetId" class="btn btn-light btn-sm rounded-circle shadow-sm border" title="Thoát" style="width:35px; height:35px; display:flex; align-items:center; justify-content:center;">
+                        <i class="bi bi-x-lg text-secondary"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="progress mb-5 shadow-sm bg-white border" style="height: 10px; border-radius: 10px;">
+                <div id="progress-bar" class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; transition: width 0.4s ease-out;"></div>
+            </div>
+
+            <div id="flashcard-anim-wrapper" class="mb-5 mx-auto" style="max-width: 700px;">
+                <div class="flip-card-container" style="perspective: 1500px; width: 100%; height: 380px;">
+                    <div class="flip-card shadow-focus" id="flashcard" style="position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); transform-style: preserve-3d; -webkit-transform-style: preserve-3d; cursor: pointer; border-radius: 1rem;">
+
+                        <div class="flip-card-front bg-white border border-2 border-light-subtle rounded-4 d-flex flex-column align-items-center justify-content-center p-4 p-md-5" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden;">
+                            <div class="card-content text-dark display-6 fw-bold text-center" id="card-term">Đang tải...</div>
+                            <div class="text-muted small position-absolute bottom-0 mb-4 fw-semibold"><i class="bi bi-hand-index-thumb me-1"></i> Bấm để lật thẻ</div>
+                        </div>
+
+                        <div class="flip-card-back bg-white border border-2 border-primary border-opacity-25 rounded-4 d-flex flex-column align-items-center justify-content-center p-4 p-md-5" style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; transform: rotateX(180deg); -webkit-transform: rotateX(180deg); background: linear-gradient(to bottom right, #ffffff, #f0f9ff);">
+                            <div class="card-content text-primary display-6 fw-bold text-center" id="card-def">Đang tải...</div>
+                            <div class="text-primary opacity-75 small position-absolute bottom-0 mb-4 fw-semibold"><i class="bi bi-check2-circle me-1"></i> Định nghĩa</div>
+                        </div>
+
                     </div>
                 </div>
             </div>
+
+            <div class="d-flex justify-content-center align-items-center gap-2 gap-md-4">
+                <button class="btn btn-light btn-circle-nav shadow-sm border" id="btn-prev-card" title="Quay lại thẻ trước">
+                    <i class="bi bi-chevron-left fs-4 text-secondary"></i>
+                </button>
+
+                <button class="btn btn-outline-secondary btn-lg px-4 px-md-5 py-3 fw-bold rounded-pill shadow-sm focus-action-btn d-flex align-items-center gap-2 bg-white" id="btn-unknown">
+                    <i class="bi bi-x-circle fs-5"></i> <span class="d-none d-md-inline">Chưa thuộc</span>
+                </button>
+                <button class="btn btn-primary btn-lg px-4 px-md-5 py-3 fw-bold rounded-pill shadow-sm focus-action-btn d-flex align-items-center gap-2" id="btn-known">
+                    <i class="bi bi-check-circle fs-5"></i> <span class="d-none d-md-inline">Đã thuộc</span>
+                </button>
+
+                <button class="btn btn-light btn-circle-nav shadow-sm border" id="btn-next-card" title="Bỏ qua / Xem thẻ tiếp theo">
+                    <i class="bi bi-chevron-right fs-4 text-secondary"></i>
+                </button>
+            </div>
         </div>
 
-        <div class="d-flex justify-content-center gap-4">
-            <button class="btn btn-outline-danger btn-lg px-4 py-3 fw-bold rounded-pill shadow-sm action-btn" id="btn-unknown">
-                <i class="bi bi-x-lg"></i> Chưa thuộc
-            </button>
-            <button class="btn btn-outline-success btn-lg px-4 py-3 fw-bold rounded-pill shadow-sm action-btn" id="btn-known">
-                <i class="bi bi-check-lg"></i> Đã thuộc
-            </button>
+        <div id="result-screen" style="display: none;" class="text-center py-5 page-fade-in bg-white rounded-4 shadow-sm border p-4 p-md-5">
+            <h2 class="fw-black mb-2 text-dark">Hoàn thành vòng học! 🎉</h2>
+            <p class="text-muted fw-medium mb-5">Dưới đây là thống kê trí nhớ của bạn.</p>
+
+            <div class="row justify-content-center mb-5 g-4">
+                <div class="col-6 col-md-5">
+                    <div class="card border-primary border-opacity-50 shadow-sm h-100 rounded-4 bg-primary bg-opacity-10">
+                        <div class="card-body py-4">
+                            <h1 class="display-3 text-primary fw-black" id="stat-known">0</h1>
+                            <p class="text-primary fw-bold text-uppercase m-0 small">Thẻ đã thuộc</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-5">
+                    <div class="card border-secondary border-opacity-25 shadow-sm h-100 rounded-4 bg-light">
+                        <div class="card-body py-4">
+                            <h1 class="display-3 text-secondary fw-black" id="stat-unknown">0</h1>
+                            <p class="text-secondary fw-bold text-uppercase m-0 small">Cần ôn lại</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="perfect-msg" style="display: none;" class="mb-4">
+                <h4 class="text-primary fw-bold mb-3"><i class="bi bi-stars text-warning me-2"></i>Tuyệt vời! Bạn đã thuộc 100% bộ thẻ.</h4>
+                <div id="gamification-reward-learn" class="fs-5 fw-bold text-primary bg-white p-3 rounded-4 border border-primary border-opacity-25 d-inline-block shadow-sm">
+                    <div class="spinner-border spinner-border-sm text-primary"></div> Đang tính điểm thưởng...
+                </div>
+            </div>
+
+            <div class="d-flex flex-column align-items-center gap-3 mt-4">
+                <button class="btn btn-primary btn-lg fw-bold px-5 py-3 shadow-sm rounded-pill w-100 max-w-sm transition-smooth" id="btn-study-again" style="max-width: 400px;">
+                    <i class="bi bi-arrow-repeat me-2 fs-5"></i> Ôn lại thẻ chưa thuộc
+                </button>
+                <a asp-action="Details" asp-route-id="@Model.StudySetId" class="btn btn-light btn-lg fw-bold px-5 py-3 border shadow-sm rounded-pill w-100 max-w-sm transition-smooth text-secondary" style="max-width: 400px;">
+                    <i class="bi bi-box-arrow-left me-2"></i> Trở về học phần
+                </a>
+            </div>
         </div>
+
     </div>
-
-    <div id="result-screen" style="display: none;" class="text-center py-5">
-        <h2 class="fw-bold mb-4">Hoàn thành vòng học! 🎉</h2>
-        
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-5">
-                <div class="card border-success border-2 shadow-sm mb-3">
-                    <div class="card-body py-4">
-                        <h1 class="display-4 text-success fw-bold" id="stat-known">0</h1>
-                        <p class="text-muted fw-bold text-uppercase m-0">Thẻ đã thuộc</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-5">
-                <div class="card border-danger border-2 shadow-sm mb-3">
-                    <div class="card-body py-4">
-                        <h1 class="display-4 text-danger fw-bold" id="stat-unknown">0</h1>
-                        <p class="text-muted fw-bold text-uppercase m-0">Thẻ cần học lại</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="perfect-msg" style="display: none;">
-            <h4 class="text-success fw-bold">Tuyệt vời! Bạn đã thuộc 100% bộ thẻ này.</h4>
-
-            <div id="gamification-reward-learn" class="mt-3 fs-5 fw-bold text-primary bg-primary bg-opacity-10 p-3 rounded-3 border border-primary border-opacity-25 d-inline-block shadow-sm">
-                <div class="spinner-border spinner-border-sm"></div> Đang tính toán phần thưởng...
-            </div>
-            <a asp-action="Index" class="btn btn-primary mt-3 px-4 d-block mx-auto" style="width: fit-content;">Quay về danh sách</a>
-        </div>
-
-        <button class="btn btn-warning btn-lg fw-bold px-5 py-3 shadow" id="btn-study-again">
-            <i class="bi bi-arrow-clockwise"></i> Học lại các thẻ chưa thuộc
-        </button>
-        <a asp-action="Index" class="btn btn-light btn-lg px-4 py-3 border shadow-sm mt-3 d-block w-50 mx-auto">Trở về</a>
-    </div>
-
 </div>
 
 <style>
-    .flip-card-container {
-        perspective: 1000px;
-        height: 350px;
-        width: 100%;
+    /* Nền giao diện */
+    .focus-mode-bg {
+        background-color: #f8fafc;
+        margin: -1.5rem;
+        padding: 1.5rem;
     }
 
-    .flip-card {
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
+    /* ==================================================== */
+    /* LỆNH LẬT THẺ ÉP BUỘC TỐI CAO (!important) */
+    /* ==================================================== */
+    .flip-card.flipped {
+        transform: rotateX(180deg) !important;
+        -webkit-transform: rotateX(180deg) !important;
     }
 
-    .flip-card-inner {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-        transform-style: preserve-3d;
-    }
-    /* Thêm class 'flipped' qua JS để kích hoạt lật */
-    .flip-card.flipped .flip-card-inner {
-        transform: rotateX(180deg);
+    /* Hiệu ứng bóng đổ thẻ */
+    .shadow-focus {
+        box-shadow: 0 15px 35px rgba(15, 23, 42, 0.05);
+        transition: box-shadow 0.3s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
-    .flip-card-front, .flip-card-back {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        backface-visibility: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 1rem;
-        padding: 2rem;
-    }
-
-    .flip-card-back {
-        transform: rotateX(180deg);
+    .flip-card-container:hover .shadow-focus {
+        box-shadow: 0 20px 40px rgba(13, 110, 253, 0.15);
     }
 
     .card-content {
-        font-size: 1.8rem;
-        font-weight: bold;
-        white-space: pre-wrap; /* Giữ lại các lần xuống dòng của Textarea */
+        line-height: 1.4;
+        word-break: break-word;
+        white-space: pre-wrap;
     }
 
-    .action-btn:hover {
-        transform: scale(1.05);
-        transition: transform 0.2s;
+    /* ==================================================== */
+    /* HIỆU ỨNG TRƯỢT 2 CHIỀU TỚI - LUI (ĐÃ FIX RAZOR SYNTAX) */
+    /* ==================================================== */
+    .slide-in-right {
+        animation: slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
+
+    @@keyframes slideInRight {
+        0% {
+            opacity: 0;
+            transform: translateX(60px) scale(0.95);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+    }
+
+    .slide-in-left {
+        animation: slideInLeft 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    @@keyframes slideInLeft {
+        0% {
+            opacity: 0;
+            transform: translateX(-60px) scale(0.95);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+    }
+
+    /* ==================================================== */
+    /* ĐỊNH DẠNG NÚT PREV/NEXT & NÚT CHỨC NĂNG CỦA BẠN */
+    /* ==================================================== */
+    .btn-circle-nav {
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        background-color: white;
+    }
+
+        .btn-circle-nav:hover {
+            background-color: #f8fafc;
+            transform: scale(1.1);
+            border-color: #cbd5e1 !important;
+        }
+
+        .btn-circle-nav:active {
+            transform: scale(0.95);
+        }
+
+    .focus-action-btn {
+        transition: all 0.2s ease;
+        border-width: 2px;
+    }
+
+        .focus-action-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .focus-action-btn:active {
+            transform: translateY(1px);
+        }
+
+    #btn-unknown {
+        color: #64748b;
+        border-color: #cbd5e1;
+    }
+
+        #btn-unknown:hover {
+            background-color: #f1f5f9 !important;
+            color: #475569;
+            border-color: #94a3b8;
+        }
+
+    .transition-smooth {
+        transition: all 0.3s ease;
+    }
+
+        .transition-smooth:hover {
+            transform: translateY(-2px);
+        }
 </style>
 
 @section Scripts {
     <script>
-        // 1. Nhận dữ liệu C# truyền xuống và biến thành mảng JavaScript
         const allCards = @Html.Raw(Json.Serialize(Model.Flashcards.Select(f => new { term = f.Term, def = f.Definition })));
-        
-        let currentDeck = [...allCards]; // Mảng chứa các thẻ ĐANG HỌC ở vòng hiện tại
+        let currentDeck = allCards.map(c => ({ ...c, status: null }));
         let currentIndex = 0;
-        let knownCards = [];   // Gom các thẻ đã thuộc
-        let unknownCards = []; // Gom các thẻ không thuộc
+        let knownCards = [];
+        let unknownCards = [];
 
-        // 2. Định vị các UI elements
         const uiCard = document.getElementById('flashcard');
+        const uiInner = document.querySelector('.flip-card-inner');
         const uiTerm = document.getElementById('card-term');
         const uiDef = document.getElementById('card-def');
         const uiProgress = document.getElementById('progress-bar');
         const uiProgressText = document.getElementById('progress-text');
+        const uiLiveKnown = document.getElementById('live-known');
+        const uiLiveUnknown = document.getElementById('live-unknown');
         const studyScreen = document.getElementById('study-screen');
         const resultScreen = document.getElementById('result-screen');
 
-        // Khởi tạo ngay khi tải trang
+        // CHỈ KHAI BÁO 1 LẦN DUY NHẤT Ở ĐÂY
+        const uiWrapper = document.getElementById('flashcard-anim-wrapper');
+
         document.addEventListener('DOMContentLoaded', () => {
-            loadCard();
+            loadCard('right');
         });
 
-        // Lật thẻ khi Click
-        uiCard.addEventListener('click', () => {
-            uiCard.classList.toggle('flipped');
-        });
+        document.getElementById('flashcard').onclick = function () {
+            this.classList.toggle('flipped');
+        };
+        function updateLiveStats() {
+            let k = 0, u = 0;
+            currentDeck.forEach(c => {
+                if (c.status === 'known') k++;
+                if (c.status === 'unknown') u++;
+            });
+            uiLiveKnown.innerText = k;
+            uiLiveUnknown.innerText = u;
+        }
 
-        // 3. Hàm tải thẻ lên giao diện
-        function loadCard() {
-            // Nếu đã học hết vòng hiện tại -> Hiện kết quả
+        // HÀM TẢI THẺ (ĐÃ FIX LỖI MẤT 3D VÀ TRƯỢT MƯỢT MÀ)
+        function loadCard(direction = 'right') {
             if (currentIndex >= currentDeck.length) {
                 showResults();
                 return;
             }
 
-            // Đảm bảo mặt thẻ luôn úp khi hiện thẻ mới
             uiCard.classList.remove('flipped');
 
-            // Gắn chữ (Đợi 150ms để thẻ kịp úp xuống mới đổi chữ)
+            uiWrapper.classList.remove('slide-in-right', 'slide-in-left');
+            void uiWrapper.offsetWidth;
+            uiWrapper.classList.add(direction === 'right' ? 'slide-in-right' : 'slide-in-left');
+
             setTimeout(() => {
                 uiTerm.innerText = currentDeck[currentIndex].term;
                 uiDef.innerText = currentDeck[currentIndex].def;
-            }, 150);
-            
-            // Cập nhật thanh tiến độ
+            }, 100);
+
+            // Xóa class trượt sau 450ms để trả lại không gian 3D cho thẻ lật
+            setTimeout(() => {
+                uiWrapper.classList.remove('slide-in-right', 'slide-in-left');
+            }, 450);
+
             let percent = (currentIndex / currentDeck.length) * 100;
             uiProgress.style.width = percent + '%';
             uiProgressText.innerText = `${currentIndex + 1} / ${currentDeck.length}`;
+
+            updateLiveStats();
         }
 
-        // 4. Xử lý khi bấm nút Thuộc / Không thuộc
         function markCard(isKnown) {
-            if (isKnown) {
-                knownCards.push(currentDeck[currentIndex]);
-            } else {
-                unknownCards.push(currentDeck[currentIndex]);
-            }
-            
+            currentDeck[currentIndex].status = isKnown ? 'known' : 'unknown';
             currentIndex++;
-            loadCard();
+            loadCard('right');
         }
 
         document.getElementById('btn-known').addEventListener('click', () => markCard(true));
         document.getElementById('btn-unknown').addEventListener('click', () => markCard(false));
 
-        // 5. Màn hình Thống kê
+        document.getElementById('btn-prev-card').addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadCard('left');
+            }
+        });
+
+        document.getElementById('btn-next-card').addEventListener('click', () => {
+            currentIndex++;
+            loadCard('right');
+        });
+
         function showResults() {
             studyScreen.style.display = 'none';
             resultScreen.style.display = 'block';
+
+            knownCards = currentDeck.filter(c => c.status === 'known');
+            unknownCards = currentDeck.filter(c => c.status !== 'known');
 
             document.getElementById('stat-known').innerText = knownCards.length;
             document.getElementById('stat-unknown').innerText = unknownCards.length;
@@ -213,9 +342,6 @@
                 document.getElementById('btn-study-again').style.display = 'none';
                 document.getElementById('perfect-msg').style.display = 'block';
 
-                // =======================================
-                // ĐOẠN MÃ MỚI: GỌI API VÀ CẬP NHẬT GIAO DIỆN
-                // =======================================
                 fetch('/StudySet/SaveProgress', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -223,20 +349,20 @@
                 })
                     .then(res => res.json())
                     .then(res => {
-                        const rewardBox = document.querySelector('#perfect-msg .bg-primary'); // Hoặc id gamification-reward-learn của bạn
-
+                        const rewardBox = document.querySelector('#gamification-reward-learn');
                         if (res.success) {
-                            // Cập nhật ngay Navbar
                             let navLevel = document.getElementById('nav-user-level');
                             let navStreak = document.getElementById('nav-user-streak');
                             if (navLevel) navLevel.innerText = res.level;
                             if (navStreak) navStreak.innerText = res.currentStreak;
 
-                            // Thay đổi chữ trong khung spinner thành kết quả
                             if (rewardBox) {
-                                let msg = `Thưởng +${res.earnedXP} XP <i class="bi bi-star-fill text-warning"></i>`;
-                                if (res.isStreakSaved) msg += ` | Chuỗi ${res.currentStreak} ngày 🔥`;
-                                if (res.isLeveledUp) msg += `<br><span class="text-success mt-2 d-block">🌟 BẠN ĐÃ THĂNG LÊN CẤP ${res.level}! 🌟</span>`;
+                                let msg = `<span class="text-primary"><i class="bi bi-star-fill text-warning me-1"></i> +${res.earnedXP} XP</span>`;
+                                if (res.isStreakSaved) msg += ` <span class="mx-2 text-muted">|</span> <span class="text-danger fw-bold"><i class="bi bi-fire"></i> Chuỗi ${res.currentStreak} ngày</span>`;
+                                if (res.isLeveledUp) {
+                                    msg += `<br><span class="text-success mt-2 d-block fs-5"><i class="bi bi-arrow-up-circle-fill"></i> BẠN ĐÃ THĂNG LÊN CẤP ${res.level}!</span>`;
+                                    triggerConfetti();
+                                }
                                 rewardBox.innerHTML = msg;
                             }
                         } else {
@@ -244,46 +370,15 @@
                         }
                     })
                     .catch(() => {
-                        const rewardBox = document.querySelector('#perfect-msg .bg-primary');
+                        const rewardBox = document.querySelector('#gamification-reward-learn');
                         if (rewardBox) rewardBox.style.display = 'none';
                     });
-                // =======================================
-
             } else {
-                document.getElementById('btn-study-again').style.display = 'inline-block';
+                document.getElementById('btn-study-again').style.display = 'block';
                 document.getElementById('perfect-msg').style.display = 'none';
             }
         }
 
-        // 5.5 HÀM GỌI API VÀ BẮN PHÁO HOA
-        function saveGamification(actionType, score) {
-            fetch('/StudySet/SaveProgress', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ StudySetId: @Model.StudySetId, ActionType: actionType, Score: score })
-            })
-                .then(res => res.json())
-                .then(res => {
-                    const rewardBox = document.getElementById('gamification-reward-learn');
-                    if (res.success && res.data) {
-                        let msg = `<i class="bi bi-star-fill text-warning"></i> +${res.data.earnedXP} XP <br>`;
-
-                        if (res.data.isStreakSaved) {
-                            msg += `<span class="text-danger fw-black"><i class="bi bi-fire fs-4"></i> Chuỗi ${res.data.currentStreak} Ngày!</span><br>`;
-                        }
-
-                        if (res.data.isLeveledUp) {
-                            msg += `<span class="text-success fs-4 fw-black">🌟 LÊN LEVEL ${res.data.level}! 🌟</span>`;
-                            triggerConfetti(); // BẮN PHÁO HOA!
-                        }
-                        rewardBox.innerHTML = msg;
-                    } else {
-                        rewardBox.style.display = 'none'; // Ẩn nếu chưa đăng nhập
-                    }
-                }).catch(() => document.getElementById('gamification-reward-learn').style.display = 'none');
-        }
-
-        // HIỆU ỨNG PHÁO HOA RƠI TỪ 2 BÊN
         function triggerConfetti() {
             var duration = 3 * 1000;
             var end = Date.now() + duration;
@@ -294,16 +389,16 @@
             }());
         }
 
-        // 6. Logic thần thánh: Bắt đầu vòng lặp mới chỉ với các thẻ chưa thuộc
         document.getElementById('btn-study-again').addEventListener('click', () => {
-            currentDeck = [...unknownCards]; // Gán bộ bài mới bằng các thẻ bị sai
+            currentDeck = unknownCards.map(c => ({ ...c, status: null }));
             currentIndex = 0;
-            knownCards = [];   // Reset giỏ
-            unknownCards = []; // Reset giỏ
-            
+            knownCards = [];
+            unknownCards = [];
+
             resultScreen.style.display = 'none';
             studyScreen.style.display = 'block';
-            loadCard();
+            loadCard('right');
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 }

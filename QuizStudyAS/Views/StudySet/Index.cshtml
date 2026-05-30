@@ -1,7 +1,11 @@
-﻿@model IEnumerable<QuizStudyAS.Models.StudySet>
+﻿@model QuizStudyAS.ViewModels.StudySetInventoryVM
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/grimoire.css" asp-append-version="true" />
+}
 
 @{
-    ViewData["Title"] = "Kho Bí Kíp Của Tôi";
+    ViewData["Title"] = "Học phần";
 }
 
 <div class="container py-4 page-fade-in" style="max-width: 1200px;">
@@ -11,10 +15,10 @@
             <div class="inventory-icon-box shadow-sm">
                 <i class="bi bi-journal-bookmark-fill text-primary"></i>
             </div>
-            <h2 class="fw-black m-0 arena-title-shine text-uppercase">KHO BÍ KÍP</h2>
+            <h2 class="fw-black m-0 arena-title-shine text-uppercase">KHO HỌC PHẦN</h2>
         </div>
         <a asp-action="Create" class="btn btn-primary btn-lg fw-bold px-4 py-2 rounded-pill shadow-sm d-flex align-items-center gap-2 transition-btn border-2 border-white">
-            <i class="bi bi-magic fs-5"></i> <span>Tạo bí kíp mới</span>
+            <i class="bi bi-magic fs-5"></i> <span>Tạo học phần mới</span>
         </a>
     </div>
 
@@ -23,232 +27,129 @@
             <span class="input-group-text bg-transparent border-0 text-muted ps-4 pe-2">
                 <i class="bi bi-search fs-5"></i>
             </span>
-            <input type="text" id="search-input" class="form-control border-0 shadow-none bg-transparent fs-5 py-3 fw-semibold" placeholder="Tra cứu bí kíp của bạn..." autocomplete="off">
+            <input type="text" id="search-input" class="form-control border-0 shadow-none bg-transparent fs-5 py-3 fw-semibold" placeholder="Tra cứu học phần của bạn..." autocomplete="off">
         </div>
-
-        <ul id="search-suggestions" class="list-group position-absolute w-100 shadow-lg mt-2 rounded-4 d-none border-0 overflow-hidden" style="z-index: 1000; max-height: 400px; overflow-y: auto;">
-        </ul>
+        <ul id="search-suggestions" class="list-group position-absolute w-100 shadow-lg mt-2 rounded-4 d-none border-0 overflow-hidden" style="z-index: 1000; max-height: 400px; overflow-y: auto;"></ul>
     </div>
 
-    @if (!Model.Any())
-    {
-        <div class="text-center py-5 bg-white rounded-4 shadow-sm border-0 mt-4 mx-auto position-relative overflow-hidden" style="max-width: 600px;">
-            <div class="empty-book-animation mb-3">
-                <i class="bi bi-book-half display-1 text-primary opacity-25"></i>
+    <div class="inventory-frame bg-white p-4 p-md-5 rounded-4 shadow-sm border mb-5 position-relative overflow-hidden">
+        <h4 class="fw-black mb-4 pb-3 border-bottom frame-title">
+            <i class="bi bi-person-workspace text-primary me-2"></i> @Model.PersonalGroup.GroupName
+        </h4>
+
+        @if (!Model.PersonalGroup.StudySets.Any())
+        {
+            <div class="text-center py-4">
+                <i class="bi bi-book-half display-4 text-primary opacity-25 empty-book-animation d-block mb-3"></i>
+                <p class="text-muted fw-semibold">Kho tàng cá nhân đang trống. Hãy tạo học phần đầu tiên!</p>
             </div>
-            <h3 class="fw-black text-dark mb-2">Kho tàng đang trống rỗng</h3>
-            <p class="text-muted fs-6 mb-4 px-4 fw-semibold">Hãy rèn luyện cuốn bí kíp phép thuật đầu tiên để bắt đầu hành trình chinh phục kiến thức của bạn!</p>
-            <a asp-action="Create" class="btn btn-primary btn-lg rounded-pill fw-bold px-5 shadow transition-btn">
-                <i class="bi bi-plus-circle-fill me-2"></i> Khởi tạo ngay
-            </a>
-        </div>
-    }
-    else
-    {
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            @foreach (var item in Model)
-            {
-                <div class="col">
-                    <div class="card h-100 border-0 rounded-4 shadow-sm grimoire-card bg-white position-relative overflow-hidden">
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var item in Model.PersonalGroup.StudySets)
+                {
+                    <div class="col">
+                        <div class="card h-100 border-0 rounded-4 shadow-sm grimoire-card bg-white position-relative overflow-hidden">
+                            <div class="grimoire-gradient-top"></div>
+                            <i class="bi bi-journal-text position-absolute text-light opacity-50 card-watermark"></i>
 
-                        <div class="grimoire-gradient-top"></div>
+                            <div class="position-absolute top-0 end-0 m-3 z-3">
+                                <a asp-action="Edit" asp-route-id="@item.StudySetId" class="btn btn-light btn-sm rounded-circle shadow-sm edit-btn d-flex justify-content-center align-items-center border" style="width: 36px; height: 36px;" title="Sửa học phần">
+                                    <i class="bi bi-pencil-fill text-secondary"></i>
+                                </a>
+                            </div>
 
-                        <i class="bi bi-journal-text position-absolute text-light opacity-50 card-watermark"></i>
-
-                        <div class="position-absolute top-0 end-0 m-3 z-3">
-                            <a asp-action="Edit" asp-route-id="@item.StudySetId" class="btn btn-light btn-sm rounded-circle shadow-sm edit-btn d-flex justify-content-center align-items-center border" style="width: 36px; height: 36px;" title="Sửa học phần">
-                                <i class="bi bi-pencil-fill text-secondary"></i>
+                            <a asp-action="Details" asp-route-id="@item.StudySetId" class="text-decoration-none text-dark d-flex flex-column h-100 p-4 stretched-link z-1">
+                                <div class="mb-3">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-bold shadow-xs">
+                                        <i class="bi bi-stack"></i> @item.Flashcards.Count thẻ
+                                    </span>
+                                </div>
+                                <h4 class="card-title fw-black mb-2 text-truncate pe-4" title="@item.Title">@item.Title</h4>
+                                <p class="card-text text-muted small flex-grow-1 fw-semibold" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    @(string.IsNullOrEmpty(item.Description) ? "Chưa có mô tả chi tiết..." : item.Description)
+                                </p>
+                                <div class="mt-4 d-flex align-items-center justify-content-between pt-3 border-top position-relative">
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (item.OwnerUser != null && !string.IsNullOrEmpty(item.OwnerUser.AvatarUrl))
+                                        {
+                                            <img src="@item.OwnerUser.AvatarUrl" class="rounded-circle border shadow-xs" style="width: 32px; height: 32px; object-fit: cover;" alt="Avatar" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center fw-bold border shadow-xs" style="width: 32px; height: 32px; font-size: 14px;">
+                                                <i class="bi bi-person-fill"></i>
+                                            </div>
+                                        }
+                                        <span class="small fw-bold text-muted">@item.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                    </div>
+                                    <div class="play-action-icon text-primary transition-all shadow-sm bg-white rounded-circle">
+                                        <i class="bi bi-play-circle-fill fs-3"></i>
+                                    </div>
+                                </div>
                             </a>
                         </div>
-
-                        <a asp-action="Details" asp-route-id="@item.StudySetId" class="text-decoration-none text-dark d-flex flex-column h-100 p-4 stretched-link z-1">
-
-                            <div class="mb-3">
-                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-bold shadow-xs">
-                                    <i class="bi bi-stack"></i> @item.Flashcards.Count thẻ
-                                </span>
-                            </div>
-
-                            <h4 class="card-title fw-black mb-2 text-truncate pe-4" title="@item.Title">@item.Title</h4>
-
-                            <p class="card-text text-muted small flex-grow-1 fw-semibold" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                                @(string.IsNullOrEmpty(item.Description) ? "Chưa có mô tả chi tiết..." : item.Description)
-                            </p>
-
-                            <div class="mt-4 d-flex align-items-center justify-content-between pt-3 border-top position-relative">
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center fw-bold border shadow-xs" style="width: 32px; height: 32px; font-size: 14px;">
-                                        <i class="bi bi-person-fill"></i>
-                                    </div>
-                                    <span class="small fw-bold text-muted">@item.CreatedAt.ToString("dd/MM/yyyy")</span>
-                                </div>
-
-                                <div class="play-action-icon text-primary transition-all shadow-sm bg-white rounded-circle">
-                                    <i class="bi bi-play-circle-fill fs-3"></i>
-                                </div>
-                            </div>
-                        </a>
                     </div>
-                </div>
-            }
+                }
+            </div>
+        }
+    </div>
+
+    @foreach (var cls in Model.ClassGroups)
+    {
+        <div class="inventory-frame bg-white p-4 p-md-5 rounded-4 shadow-sm border mb-5 position-relative overflow-hidden">
+            <h4 class="fw-black mb-4 pb-3 border-bottom frame-title">
+                <i class="bi bi-bank text-success me-2"></i> @cls.GroupName
+            </h4>
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var item in cls.StudySets)
+                {
+                    <div class="col">
+                        <div class="card h-100 border-0 rounded-4 shadow-sm grimoire-card bg-white position-relative overflow-hidden">
+                            <div class="grimoire-gradient-top" style="background: linear-gradient(90deg, #10b981, #34d399);"></div>
+                            <i class="bi bi-mortarboard-fill position-absolute text-light opacity-50 card-watermark"></i>
+
+                            <a asp-action="Details" asp-route-id="@item.StudySetId" class="text-decoration-none text-dark d-flex flex-column h-100 p-4 stretched-link z-1">
+                                <div class="mb-3">
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 fw-bold shadow-xs">
+                                        <i class="bi bi-stack"></i> @item.Flashcards.Count thẻ
+                                    </span>
+                                </div>
+                                <h4 class="card-title fw-black mb-2 text-truncate" title="@item.Title">@item.Title</h4>
+                                <p class="card-text text-muted small flex-grow-1 fw-semibold" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    @(string.IsNullOrEmpty(item.Description) ? "Chưa có mô tả chi tiết..." : item.Description)
+                                </p>
+                                <div class="mt-4 d-flex align-items-center justify-content-between pt-3 border-top position-relative">
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (item.OwnerUser != null && !string.IsNullOrEmpty(item.OwnerUser.AvatarUrl))
+                                        {
+                                            <img src="@item.OwnerUser.AvatarUrl" class="rounded-circle border shadow-xs" style="width: 32px; height: 32px; object-fit: cover;" alt="Avatar" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center fw-bold border border-success border-opacity-25 shadow-xs" style="width: 32px; height: 32px; font-size: 14px;">
+                                                @item.OwnerUser?.UserName.Substring(0, 1).ToUpper()
+                                            </div>
+                                        }
+                                        <div class="d-flex flex-column lh-1">
+                                            <span class="small fw-bold text-dark">@item.OwnerUser?.UserName</span>
+                                            <span style="font-size: 0.7rem;" class="text-muted fw-bold mt-1">@item.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                        </div>
+                                    </div>
+                                    <div class="play-action-icon text-success transition-all shadow-sm bg-white rounded-circle">
+                                        <i class="bi bi-play-circle-fill fs-3"></i>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     }
 </div>
-
-<style>
-    /* NHÚNG TRỰC TIẾP CSS VÀO ĐÂY ĐỂ ĐỒNG BỘ HIỆU ỨNG */
-
-    body {
-        background-color: #f8fafc;
-    }
-    /* Nền tổng thể sáng sủa, mượt mà */
-
-    /* Hiệu ứng Header */
-    .inventory-icon-box {
-        width: 50px;
-        height: 50px;
-        background: #fff;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        border: 2px solid #e2e8f0;
-        transform: rotate(-5deg);
-        transition: 0.3s;
-    }
-
-        .inventory-icon-box:hover {
-            transform: rotate(0deg) scale(1.1);
-            border-color: #0d6efd;
-        }
-
-    .arena-title-shine {
-        letter-spacing: -1px;
-        background: linear-gradient(to right, #1e293b 0%, #3b82f6 50%, #1e293b 100%);
-        background-size: 200% auto;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: shine 3s linear infinite;
-    }
-    @@keyframes shine {
-        to {
-            background-position: 200% center;
-        }
-    }
-
-    /* Hiệu ứng thanh tìm kiếm */
-    #search-wrapper:focus-within {
-        border-color: #3b82f6 !important;
-        box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.15) !important;
-    }
-
-    /* ------------------------------------------------ */
-    /* THIẾT KẾ THẺ BÍ KÍP (GRIMOIRE CARDS)             */
-    /* ------------------------------------------------ */
-    .grimoire-card {
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        border: 1px solid rgba(0,0,0,0.05) !important;
-    }
-
-    /* Vệt màu Gradient phép thuật trên đầu thẻ */
-    .grimoire-gradient-top {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 6px;
-        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-        opacity: 0.8;
-        transition: height 0.3s ease;
-    }
-
-    /* Icon Watermark to chìm dưới nền thẻ */
-    .card-watermark {
-        font-size: 120px;
-        right: -20px;
-        bottom: -20px;
-        z-index: 0;
-        transform: rotate(-15deg);
-        transition: 0.4s ease;
-    }
-
-    /* Icon Play ẩn góc phải dưới */
-    .play-action-icon {
-        opacity: 0;
-        transform: translateX(20px) scale(0.8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 35px;
-        height: 35px;
-    }
-
-    /* ----- TRẠNG THÁI HOVER CỦA THẺ ----- */
-    .grimoire-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 35px rgba(59, 130, 246, 0.1) !important;
-        border-color: rgba(59, 130, 246, 0.3) !important;
-    }
-
-        .grimoire-card:hover .grimoire-gradient-top {
-            height: 8px;
-            opacity: 1;
-        }
-
-        .grimoire-card:hover .card-watermark {
-            transform: rotate(-5deg) scale(1.1);
-            color: #f1f5f9 !important;
-            opacity: 1;
-        }
-
-        .grimoire-card:hover .play-action-icon {
-            opacity: 1;
-            transform: translateX(0) scale(1);
-        }
-
-    /* Nút bấm Hover chung */
-    .transition-btn {
-        transition: all 0.2s;
-    }
-
-        .transition-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3) !important;
-        }
-
-    .edit-btn {
-        transition: all 0.2s;
-        z-index: 10;
-    }
-
-        .edit-btn:hover {
-            background-color: #facc15 !important;
-            border-color: #facc15 !important;
-        }
-
-            .edit-btn:hover i {
-                color: #fff !important;
-            }
-
-    /* Hiệu ứng trang trống */
-    .empty-book-animation {
-        animation: floatBook 3s infinite ease-in-out alternate;
-    }
-    @@keyframes floatBook {
-        0% {
-            transform: translateY(0);
-        }
-
-        100% {
-            transform: translateY(-15px);
-        }
-    }
-
-    .shadow-xs {
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-</style>
 
 @section Scripts {
     <script>
@@ -293,7 +194,7 @@
                                 });
                                 suggestionsBox.classList.remove('d-none');
                             } else {
-                                suggestionsBox.innerHTML = '<li class="list-group-item text-muted py-4 text-center border-0 fs-6 fw-semibold"><i>Không tìm thấy cuốn bí kíp nào khớp...</i></li>';
+                                suggestionsBox.innerHTML = '<li class="list-group-item text-muted py-4 text-center border-0 fs-6 fw-semibold"><i>Không tìm thấy học phần nào khớp...</i></li>';
                                 suggestionsBox.classList.remove('d-none');
                             }
                         });

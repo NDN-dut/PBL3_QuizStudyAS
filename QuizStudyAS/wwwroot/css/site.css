@@ -295,3 +295,27 @@ body {
         transform: translateX(8px) rotate(3deg);
     }
 }
+
+/* CSS cho link mặc định */
+.sidebar-link {
+    color: #475569;
+    transition: all 0.2s ease-in-out;
+    border-left: 4px solid transparent; /* Chuẩn bị sẵn khung viền */
+}
+
+    .sidebar-link:hover {
+        background-color: #f1f5f9;
+        color: #0f172a;
+    }
+
+/* TRẠNG THÁI ACTIVE HIỆN TẠI */
+.active-sidebar-item {
+    background: linear-gradient(90deg, #eff6ff 0%, #ffffff 100%) !important; /* Nền xanh dương nhạt lan tỏa */
+    color: #0d6efd !important; /* Chữ xanh đậm */
+    box-shadow: inset 4px 0 0 0 #0d6efd; /* Thanh line đánh dấu cạnh trái */
+}
+
+    /* Ghi đè màu của mọi Icon (Cúp vàng, Chuông...) thành màu xanh đồng nhất khi bị Active */
+    .active-sidebar-item .menu-icon {
+        color: #0d6efd !important;
+    }
