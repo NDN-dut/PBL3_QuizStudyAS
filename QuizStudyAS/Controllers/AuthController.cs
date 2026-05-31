@@ -89,8 +89,9 @@ namespace QuizStudyAS.Controllers
 
             if (!result.Succeeded)
             {
-                ViewBag.ErrorMessage = "Lỗi xác thực từ Google.";
-                return View("Login");
+                // SỬA: Dùng TempData thay vì ViewBag
+                TempData["GoogleError"] = "Lỗi xác thực từ Google.";
+                return RedirectToAction("Index", "Home");
             }
 
             var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
@@ -99,8 +100,9 @@ namespace QuizStudyAS.Controllers
 
             if (email == null)
             {
-                ViewBag.ErrorMessage = "Không thể lấy được email từ tài khoản Google.";
-                return View("Login");
+                // SỬA: Dùng TempData
+                TempData["GoogleError"] = "Không thể lấy được email từ tài khoản Google.";
+                return RedirectToAction("Index", "Home");
             }
 
             var authResult = await _authService.AuthenticateGoogleUserAsync(email, fullName ?? "");
@@ -108,8 +110,9 @@ namespace QuizStudyAS.Controllers
             if (!authResult.Success || authResult.User == null)
             {
                 await HttpContext.SignOutAsync();
-                ViewBag.ErrorMessage = authResult.Message;
-                return View("Login");
+                // SỬA: Ném câu thông báo (VD: "Tài khoản bị khóa") vào TempData và chuyển hướng
+                TempData["GoogleError"] = authResult.Message;
+                return RedirectToAction("Index", "Home");
             }
 
             // Tạo Cookie xác thực để hệ thống nhận diện Middleware

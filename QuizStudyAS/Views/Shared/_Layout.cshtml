@@ -282,6 +282,34 @@
 
     <partial name="_AuthModal" />
 
+    @if (TempData["GoogleError"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // 1. Tự động bật Modal Đăng nhập lên
+                var authModalElement = document.getElementById('authModal');
+                if (authModalElement) {
+                    var authModal = new bootstrap.Modal(authModalElement);
+                    authModal.show();
+                }
+
+                // 2. Gắn câu thông báo lỗi vào khung Alert của Đăng nhập
+                var loginAlert = document.getElementById('loginAlert');
+                if (loginAlert) {
+                    loginAlert.className = "alert alert-danger mt-3";
+                    loginAlert.textContent = "@Html.Raw(TempData["GoogleError"])";
+                    loginAlert.classList.remove("d-none");
+                }
+
+                // 3. Kích hoạt hiệu ứng buồn và lắc đầu cho Mascot
+                var loginMascot = document.getElementById('login-mascot');
+                if (loginMascot) {
+                    loginMascot.classList.add('sad', 'shake');
+                }
+            });
+        </script>
+    }
+
     @if (TempData["LockedMessage"] != null)
     {
         <div class="modal fade" id="lockedContentModal" tabindex="-1" aria-hidden="true">
