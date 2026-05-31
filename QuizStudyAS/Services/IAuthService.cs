@@ -1,19 +1,19 @@
 ﻿using QuizStudyAS.Models;
 using QuizStudyAS.DTOs;
+using System.Threading.Tasks;
 
 namespace QuizStudyAS.Services
 {
     public interface IAuthService
     {
-        // Sử dụng ValueTuple để trả về nhiều giá trị cùng lúc (Thành công/Thất bại, Thông báo, Dữ liệu)
-        (bool Success, string Message) RegisterUser(string username, string email, string password);
+        ServiceResult RegisterUser(string username, string email, string password);
 
-        (bool Success, ApplicationUser? User, string Message) AuthenticateUser(string usernameOrEmail, string password);
+        ServiceResult<ApplicationUser> AuthenticateUser(string usernameOrEmail, string password);
 
-        ApplicationUser? GeneratePasswordResetToken(string email);
+        ServiceResult<ApplicationUser> GeneratePasswordResetToken(string email);
 
-        (bool Success, string Message) ResetPassword(string token, string newPassword);
+        ServiceResult ResetPassword(string token, string newPassword);
 
-        Task<AuthResult> AuthenticateGoogleUserAsync(string email, string fullName);
+        Task<ServiceResult<ApplicationUser>> AuthenticateGoogleUserAsync(string email, string fullName);
     }
 }
