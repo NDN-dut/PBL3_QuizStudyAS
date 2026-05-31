@@ -16,22 +16,19 @@
 
     <!-- --- THANH TÌM KIẾM VÀ LỌC --- -->
     <form method="get" asp-action="ManageUsers" class="mb-4 bg-light p-3 rounded border shadow-sm">
-        <div class="row g-2">
-            <!-- Ô nhập từ khóa -->
+        <div class="row g-2 mb-2">
             <div class="col-md-5">
                 <input type="text" name="searchString" value="@ViewBag.CurrentSearch"
                        class="form-control" placeholder="Tìm theo tên hoặc email..." />
             </div>
-
-            <!-- Ô chọn vai trò -->
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <select name="roleId" class="form-select">
                     <option value="">-- Tất cả vai trò --</option>
                     @if (ViewBag.Roles != null)
                     {
                         foreach (var role in ViewBag.Roles)
                         {
-                            if (ViewBag.CurrentRole == role.RoleId)
+                            @if (ViewBag.CurrentRole == role.RoleId)
                             {
                                 <option value="@role.RoleId" selected>@role.RoleName</option>
                             }
@@ -43,11 +40,44 @@
                     }
                 </select>
             </div>
+            <div class="col-md-4">
+                <select name="isActive" class="form-select">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    @if (ViewBag.CurrentIsActive == true)
+                    {
+                        <option value="true" selected>Hoạt động</option>
+                        <option value="false">Bị khóa</option>
+                    }
+                    else if (ViewBag.CurrentIsActive == false)
+                    {
+                        <option value="true">Hoạt động</option>
+                        <option value="false" selected>Bị khóa</option>
+                    }
+                    else
+                    {
+                        <option value="true">Hoạt động</option>
+                        <option value="false">Bị khóa</option>
+                    }
+                </select>
+            </div>
+        </div>
 
-            <!-- Nút bấm -->
-            <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100 fw-bold">Tìm kiếm</button>
-                <a asp-action="ManageUsers" class="btn btn-outline-secondary w-100 fw-bold">Xóa lọc</a>
+        <div class="row g-2">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white text-muted">Từ</span>
+                    <input type="date" name="fromDate" value="@ViewBag.CurrentFromDate" class="form-control" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white text-muted">Đến</span>
+                    <input type="date" name="toDate" value="@ViewBag.CurrentToDate" class="form-control" />
+                </div>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-50 fw-bold"><i class="bi bi-search me-1"></i> Lọc</button>
+                <a asp-action="ManageUsers" class="btn btn-outline-secondary w-50 fw-bold"><i class="bi bi-arrow-counterclockwise me-1"></i> Xóa lọc</a>
             </div>
         </div>
     </form>

@@ -8,6 +8,10 @@
         public string OwnerUserId { get; set; } // ID của người tạo lớp (ApplicationUser)
         public bool IsActive { get; set; } = true;
 
+        // --- THÊM 2 DÒNG NÀY ---
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+
         // --- Navigation Properties ---
         public virtual ApplicationUser OwnerUser { get; set; }
         public virtual ICollection<ClassroomUser> ClassroomUsers { get; set; }

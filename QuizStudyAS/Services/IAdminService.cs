@@ -8,8 +8,8 @@ namespace QuizStudyAS.Services
         // Thống kê cho Dashboard (Giữ nguyên Tuple chứa dữ liệu)
         (int TotalUsers, int TotalStudySets, int TotalClassrooms, int TotalAdmins) GetDashboardStats();
 
-        // Lấy danh sách người dùng (có lọc) và danh sách vai trò
-        List<ApplicationUser> GetFilteredUsers(string searchString, int? roleId);
+        // Lấy danh sách người dùng (có lọc đa điều kiện)
+        List<ApplicationUser> GetFilteredUsers(string searchString, int? roleId, bool? isActive, DateTime? fromDate, DateTime? toDate);
         List<Role> GetAllRoles();
 
         // Các thao tác CRUD với User
@@ -22,8 +22,9 @@ namespace QuizStudyAS.Services
         ServiceResult ToggleClassroomStatus(int classroomId);
         ServiceResult ToggleStudySetStatus(int studySetId);
 
-        // Lấy danh sách để Admin quản lý (bao gồm cả tìm kiếm)
-        List<Classroom> GetFilteredClassrooms(string searchString);
-        List<StudySet> GetFilteredStudySets(string searchString);
+        // Lấy danh sách Lớp học (có lọc đa điều kiện)
+        List<Classroom> GetFilteredClassrooms(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate);
+        // Lấy danh sách Học phần (có lọc đa điều kiện)
+        List<StudySet> GetFilteredStudySets(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate);
     }
 }

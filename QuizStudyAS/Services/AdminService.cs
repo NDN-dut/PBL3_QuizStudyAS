@@ -26,21 +26,32 @@ namespace QuizStudyAS.Services
             );
         }
 
-        public List<ApplicationUser> GetFilteredUsers(string searchString, int? roleId)
+        public List<ApplicationUser> GetFilteredUsers(string searchString, int? roleId, bool? isActive, DateTime? fromDate, DateTime? toDate)
         {
             var query = _context.Users.Include(u => u.Role).AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
-            {
                 query = query.Where(u => u.UserName.Contains(searchString) || u.Email.Contains(searchString));
-            }
 
             if (roleId.HasValue && roleId > 0)
-            {
                 query = query.Where(u => u.RoleId == roleId);
+
+            // 1. Lọc theo trạng thái hoạt động
+            if (isActive.HasValue)
+                query = query.Where(u => u.IsActive == isActive.Value);
+
+            // 2. Lọc theo ngày bắt đầu
+            if (fromDate.HasValue)
+                query = query.Where(u => u.CreatedAt >= fromDate.Value.Date);
+
+            // 3. Lọc theo ngày kết thúc (Ép đến 23:59:59 của ngày đó)
+            if (toDate.HasValue)
+            {
+                var endOfDay = toDate.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(u => u.CreatedAt <= endOfDay);
             }
 
-            return query.ToList();
+            return query.OrderByDescending(u => u.CreatedAt).ToList(); // Ưu tiên xếp mới nhất lên đầu
         }
 
         public List<Role> GetAllRoles()
@@ -128,28 +139,56 @@ namespace QuizStudyAS.Services
             return ServiceResult.IsSuccess(msg);
         }
 
-        public List<Classroom> GetFilteredClassrooms(string searchString)
+        public List<Classroom> GetFilteredClassrooms(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate)
         {
             var query = _context.Classrooms.Include(c => c.OwnerUser).AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
-            {
                 query = query.Where(c => c.ClassName.Contains(searchString) || c.InviteCode.Contains(searchString));
+
+            // Lọc theo người tạo (So sánh chuỗi gần đúng)
+            if (!string.IsNullOrEmpty(ownerName))
+                query = query.Where(c => c.OwnerUser.UserName.Contains(ownerName));
+
+            if (isActive.HasValue)
+                query = query.Where(c => c.IsActive == isActive.Value);
+
+            if (fromDate.HasValue)
+                query = query.Where(c => c.CreatedAt >= fromDate.Value.Date);
+
+            if (toDate.HasValue)
+            {
+                var endOfDay = toDate.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(c => c.CreatedAt <= endOfDay);
             }
 
-            return query.ToList();
+            return query.OrderByDescending(c => c.CreatedAt).ToList();
         }
 
-        public List<StudySet> GetFilteredStudySets(string searchString)
+        public List<StudySet> GetFilteredStudySets(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate)
         {
             var query = _context.StudySets.Include(s => s.OwnerUser).AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
-            {
                 query = query.Where(s => s.Title.Contains(searchString));
+
+            // Lọc theo người tạo
+            if (!string.IsNullOrEmpty(ownerName))
+                query = query.Where(s => s.OwnerUser.UserName.Contains(ownerName));
+
+            if (isActive.HasValue)
+                query = query.Where(s => s.IsActive == isActive.Value);
+
+            if (fromDate.HasValue)
+                query = query.Where(s => s.CreatedAt >= fromDate.Value.Date);
+
+            if (toDate.HasValue)
+            {
+                var endOfDay = toDate.Value.Date.AddDays(1).AddTicks(-1);
+                query = query.Where(s => s.CreatedAt <= endOfDay);
             }
 
-            return query.ToList();
+            return query.OrderByDescending(s => s.CreatedAt).ToList();
         }
     }
 }
