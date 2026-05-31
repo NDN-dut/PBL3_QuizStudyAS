@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
+using QuizStudyAS.DTOs;
 using QuizStudyAS.Models;
 
 namespace QuizStudyAS.Services
@@ -53,7 +54,20 @@ namespace QuizStudyAS.Services
                 .Include(u => u.Role)
                 .FirstOrDefault(u => u.UserName == usernameOrEmail || u.Email == usernameOrEmail);
 
-            if (user == null || !_passwordHasher.VerifyPassword(password, user.PasswordHash))
+            if (user == null)
+            {
+                return (false, null, "Tên đăng nhập hoặc mật khẩu không chính xác.");
+            }
+
+            // --- CHỐT CHẶN 1: TÀI KHOẢN GOOGLE ---
+            // Nếu tài khoản không có mật khẩu (nghĩa là được tạo qua Google/Facebook)
+            if (string.IsNullOrEmpty(user.PasswordHash))
+            {
+                return (false, null, "Tài khoản này được liên kết với Google. Vui lòng chọn 'Đăng nhập bằng Google'.");
+            }
+
+            // --- CHỐT CHẶN 2: SAI MẬT KHẨU ---
+            if (!_passwordHasher.VerifyPassword(password, user.PasswordHash))
             {
                 return (false, null, "Tên đăng nhập hoặc mật khẩu không chính xác.");
             }
@@ -97,6 +111,56 @@ namespace QuizStudyAS.Services
             _context.SaveChanges();
 
             return (true, "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay bây giờ.");
+        }
+
+        public async Task<AuthResult> AuthenticateGoogleUserAsync(string email, string fullName)
+        {
+            // 1. Kiểm tra xem email này đã tồn tại trong hệ thống chưa
+            var user = await _context.Users
+                         .Include(u => u.Role)
+                         .FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user != null)
+            {
+                if (!user.IsActive)
+                {
+                    return new AuthResult { Success = false, User = null, Message = "Tài khoản của bạn đã bị vô hiệu hóa bởi Admin." };
+                }
+
+                return new AuthResult { Success = true, User = user, Message = "Đăng nhập qua Google thành công." };
+            }
+
+            // 2. Nếu là người dùng mới hoàn toàn, chuẩn bị dữ liệu liên kết
+            var googleProvider = await _context.AuthProviders.FirstOrDefaultAsync(p => p.Name == "Google");
+            if (googleProvider == null)
+            {
+                googleProvider = new AuthProvider { Name = "Google" };
+                _context.AuthProviders.Add(googleProvider);
+            }
+
+            var defaultRole = await _context.Roles.FirstOrDefaultAsync(r => r.RoleName == "User");
+            if (defaultRole == null)
+            {
+                defaultRole = new Role { RoleName = "User" };
+                _context.Roles.Add(defaultRole);
+            }
+
+            // 3. Tạo tài khoản mới
+            var newUser = new ApplicationUser
+            {
+                UserName = email.Split('@')[0] + "_" + Guid.NewGuid().ToString().Substring(0, 4),
+                Email = email,
+                PasswordHash = null,
+                IsActive = true,
+                CreatedAt = DateTime.Now,
+                Role = defaultRole,
+                AuthProvider = googleProvider
+            };
+
+            _context.Users.Add(newUser);
+            await _context.SaveChangesAsync();
+
+            return new AuthResult { Success = true, User = newUser, Message = "Tạo tài khoản liên kết Google thành công." };
         }
     }
 }
