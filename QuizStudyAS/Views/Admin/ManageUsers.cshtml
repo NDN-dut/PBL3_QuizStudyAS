@@ -1,5 +1,5 @@
 ﻿@* Khai báo kiểu dữ liệu Model mà View này sẽ nhận từ Controller *@
-@model IEnumerable<QuizStudyAS.Models.ApplicationUser>
+@model QuizStudyAS.DTOs.PaginatedList<QuizStudyAS.Models.ApplicationUser>
 
 @{
     ViewData["Title"] = "Quản lý Người dùng";
@@ -97,9 +97,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model != null && Model.Any())
+                    @if (Model != null && Model.Items.Any())
                     {
-                        foreach (var user in Model)
+                        foreach (var user in Model.Items)
                         {
                             <tr>
                                 <td class="text-center text-muted small">
@@ -170,7 +170,46 @@
             </table>
         </div>
     </div>
-</div>
+</div> <nav aria-label="Page navigation" class="mt-4 mb-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+            <a class="page-link" asp-action="ManageUsers"
+               asp-route-pageIndex="@(Model.PageIndex - 1)"
+               asp-route-searchString="@ViewBag.CurrentSearch"
+               asp-route-roleId="@ViewBag.CurrentRole"
+               asp-route-isActive="@ViewBag.CurrentIsActive"
+               asp-route-fromDate="@ViewBag.CurrentFromDate"
+               asp-route-toDate="@ViewBag.CurrentToDate">
+                <i class="bi bi-chevron-left"></i> Trước
+            </a>
+        </li>
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                <a class="page-link" asp-action="ManageUsers"
+                   asp-route-pageIndex="@i"
+                   asp-route-searchString="@ViewBag.CurrentSearch"
+                   asp-route-roleId="@ViewBag.CurrentRole"
+                   asp-route-isActive="@ViewBag.CurrentIsActive"
+                   asp-route-fromDate="@ViewBag.CurrentFromDate"
+                   asp-route-toDate="@ViewBag.CurrentToDate">@i</a>
+            </li>
+        }
+
+        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+            <a class="page-link" asp-action="ManageUsers"
+               asp-route-pageIndex="@(Model.PageIndex + 1)"
+               asp-route-searchString="@ViewBag.CurrentSearch"
+               asp-route-roleId="@ViewBag.CurrentRole"
+               asp-route-isActive="@ViewBag.CurrentIsActive"
+               asp-route-fromDate="@ViewBag.CurrentFromDate"
+               asp-route-toDate="@ViewBag.CurrentToDate">
+                Sau <i class="bi bi-chevron-right"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
 
 <!-- Modal Thêm Người Dùng -->
 <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">

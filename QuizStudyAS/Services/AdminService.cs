@@ -26,7 +26,7 @@ namespace QuizStudyAS.Services
             );
         }
 
-        public List<ApplicationUser> GetFilteredUsers(string searchString, int? roleId, bool? isActive, DateTime? fromDate, DateTime? toDate)
+        public PaginatedList<ApplicationUser> GetFilteredUsers(string searchString, int? roleId, bool? isActive, DateTime? fromDate, DateTime? toDate, int pageIndex = 1, int pageSize = 10)
         {
             var query = _context.Users.Include(u => u.Role).AsQueryable();
 
@@ -36,22 +36,23 @@ namespace QuizStudyAS.Services
             if (roleId.HasValue && roleId > 0)
                 query = query.Where(u => u.RoleId == roleId);
 
-            // 1. Lọc theo trạng thái hoạt động
             if (isActive.HasValue)
                 query = query.Where(u => u.IsActive == isActive.Value);
 
-            // 2. Lọc theo ngày bắt đầu
             if (fromDate.HasValue)
                 query = query.Where(u => u.CreatedAt >= fromDate.Value.Date);
 
-            // 3. Lọc theo ngày kết thúc (Ép đến 23:59:59 của ngày đó)
             if (toDate.HasValue)
             {
                 var endOfDay = toDate.Value.Date.AddDays(1).AddTicks(-1);
                 query = query.Where(u => u.CreatedAt <= endOfDay);
             }
 
-            return query.OrderByDescending(u => u.CreatedAt).ToList(); // Ưu tiên xếp mới nhất lên đầu
+            // Sắp xếp trước khi phân trang (RẤT QUAN TRỌNG: EF Core bắt buộc phải OrderBy trước khi dùng Skip/Take)
+            query = query.OrderByDescending(u => u.CreatedAt);
+
+            // Đóng gói vào class PaginatedList
+            return PaginatedList<ApplicationUser>.Create(query, pageIndex, pageSize);
         }
 
         public List<Role> GetAllRoles()
@@ -139,14 +140,13 @@ namespace QuizStudyAS.Services
             return ServiceResult.IsSuccess(msg);
         }
 
-        public List<Classroom> GetFilteredClassrooms(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate)
+        public PaginatedList<Classroom> GetFilteredClassrooms(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1, int pageSize = 10)
         {
             var query = _context.Classrooms.Include(c => c.OwnerUser).AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
                 query = query.Where(c => c.ClassName.Contains(searchString) || c.InviteCode.Contains(searchString));
 
-            // Lọc theo người tạo (So sánh chuỗi gần đúng)
             if (!string.IsNullOrEmpty(ownerName))
                 query = query.Where(c => c.OwnerUser.UserName.Contains(ownerName));
 
@@ -162,17 +162,18 @@ namespace QuizStudyAS.Services
                 query = query.Where(c => c.CreatedAt <= endOfDay);
             }
 
-            return query.OrderByDescending(c => c.CreatedAt).ToList();
+            query = query.OrderByDescending(c => c.CreatedAt);
+
+            return PaginatedList<Classroom>.Create(query, pageIndex, pageSize);
         }
 
-        public List<StudySet> GetFilteredStudySets(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate)
+        public PaginatedList<StudySet> GetFilteredStudySets(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1, int pageSize = 10)
         {
             var query = _context.StudySets.Include(s => s.OwnerUser).AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
                 query = query.Where(s => s.Title.Contains(searchString));
 
-            // Lọc theo người tạo
             if (!string.IsNullOrEmpty(ownerName))
                 query = query.Where(s => s.OwnerUser.UserName.Contains(ownerName));
 
@@ -188,7 +189,9 @@ namespace QuizStudyAS.Services
                 query = query.Where(s => s.CreatedAt <= endOfDay);
             }
 
-            return query.OrderByDescending(s => s.CreatedAt).ToList();
+            query = query.OrderByDescending(s => s.CreatedAt);
+
+            return PaginatedList<StudySet>.Create(query, pageIndex, pageSize);
         }
     }
 }
