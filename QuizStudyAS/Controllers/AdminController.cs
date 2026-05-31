@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.Attributes;
 using QuizStudyAS.Services;
-using QuizStudyAS.DTOs; // Thêm thư viện DTO
+using QuizStudyAS.DTOs;
+using System;
 
 namespace QuizStudyAS.Controllers
 {
@@ -32,18 +33,21 @@ namespace QuizStudyAS.Controllers
         // ==========================================
         // QUẢN LÝ NGƯỜI DÙNG
         // ==========================================
-        [HttpGet]
-        public IActionResult ManageUsers(string searchString, int? roleId, bool? isActive, DateTime? fromDate, DateTime? toDate)
-        {
-            var users = _adminService.GetFilteredUsers(searchString, roleId, isActive, fromDate, toDate);
 
-            // Lưu trạng thái bộ lọc
+        [HttpGet]
+        // BỔ SUNG: Tham số pageIndex (mặc định = 1)
+        public IActionResult ManageUsers(string searchString, int? roleId, bool? isActive, DateTime? fromDate, DateTime? toDate, int pageIndex = 1)
+        {
+            int pageSize = 10; // Bạn có thể chỉnh sửa số bản ghi hiển thị trên 1 trang ở đây
+
+            // Kiểu trả về lúc này của "users" sẽ là PaginatedList<ApplicationUser>
+            var users = _adminService.GetFilteredUsers(searchString, roleId, isActive, fromDate, toDate, pageIndex, pageSize);
+
             ViewBag.CurrentSearch = searchString;
             ViewBag.CurrentRole = roleId;
             ViewBag.CurrentIsActive = isActive;
             ViewBag.CurrentFromDate = fromDate?.ToString("yyyy-MM-dd");
             ViewBag.CurrentToDate = toDate?.ToString("yyyy-MM-dd");
-
             ViewBag.Roles = _adminService.GetAllRoles();
 
             return View(users);
@@ -89,11 +93,12 @@ namespace QuizStudyAS.Controllers
         // ==========================================
 
         [HttpGet]
-        public IActionResult ManageClassrooms(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate)
+        // BỔ SUNG: Tham số pageIndex (mặc định = 1)
+        public IActionResult ManageClassrooms(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1)
         {
-            var classrooms = _adminService.GetFilteredClassrooms(searchString, isActive, ownerName, fromDate, toDate);
+            int pageSize = 10;
+            var classrooms = _adminService.GetFilteredClassrooms(searchString, isActive, ownerName, fromDate, toDate, pageIndex, pageSize);
 
-            // Lưu trạng thái bộ lọc
             ViewBag.CurrentSearch = searchString;
             ViewBag.CurrentIsActive = isActive;
             ViewBag.CurrentOwnerName = ownerName;
@@ -115,11 +120,12 @@ namespace QuizStudyAS.Controllers
         // ==========================================
 
         [HttpGet]
-        public IActionResult ManageStudySets(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate)
+        // BỔ SUNG: Tham số pageIndex (mặc định = 1)
+        public IActionResult ManageStudySets(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1)
         {
-            var studySets = _adminService.GetFilteredStudySets(searchString, isActive, ownerName, fromDate, toDate);
+            int pageSize = 10;
+            var studySets = _adminService.GetFilteredStudySets(searchString, isActive, ownerName, fromDate, toDate, pageIndex, pageSize);
 
-            // Lưu trạng thái bộ lọc
             ViewBag.CurrentSearch = searchString;
             ViewBag.CurrentIsActive = isActive;
             ViewBag.CurrentOwnerName = ownerName;

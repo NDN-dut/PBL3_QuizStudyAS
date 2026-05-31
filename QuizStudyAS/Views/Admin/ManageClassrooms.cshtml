@@ -1,4 +1,4 @@
-﻿@model IEnumerable<QuizStudyAS.Models.Classroom>
+﻿@model QuizStudyAS.DTOs.PaginatedList<QuizStudyAS.Models.Classroom>
 
 @{
     ViewData["Title"] = "Quản lý Lớp học";
@@ -75,9 +75,9 @@
                 </tr>
             </thead>
             <tbody>
-                @if (Model != null && Model.Any())
+                @if (Model != null && Model.Items.Any())
                 {
-                    foreach (var cls in Model)
+                    foreach (var cls in Model.Items)
                     {
                         <tr>
                             <td>@cls.ClassroomId</td>
@@ -114,7 +114,42 @@
                 }
             </tbody>
         </table>
-    </div>
+    </div> <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+                <a class="page-link" asp-action="ManageClassrooms"
+                   asp-route-pageIndex="@(Model.PageIndex - 1)"
+                   asp-route-searchString="@ViewBag.CurrentSearch"
+                   asp-route-ownerName="@ViewBag.CurrentOwnerName"
+                   asp-route-isActive="@ViewBag.CurrentIsActive"
+                   asp-route-fromDate="@ViewBag.CurrentFromDate"
+                   asp-route-toDate="@ViewBag.CurrentToDate">Trước</a>
+            </li>
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                    <a class="page-link" asp-action="ManageClassrooms"
+                       asp-route-pageIndex="@i"
+                       asp-route-searchString="@ViewBag.CurrentSearch"
+                       asp-route-ownerName="@ViewBag.CurrentOwnerName"
+                       asp-route-isActive="@ViewBag.CurrentIsActive"
+                       asp-route-fromDate="@ViewBag.CurrentFromDate"
+                       asp-route-toDate="@ViewBag.CurrentToDate">@i</a>
+                </li>
+            }
+
+            <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+                <a class="page-link" asp-action="ManageClassrooms"
+                   asp-route-pageIndex="@(Model.PageIndex + 1)"
+                   asp-route-searchString="@ViewBag.CurrentSearch"
+                   asp-route-ownerName="@ViewBag.CurrentOwnerName"
+                   asp-route-isActive="@ViewBag.CurrentIsActive"
+                   asp-route-fromDate="@ViewBag.CurrentFromDate"
+                   asp-route-toDate="@ViewBag.CurrentToDate">Sau</a>
+            </li>
+        </ul>
+</nav>
 
 @section Scripts {
     <script>
