@@ -271,16 +271,16 @@
 
                     modalUserList.innerHTML = '';
                     if(data.classUsers.length === 0){
-                        modalUserList.innerHTML = '<li class="modal-studyset-item loading-text text-muted border-0 shadow-none bg-transparent">Bạn chưa tạo học phần nào.</li>';
+                        modalUserList.innerHTML = '<li class="modal-studyset-item loading-text text-muted border-0 shadow-none bg-transparent">Không có học sinh</li>';
                         return;
                     }
                     data.classUsers.forEach(user =>{
                         const li = document.createElement('li');
-                        li.className = "modal-studyset-item";
-                        btnStyle = 'background-color: #10b981; color: white; border-color: #10b981;';
+                        li.className = "modal-showuser-item";
+                        btnStyle = 'background-color: #E32B2B; color: white; border-color: #85291E;';
                         li.innerHTML= `
                             <h4>${user.userName}</h4>
-                            <button class="btn-usermodal-add" data-userid="${user.userId}" style="${btnStyle}"  >
+                            <button class="btn-usermodal-del" data-userid="${user.userId}" style="${btnStyle}"  >
                                 Xóa
                             </button>
                         `;
@@ -291,13 +291,14 @@
                         }
                         modalUserList.appendChild(li);
                     });
+                    btnAddEventDeleteUser();
                     isLoadUserModal = true;
                 }catch(error){
                      console.error("Lỗi fetch user:", error);
                      modalUserList.innerHTML = '<li class="modal-studyset-item loading-text text-danger border-0 shadow-none bg-transparent">Lỗi tải dữ liệu! Vui lòng thử lại.</li>';
                 }
             }
-            // 3. Hàm gắn sự kiện khi bấm nút Thêm
+            // Hàm gắn sự kiện khi bấm nút Thêm
             function attachAddEvents() {
                 const addBtns = document.querySelectorAll('.btn-modal-add:not([disabled])');
                 addBtns.forEach(btn => {
@@ -333,6 +334,35 @@
                             this.innerText = "Thêm";
                             this.disabled = false;
                         }
+                    });
+                });
+            }
+            // Gắn sự kiện của button Xóa trong Show ClassUser pop-up
+            function btnAddEventDeleteUser(){
+                const deleteUserbtn = document.querySelectorAll('.btn-usermodal-del');
+                deleteUserbtn.forEach(btn => {
+                    btn.addEventListener('click', async function(){
+                        const userId = this.getAttribute('data-userid');
+                        try{
+                            const formData = new FormData();
+                            formData.append('classcode','@Model.ClassCode');
+                            formData.append('userid',userId);
+                            const response = await fetch ('/ClassRoom/DeleteUserOfClass',{
+                                method :'POST',
+                                body : formData
+                            });
+                            const data = await response.json();
+                            if(data.success == true){
+                                const liItem = this.closest('li');
+                                liItem.remove();
+                            }else{
+                                alert("Bạn không có đủ thẩm quyền để làm việc này");
+                            }
+
+                        }catch(error){
+                            alert("Xảy ra lỗi");
+                            console.error("erorr:",error);
+                        };
                     });
                 });
             }

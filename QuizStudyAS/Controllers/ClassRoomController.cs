@@ -93,6 +93,12 @@ namespace QuizStudyAS.Controllers
             bool result = await _ClassRoomServices.AddStudySet(classCode, studySetId);
             return Json(new { success = result });
         }
+        [HttpPost]
+        public async Task<IActionResult> DeleteUserOfClass(string classcode,string userid)
+        {
+            bool result = await _ClassRoomServices.DeleteUserOfClass(classcode, userid);
+            return Json(new { success = result });
+        }
 
         [HttpPost]
         public async Task<IActionResult> DeleteStudySetOfClass(string classCode, int studysetid)
