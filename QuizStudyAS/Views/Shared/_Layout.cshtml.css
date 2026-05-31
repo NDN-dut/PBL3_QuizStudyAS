@@ -89,3 +89,67 @@ html.sidebar-expanded-state #main-content {
     .sub-menu-link:hover {
         background-color: #f8f9fa !important;
     }
+
+/* --- CẬP NHẬT LẠI VỊ TRÍ CHATBOT SANG TRÁI --- */
+.chatbot-toggler {
+    position: fixed;
+    bottom: 30px; /* Hạ thấp xuống vì góc trái không bị vướng nút hệ thống */
+    left: 110px; /* Cách mép trái 110px để KHÔNG đè lên Sidebar đang thu gọn (80px) */
+    right: auto; /* Bắt buộc thêm để xóa vị trí bên phải cũ */
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Thêm 'left' vào transition để trượt mượt khi mở menu */
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), left 0.3s ease-in-out;
+    background-color: #ffffff;
+    box-shadow: 0 10px 25px rgba(13, 110, 253, 0.2);
+    border: 2px solid #eef2f6;
+}
+
+    .chatbot-toggler:hover {
+        transform: scale(1.1) translateY(-5px);
+        border-color: #0d6efd;
+    }
+
+    .chatbot-toggler .ghost-wrapper {
+        transform: scale(0.35);
+        transform-origin: center;
+        margin-bottom: 0px !important;
+    }
+
+/* Nâng khung cửa sổ chat lên tương ứng */
+.ai-chat-widget {
+    position: fixed;
+    bottom: 110px;
+    left: 110px; /* Thẳng hàng với nút bấm bên trái */
+    right: auto; /* Xóa vị trí bên phải cũ */
+    width: 380px;
+    height: 550px;
+    display: flex;
+    flex-direction: column;
+    z-index: 9998;
+    transform-origin: bottom left; /* Đổi hướng bung cửa sổ từ Trái sang thay vì Phải */
+    /* Thêm 'left' vào transition */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), left 0.3s ease-in-out;
+    opacity: 1;
+    transform: scale(1);
+}
+
+    .ai-chat-widget.closed {
+        opacity: 0;
+        transform: scale(0);
+        pointer-events: none;
+    }
+
+/* =========================================================
+   TÍNH NĂNG XỊN SÒ: TỰ TRƯỢT KHI SIDEBAR MỞ RỘNG
+========================================================= */
+html.sidebar-expanded-state .chatbot-toggler,
+html.sidebar-expanded-state .ai-chat-widget {
+    left: 290px; /* Đẩy sang 290px để né Sidebar khi mở rộng (260px) */
+}

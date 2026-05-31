@@ -150,28 +150,8 @@
                     </li>
 
                     <li class="nav-item">
-                        @*<a asp-controller="Classroom" asp-action="JoinRequests" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "JoinRequests")">
-                            <i class="bi bi-bell fs-5 text-info menu-icon position-relative">
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger request-badge-count" style="font-size: 0.55rem; padding: 0.35em 0.5em; display: none; transition: all 0.3s ease;">0</span>
-                              </i>
-                        </a>*@
-                        <a asp-controller="Admin" asp-action="ManageClassrooms" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Admin", "ManageClassrooms")">
-                            <i class="bi bi-easel-fill fs-5 text-success menu-icon"></i>
-                            <span class="sidebar-text ms-3 fw-bold">Quản lý lớp học</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a asp-controller="Admin" asp-action="ManageStudySets" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Admin", "ManageStudySets")">
-                            <i class="bi bi-journal-text fs-5 text-warning menu-icon"></i>
-                            <span class="sidebar-text ms-3 fw-bold">Quản lý học phần</span>
-                        </a>
-                    </li>
-
-                    @* <li class="nav-item">
-                        <a asp-controller="Classroom" asp-action="JoinRequests" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "JoinRequests")">
+                        <a asp-controller="Classroom" asp-action="Request" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "Request")">
                             <i class="bi bi-bell fs-5 text-info menu-icon"></i>
-
                             <span class="sidebar-text ms-3 fw-bold">Thông báo</span>
                         </a>
                     </li>
@@ -200,10 +180,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a asp-controller="Classroom" asp-action="JoinRequests" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "JoinRequests")">
-                            <i class="bi bi-bell fs-5 text-info menu-icon position-relative">
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger request-badge-count" style="font-size: 0.55rem; padding: 0.35em 0.5em; display: none; transition: all 0.3s ease;">0</span>
-                            </i>
+                        <a asp-controller="Classroom" asp-action="Request" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "Request")">
+                            <i class="bi bi-bell fs-5 text-info menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Thông báo</span>
                         </a>
                     </li>
