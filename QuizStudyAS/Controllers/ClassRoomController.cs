@@ -106,7 +106,12 @@ namespace QuizStudyAS.Controllers
             bool result = await _ClassRoomServices.DeleteStudySet(classCode, studysetid);
             return Json(new { success = result });
         }
-
+        [HttpPost]
+        public async Task<IActionResult> DeleteClass(string classcode)
+        {
+            bool result = await _ClassRoomServices.DeleteClassRoom(classcode);
+            return Json(new {success= result });
+        }
         // THÊM API NÀY ĐỂ LẤY SỐ LƯỢNG THÔNG BÁO CHO SIDEBAR
         [HttpGet]
         public async Task<IActionResult> GetPendingRequestCount()

@@ -27,7 +27,7 @@ namespace QuizStudyAS.Services
             AdditionAlgrothim AddAl = new AdditionAlgrothim(_context);
             string currentUserId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
 
-            var allClassBasicInfo = await _context.Classrooms
+            var allClassBasicInfo = await _context.Classrooms.Where(c=>c.IsActive==true)
                                 .Select(c => new { c.ClassroomId, c.ClassName })
                                 .ToListAsync();
 
@@ -97,7 +97,7 @@ namespace QuizStudyAS.Services
         {
             var UserID = _httpContextAccessor.HttpContext.Session.GetString("UserId");
             var MyOwerClass = await _context.Classrooms
-                .Where(p=> p.OwnerUserId == UserID)
+                .Where(p=> p.OwnerUserId == UserID && p.IsActive==true)
                 .Select(c=>new ShowClassRoom{
                     ClassName = c.ClassName,
                     Link = c.InviteCode,
@@ -107,7 +107,7 @@ namespace QuizStudyAS.Services
                 }).ToListAsync();
 
             var MyJoinedClass = await _context.ClassroomUsers
-                .Where(p => p.UserId == UserID && p.Status == "STUDYING")
+                .Where(p => p.UserId == UserID && p.Status == "STUDYING" && p.Classroom.IsActive==true)
                 .Select(c => new ShowClassRoom
                 {
                     ClassName = c.Classroom.ClassName,
@@ -127,7 +127,7 @@ namespace QuizStudyAS.Services
         public async Task<ListRequestJoinVM> GetJoinVMs()
         {
             var ListRequestJoin = await _context.RequestJoinClasses
-                .Where(e => e.Classroom.OwnerUserId == _httpContextAccessor.HttpContext.Session.GetString("UserId") && e.Status == "PENDING")
+                .Where(e => e.Classroom.OwnerUserId == _httpContextAccessor.HttpContext.Session.GetString("UserId") && e.Status == "PENDING" && e.Classroom.IsActive==true)
                 .Select(e => new RequestJoinVM
                 {
                     UserId = e.UserId,
@@ -276,6 +276,18 @@ namespace QuizStudyAS.Services
                 record.Status = "DELETE";
             }
             await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> DeleteClassRoom(string Classcode)
+        {
+            var classroom = await _context.Classrooms.FirstOrDefaultAsync(c=>c.InviteCode == Classcode);
+            if (classroom == null)
+            {
+                return false;
+            }
+            classroom.IsActive = false;
+            await _context.SaveChangesAsync();
+            
             return true;
         }
         public async Task<bool> CheckAuthorityClass(int ClassId)
