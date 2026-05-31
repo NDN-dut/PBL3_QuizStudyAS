@@ -266,5 +266,20 @@ namespace QuizStudyAS.Services
                                   .Select(c=>c.OwnerUserId).FirstOrDefaultAsync();
             return CurrentUserId == OwnerClassId;
         }
+        public async Task<ClassRoomDetailVM> GetAllUserOfClass(int ClassId)
+        {
+            var UserIdClass = await _context.ClassroomUsers.Where(s => s.ClassroomId == ClassId)
+                                                            .Select(d => new UserInfo()
+                                                            {
+                                                                UserId = d.UserId,
+                                                                UserName = d.User.UserName
+                                                            }).ToListAsync();
+            var Data = new ClassRoomDetailVM
+            {
+                ClassUsers = UserIdClass
+            };
+            return Data;
+
+        }
     }
 }

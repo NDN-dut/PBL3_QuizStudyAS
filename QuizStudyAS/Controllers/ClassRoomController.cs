@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.Services;
+using QuizStudyAS.ViewModels;
 using System.Threading.Tasks;
 
 namespace QuizStudyAS.Controllers
@@ -111,6 +112,11 @@ namespace QuizStudyAS.Controllers
                 return RedirectToAction("Index", "Home");
             }
             return Redirect(referer);
+        }
+        private async Task<IActionResult> GetUserOfClass(int ClassId)
+        {
+            ClassRoomDetailVM result = await _ClassRoomServices.GetAllUserOfClass(ClassId);
+            return Json(result);
         }
     }
 }
