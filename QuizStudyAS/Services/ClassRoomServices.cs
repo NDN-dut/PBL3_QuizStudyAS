@@ -51,6 +51,7 @@ namespace QuizStudyAS.Services
                     ClassName = p.ClassName,
                     Link = p.InviteCode,
                     OwnerName = p.OwnerUser.UserName,
+                    ExistingAvatarUrl = p.OwnerUser.AvatarUrl,
                     // Vẫn lấy Status bình thường dựa vào currentUserId
                     Status_Class = p.JoinRequests
                                     .Where(r => r.UserId == currentUserId)
@@ -94,6 +95,7 @@ namespace QuizStudyAS.Services
                     ClassName = c.ClassName,
                     Link = c.InviteCode,
                     OwnerName = c.OwnerUser.UserName,
+                    ExistingAvatarUrl = c.OwnerUser.AvatarUrl,
                     Status_Class = "OWNER"
                 }).ToListAsync();
 
@@ -104,6 +106,7 @@ namespace QuizStudyAS.Services
                     ClassName = c.Classroom.ClassName,
                     Link = c.Classroom.InviteCode,
                     OwnerName = c.Classroom.OwnerUser.UserName,
+                    ExistingAvatarUrl = c.Classroom.OwnerUser.AvatarUrl,
                     Status_Class = "JOINED"
                 }).ToListAsync();
 
@@ -201,6 +204,7 @@ namespace QuizStudyAS.Services
                 {
                     ClassName = e.ClassName,
                     OwnerName = e.OwnerUser.UserName,
+                    ExistingAvatarUrl = e.OwnerUser.AvatarUrl,
                     ClassCode = LinkLop,
                     // THÊM DÒNG NÀY: Lấy cờ khóa từ Database
                     IsActive = e.IsActive,

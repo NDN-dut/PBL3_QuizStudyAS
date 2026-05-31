@@ -10,6 +10,19 @@ namespace QuizStudyAS.Data
         public static void Initialize(AppDbContext context, IPasswordHasher passwordHasher)
         {
             // ==========================================
+            // THÊM: SEED DATA CHO AUTH PROVIDERS
+            // ==========================================
+            if (!context.AuthProviders.Any())
+            {
+                var providers = new List<AuthProvider>
+                {
+                    new AuthProvider { Id = 1, Name = "Local" },
+                    new AuthProvider { Id = 2, Name = "Google" }
+                };
+                context.AuthProviders.AddRange(providers);
+                context.SaveChanges(); // Lưu trước để phía dưới User có Id để tham chiếu
+            }
+            // ==========================================
             // BƯỚC 1: ĐẢM BẢO ROLES LUÔN TỒN TẠI
             // ==========================================
             if (!context.Roles.Any(r => r.RoleName == "Admin"))
@@ -32,11 +45,11 @@ namespace QuizStudyAS.Data
 
             var predefinedUsers = new List<ApplicationUser>
             {
-                new ApplicationUser { UserName = "admin_teacher", Email = "admin@qsas.com", RoleId = adminRole.RoleId, IsActive = true },
-                new ApplicationUser { UserName = "sv_it_01", Email = "sv1@qsas.com", RoleId = userRole.RoleId, IsActive = true },
-                new ApplicationUser { UserName = "sv_it_02", Email = "sv2@qsas.com", RoleId = userRole.RoleId, IsActive = true },
-                new ApplicationUser { UserName = "sv_nn_03", Email = "sv3@qsas.com", RoleId = userRole.RoleId, IsActive = true },
-                new ApplicationUser { UserName = "sv_it_04", Email = "sv4@qsas.com", RoleId = userRole.RoleId, IsActive = true }
+                new ApplicationUser { UserName = "admin_teacher", Email = "admin@qsas.com", RoleId = adminRole.RoleId, IsActive = true, AuthProviderId = 1 },
+                new ApplicationUser { UserName = "sv_it_01", Email = "sv1@qsas.com", RoleId = userRole.RoleId, IsActive = true, AuthProviderId = 1 },
+                new ApplicationUser { UserName = "sv_it_02", Email = "sv2@qsas.com", RoleId = userRole.RoleId, IsActive = true, AuthProviderId = 1 },
+                new ApplicationUser { UserName = "sv_nn_03", Email = "sv3@qsas.com", RoleId = userRole.RoleId, IsActive = true, AuthProviderId = 1 },
+                new ApplicationUser { UserName = "sv_it_04", Email = "sv4@qsas.com", RoleId = userRole.RoleId, IsActive = true, AuthProviderId = 1 }
             };
 
             var usersDict = new Dictionary<string, ApplicationUser>();

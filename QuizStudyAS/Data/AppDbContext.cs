@@ -23,6 +23,7 @@ namespace QuizStudyAS.Data
         public DbSet<RequestJoinClass> RequestJoinClasses { get; set; }
         public DbSet<Achievement> Achievements { get; set; }
         public DbSet<UserAchievement> UserAchievements { get; set; }
+        public DbSet<AuthProvider> AuthProviders { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
