@@ -10,16 +10,53 @@
     </div>
 
     <form method="get" asp-action="ManageClassrooms" class="mb-4 bg-light p-3 rounded border shadow-sm">
-        <div class="row g-2">
-            <div class="col-md-5">
+        <div class="row g-2 mb-2">
+            <div class="col-md-4">
                 <input type="text" name="searchString" value="@ViewBag.CurrentSearch"
                        class="form-control" placeholder="Tìm theo tên hoặc mã tham gia..." />
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Tìm kiếm</button>
+            <div class="col-md-4">
+                <input type="text" name="ownerName" value="@ViewBag.CurrentOwnerName"
+                       class="form-control" placeholder="Tìm theo tên người tạo..." />
             </div>
-            <div class="col-md-2">
-                <a asp-action="ManageClassrooms" class="btn btn-secondary w-100">Đặt lại</a>
+            <div class="col-md-4">
+                <select name="isActive" class="form-select">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    @if (ViewBag.CurrentIsActive == true)
+                    {
+                        <option value="true" selected>Hoạt động</option>
+                        <option value="false">Bị khóa</option>
+                    }
+                    else if (ViewBag.CurrentIsActive == false)
+                    {
+                        <option value="true">Hoạt động</option>
+                        <option value="false" selected>Bị khóa</option>
+                    }
+                    else
+                    {
+                        <option value="true">Hoạt động</option>
+                        <option value="false">Bị khóa</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="row g-2">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white text-muted">Từ ngày</span>
+                    <input type="date" name="fromDate" value="@ViewBag.CurrentFromDate" class="form-control" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white text-muted">Đến ngày</span>
+                    <input type="date" name="toDate" value="@ViewBag.CurrentToDate" class="form-control" />
+                </div>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-50 fw-bold"><i class="bi bi-search me-1"></i> Lọc</button>
+                <a asp-action="ManageClassrooms" class="btn btn-outline-secondary w-50 fw-bold"><i class="bi bi-arrow-counterclockwise me-1"></i> Xóa lọc</a>
             </div>
         </div>
     </form>
@@ -32,6 +69,7 @@
                     <th>Tên Lớp</th>
                     <th>Mã tham gia</th>
                     <th>Người tạo</th>
+                    <th>Ngày tạo</th>
                     <th>Trạng thái</th>
                     <th class="text-center">Hành động</th>
                 </tr>
@@ -46,6 +84,9 @@
                             <td class="fw-bold">@cls.ClassName</td>
                             <td>@cls.InviteCode</td>
                             <td>@(cls.OwnerUser?.UserName ?? "N/A")</td>
+
+                            <td>@cls.CreatedAt.ToString("dd/MM/yyyy")</td>
+
                             <td>
                                 @if (cls.IsActive)
                                 {
@@ -68,13 +109,12 @@
                 else
                 {
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">Không tìm thấy lớp học nào.</td>
+                        <td colspan="7" class="text-center text-muted py-4">Không tìm thấy lớp học nào.</td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
-</div>
 
 @section Scripts {
     <script>

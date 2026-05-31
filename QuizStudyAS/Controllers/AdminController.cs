@@ -29,13 +29,21 @@ namespace QuizStudyAS.Controllers
             return View();
         }
 
+        // ==========================================
+        // QUẢN LÝ NGƯỜI DÙNG
+        // ==========================================
         [HttpGet]
-        public IActionResult ManageUsers(string searchString, int? roleId)
+        public IActionResult ManageUsers(string searchString, int? roleId, bool? isActive, DateTime? fromDate, DateTime? toDate)
         {
-            var users = _adminService.GetFilteredUsers(searchString, roleId);
+            var users = _adminService.GetFilteredUsers(searchString, roleId, isActive, fromDate, toDate);
 
+            // Lưu trạng thái bộ lọc
             ViewBag.CurrentSearch = searchString;
             ViewBag.CurrentRole = roleId;
+            ViewBag.CurrentIsActive = isActive;
+            ViewBag.CurrentFromDate = fromDate?.ToString("yyyy-MM-dd");
+            ViewBag.CurrentToDate = toDate?.ToString("yyyy-MM-dd");
+
             ViewBag.Roles = _adminService.GetAllRoles();
 
             return View(users);
@@ -81,10 +89,17 @@ namespace QuizStudyAS.Controllers
         // ==========================================
 
         [HttpGet]
-        public IActionResult ManageClassrooms(string searchString)
+        public IActionResult ManageClassrooms(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate)
         {
-            var classrooms = _adminService.GetFilteredClassrooms(searchString);
+            var classrooms = _adminService.GetFilteredClassrooms(searchString, isActive, ownerName, fromDate, toDate);
+
+            // Lưu trạng thái bộ lọc
             ViewBag.CurrentSearch = searchString;
+            ViewBag.CurrentIsActive = isActive;
+            ViewBag.CurrentOwnerName = ownerName;
+            ViewBag.CurrentFromDate = fromDate?.ToString("yyyy-MM-dd");
+            ViewBag.CurrentToDate = toDate?.ToString("yyyy-MM-dd");
+
             return View(classrooms);
         }
 
@@ -100,10 +115,17 @@ namespace QuizStudyAS.Controllers
         // ==========================================
 
         [HttpGet]
-        public IActionResult ManageStudySets(string searchString)
+        public IActionResult ManageStudySets(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate)
         {
-            var studySets = _adminService.GetFilteredStudySets(searchString);
+            var studySets = _adminService.GetFilteredStudySets(searchString, isActive, ownerName, fromDate, toDate);
+
+            // Lưu trạng thái bộ lọc
             ViewBag.CurrentSearch = searchString;
+            ViewBag.CurrentIsActive = isActive;
+            ViewBag.CurrentOwnerName = ownerName;
+            ViewBag.CurrentFromDate = fromDate?.ToString("yyyy-MM-dd");
+            ViewBag.CurrentToDate = toDate?.ToString("yyyy-MM-dd");
+
             return View(studySets);
         }
 
