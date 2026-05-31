@@ -35,7 +35,7 @@
                 <button id="btnOpenAddModal" class="btn btn-primary btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
                     <i class="bi bi-plus-circle-fill fs-5"></i> Thêm học phần
                 </button>
-                <button id="btnOpenAddModal" class="btn btn-primary btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
+                <button id="btnOpenShowUserModal" class="btn btn-primary btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
                     <i class="bi bi-people fs-5"></i> Xem thành viên
                 </button>
             </div>
@@ -109,13 +109,30 @@
         </div>
     </div>
 </div>
+<div id="showUserModal" class="custom-modal-overlay hidden">
+    <div class="custom-modal-content">
+        <div class="modal-header">
+            <h3><i class="bi bi-plus-square-fill text-primary me-2"></i>Thành viên</h3>
+            <button id="btnCloseUserModal" class="btn-close-modal"><i class="bi bi-x-lg"></i></button>
+        </div>
 
+        <div class="modal-body">
+            <p class="modal-subtitle">Danh sách thành viên của lớp:</p>
+
+            <ul class="modal-studyset-list" id="modalUserList">
+                <li class="modal-studyset-item loading-text">
+                    <div class="spinner-border spinner-border-sm text-primary me-2"></div> Đang tải danh sách...
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
 
 
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-
+            
             // ==========================================
             // LOGIC XÓA HỌC PHẦN (GIỮ NGUYÊN)
             // ==========================================
@@ -166,13 +183,12 @@
             const modalList = document.getElementById('modalStudySetList');
             // Tìm xem cái mã CSS ngầm của trang này tên là gì (Ví dụ: nó sẽ ra chữ 'b-12345abcd')
             // Lấy từ thẻ modal có sẵn trên HTML
-            const scopeAttribute = Array.from(modal.attributes).find(attr => attr.name.startsWith('b-'))?.name;
-            let isLoaded = false; // Cờ kiểm tra xem đã tải data chưa
-
+            let isLoadedStudySetModal = false; // Cờ kiểm tra xem đã tải data chưa
+            let scopeAttribute = Array.from(modal.attributes).find(attr => attr.name.startsWith('b-'))?.name;
             // 1. Đóng/Mở Modal
             btnOpenModal.addEventListener('click', function () {
                 modal.classList.remove('hidden');
-                if (!isLoaded) {
+                if (!isLoadedStudySetModal) {
                     loadMyStudySets();
                 }
             });
@@ -225,14 +241,64 @@
                     });
 
                     attachAddEvents();
-                    isLoaded = true;
+                    isLoadedStudySetModal = true;
 
                 } catch (error) {
                     modalList.innerHTML = '<li class="modal-studyset-item loading-text text-danger border-0 shadow-none bg-transparent">Lỗi tải dữ liệu! Vui lòng thử lại.</li>';
                 }
             }
+            // Mở pop up xem thành viên
+            const userModal = document.getElementById('showUserModal');
+            const btnOpenUserModal = document.getElementById('btnOpenShowUserModal');
+            const btnCloseUserModal = document.getElementById('btnCloseUserModal');
+            const modalUserList = document.getElementById('modalUserList')
+            let isLoadUserModal = false;
+            //scopeAttribute = Array.from(userModal.attributes).find(attr => attr.name.startsWith('b-'))?.name;
+            btnOpenUserModal.addEventListener("click",function(){
+                userModal.classList.remove('hidden');
+                if(!isLoadUserModal){
+                    loadUserClass()
+                }
+            });
+            btnCloseUserModal.addEventListener('click',function(){
+                userModal.classList.add('hidden');
+            });
+            async function loadUserClass(){
+                try{
+                    
+                    const response = await fetch('/ClassRoom/GetUserOfClass?classcode=@Model.ClassCode');
+                    const data = await response.json();
 
-            // 3. Hàm gắn sự kiện khi bấm nút Thêm
+                    modalUserList.innerHTML = '';
+                    if(data.classUsers.length === 0){
+                        modalUserList.innerHTML = '<li class="modal-studyset-item loading-text text-muted border-0 shadow-none bg-transparent">Không có học sinh</li>';
+                        return;
+                    }
+                    data.classUsers.forEach(user =>{
+                        const li = document.createElement('li');
+                        li.className = "modal-showuser-item";
+                        btnStyle = 'background-color: #E32B2B; color: white; border-color: #85291E;';
+                        li.innerHTML= `
+                            <h4>${user.userName}</h4>
+                            <button class="btn-usermodal-del" data-userid="${user.userId}" style="${btnStyle}"  >
+                                Xóa
+                            </button>
+                        `;
+                        if (scopeAttribute) {
+                            li.setAttribute(scopeAttribute, '');
+                            li.querySelector('h4').setAttribute(scopeAttribute, '');
+                            li.querySelector('button').setAttribute(scopeAttribute, '');
+                        }
+                        modalUserList.appendChild(li);
+                    });
+                    btnAddEventDeleteUser();
+                    isLoadUserModal = true;
+                }catch(error){
+                     console.error("Lỗi fetch user:", error);
+                     modalUserList.innerHTML = '<li class="modal-studyset-item loading-text text-danger border-0 shadow-none bg-transparent">Lỗi tải dữ liệu! Vui lòng thử lại.</li>';
+                }
+            }
+            // Hàm gắn sự kiện khi bấm nút Thêm
             function attachAddEvents() {
                 const addBtns = document.querySelectorAll('.btn-modal-add:not([disabled])');
                 addBtns.forEach(btn => {
@@ -268,6 +334,35 @@
                             this.innerText = "Thêm";
                             this.disabled = false;
                         }
+                    });
+                });
+            }
+            // Gắn sự kiện của button Xóa trong Show ClassUser pop-up
+            function btnAddEventDeleteUser(){
+                const deleteUserbtn = document.querySelectorAll('.btn-usermodal-del');
+                deleteUserbtn.forEach(btn => {
+                    btn.addEventListener('click', async function(){
+                        const userId = this.getAttribute('data-userid');
+                        try{
+                            const formData = new FormData();
+                            formData.append('classcode','@Model.ClassCode');
+                            formData.append('userid',userId);
+                            const response = await fetch ('/ClassRoom/DeleteUserOfClass',{
+                                method :'POST',
+                                body : formData
+                            });
+                            const data = await response.json();
+                            if(data.success == true){
+                                const liItem = this.closest('li');
+                                liItem.remove();
+                            }else{
+                                alert("Bạn không có đủ thẩm quyền để làm việc này");
+                            }
+
+                        }catch(error){
+                            alert("Xảy ra lỗi");
+                            console.error("erorr:",error);
+                        };
                     });
                 });
             }

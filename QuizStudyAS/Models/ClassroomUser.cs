@@ -5,6 +5,7 @@
         public int ClassroomId { get; set; } // Khóa chính + Khóa ngoại
         public string UserId { get; set; } // Khóa chính + Khóa ngoại
         public DateTime JoinedAt { get; set; } = DateTime.Now;
+        public string Status { get; set; } = "STUDYING";
 
         // --- Navigation Properties ---
         public virtual Classroom Classroom { get; set; }
