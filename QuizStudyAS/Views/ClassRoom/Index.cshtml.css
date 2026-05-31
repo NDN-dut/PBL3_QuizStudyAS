@@ -82,3 +82,30 @@ body {
     .transition-smooth:hover {
         transform: translateY(-2px);
     }
+
+/* Nút xóa Lớp học */
+.btn-delete-class {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 1.1rem;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+    transition: all 0.2s ease;
+}
+
+    .btn-delete-class:hover {
+        color: #dc3545; 
+        background-color: #f8d7da;
+        border-color: #f5c2c7;
+        transform: scale(1.1);
+    }
