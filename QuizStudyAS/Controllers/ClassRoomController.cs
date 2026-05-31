@@ -122,9 +122,10 @@ namespace QuizStudyAS.Controllers
             }
             return Redirect(referer);
         }
-        private async Task<IActionResult> GetUserOfClass(int ClassId)
+        [HttpGet]
+        public async Task<IActionResult> GetUserOfClass(string classcode)
         {
-            ClassRoomDetailVM result = await _ClassRoomServices.GetAllUserOfClass(ClassId);
+            ClassRoomDetailVM result = await _ClassRoomServices.GetAllUserOfClass(classcode);
             return Json(result);
         }
     }
