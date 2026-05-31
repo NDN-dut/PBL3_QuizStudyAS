@@ -4,80 +4,106 @@
     ViewData["Title"] = Model.ClassName;
 }
 
-<div class="classroom-detail-container">
-    
-    <div class="class-header">
-        <div class="header-content">
-            <h1 class="class-title">@Model.ClassName</h1>
-            <div class="owner-info">
-                <i class="fas fa-user-circle"></i>
-                <span>Giảng viên: <strong>@Model.OwnerName</strong></span>
-                <span class="class-code-badge">Mã lớp: @Model.ClassCode</span>
+<div class="container py-4 page-fade-in mx-auto" style="max-width: 1100px;">
+
+    <div class="bg-white rounded-4 shadow-sm p-4 p-md-5 mb-5 border border-light-subtle position-relative overflow-hidden">
+        <div class="card-accent-top-header"></div>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4">
+            <div>
+                <h1 class="fw-black text-dark mb-3" style="letter-spacing: -0.5px; font-size: 2.2rem;">@Model.ClassName</h1>
+                <div class="d-flex flex-wrap align-items-center gap-3 text-muted fw-medium">
+                    <span class="d-flex align-items-center bg-light px-3 py-1 rounded-pill border">
+                        @if (!string.IsNullOrEmpty(Model.ExistingAvatarUrl))
+                        {
+                            <img src="@Model.ExistingAvatarUrl" alt="Avatar" class="rounded-circle me-2 object-fit-cover shadow-sm" style="width: 32px; height: 32px; border: 2px solid #fff;" />
+                        }
+                        else
+                        {
+                            <div class="rounded-circle me-2 bg-primary bg-opacity-10 text-primary d-flex justify-content-center align-items-center shadow-sm" style="width: 32px; height: 32px; border: 2px solid #fff;">
+                                <i class="bi bi-person-fill fs-6"></i>
+                            </div>
+                        }
+                        Giảng viên: <strong class="ms-2 text-dark">@Model.OwnerName</strong>
+                    </span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fs-6 shadow-xs">
+                        <i class="bi bi-upc-scan me-1"></i> Mã lớp: @Model.ClassCode
+                    </span>
+                </div>
             </div>
-        </div>
-        
-        <div class="header-actions d-flex gap-2">
-            <button id="btnOpenAddModal" class="btn-add-set">
-                <i class="fas fa-plus"></i> Thêm học phần
-            </button>
-            <button id="btnShowModel" class="btn-add-set">
-                Xem thành viên
-            </button>
-            
+
+            <div>
+                <button id="btnOpenAddModal" class="btn btn-primary btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
+                    <i class="bi bi-plus-circle-fill fs-5"></i> Thêm học phần
+                </button>
+                <button id="btnOpenAddModal" class="btn btn-primary btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
+                    <i class="bi bi-people fs-5"></i> Xem thành viên
+                </button>
+            </div>
         </div>
         
         
         
     </div>
 
-    <div class="studysets-section">
-        <div class="section-header-row">
-            <h3 class="section-label">Danh sách học phần (@Model.StudySets.Count)</h3>
-        </div>
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h4 class="fw-bold text-dark m-0">
+            <i class="bi bi-journals text-primary me-2"></i>Danh sách học phần (@Model.StudySets.Count)
+        </h4>
+    </div>
 
-        @if (Model.StudySets != null && Model.StudySets.Any())
-        {
-            <div class="studyset-grid">
-                @foreach (var set in Model.StudySets)
-                {
-                    <a a href="/StudySet/Details/@set.StudySetId" class="studyset-card">
-                        <div class="set-info">
-                            <h4 class="set-title">@set.Title</h4>
-                        </div>
-                        <div class="set-icon">
-                            <i class="fas fa-clone"></i>
-                        </div>
-                        <button class="btn-delete-card" data-url="/ClassRoom/DeleteStudySetOfClass" data-id="@set.StudySetId" title="Xóa học phần này">
-                            <i class="fas fa-times">x</i>
+    @if (Model.StudySets != null && Model.StudySets.Any())
+    {
+        <div class="row g-4">
+            @foreach (var set in Model.StudySets)
+            {
+                <div class="col-12 col-md-6 col-lg-4 studyset-card">
+                    <div class="card h-100 border border-light-subtle shadow-sm rounded-4 focus-card bg-white overflow-hidden transition-smooth position-relative">
+                        <div class="card-accent-top"></div>
+
+                        <button class="btn-delete-card shadow-sm" data-url="/ClassRoom/DeleteStudySetOfClass" data-id="@set.StudySetId" title="Xóa khỏi lớp">
+                            <i class="bi bi-trash3-fill"></i>
                         </button>
-                    </a>
-                }
-            </div>
-        }
-        else
-        {
-            <div class="empty-state">
-                <i class="fas fa-layer-group"></i>
-                <p>Chưa có học phần nào được thêm vào lớp học này.</p>
-            </div>
-        }
-    </div>
 
+                        <a href="/StudySet/Details/@set.StudySetId" class="text-decoration-none card-body p-4 d-flex flex-column">
+                            <div class="icon-circle bg-primary bg-opacity-10 text-primary mb-3">
+                                <i class="bi bi-journal-text"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-1 class-title">@set.Title</h5>
+                            <div class="mt-auto pt-3 text-muted small fw-medium border-top border-light-subtle mt-4 d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-cursor-fill me-1"></i> Bấm để học</span>
+                                <i class="bi bi-arrow-right-short fs-4 text-primary opacity-50"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5 bg-white rounded-4 shadow-sm border border-light-subtle mt-4">
+            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                <i class="bi bi-inboxes text-muted opacity-50" style="font-size: 2.5rem;"></i>
+            </div>
+            <h4 class="fw-bold text-dark">Lớp học chưa có tài liệu</h4>
+            <p class="text-muted mb-4">Chưa có học phần nào được thêm vào lớp học này.</p>
+        </div>
+    }
 </div>
 
 <div id="addStudySetModal" class="custom-modal-overlay hidden">
     <div class="custom-modal-content">
         <div class="modal-header">
-            <h3>Chọn Học phần vào lớp</h3>
-            <button id="btnCloseModal" class="btn-close-modal">&times;</button>
+            <h3><i class="bi bi-plus-square-fill text-primary me-2"></i>Thêm vào lớp</h3>
+            <button id="btnCloseModal" class="btn-close-modal"><i class="bi bi-x-lg"></i></button>
         </div>
 
         <div class="modal-body">
-            <p class="modal-subtitle">Những học phần bạn đang sở hữu:</p>
+            <p class="modal-subtitle">Danh sách học phần bạn đang sở hữu:</p>
 
             <ul class="modal-studyset-list" id="modalStudySetList">
                 <li class="modal-studyset-item loading-text">
-                    Đang tải danh sách học phần...
+                    <div class="spinner-border spinner-border-sm text-primary me-2"></div> Đang tải danh sách...
                 </li>
             </ul>
         </div>
@@ -89,16 +115,16 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            
+
             // ==========================================
-            // LOGIC XÓA HỌC PHẦN (CỦA BẠN - Đã sửa lỗi tìm cardWrapper)
+            // LOGIC XÓA HỌC PHẦN (GIỮ NGUYÊN)
             // ==========================================
             const deleteButtons = document.querySelectorAll('.btn-delete-card');
             deleteButtons.forEach(btn => {
                 btn.addEventListener('click', async function (e) {
-                    e.preventDefault(); 
-                    e.stopPropagation(); 
-                    
+                    e.preventDefault();
+                    e.stopPropagation();
+
                     const isConfirm = confirm('Bạn có chắc chắn muốn xóa mục này khỏi lớp không?');
                     if (!isConfirm) return;
 
@@ -108,18 +134,17 @@
                     try {
                         const formData = new FormData();
                         formData.append('studysetid', studysetid);
-                        // Cần gửi thêm ClassCode hoặc ClassId để Backend biết xóa ở lớp nào
-                        formData.append('classCode', '@Model.ClassCode'); 
+                        formData.append('classCode', '@Model.ClassCode');
 
                         const response = await fetch(url, { method: 'POST', body: formData });
                         const result = await response.json();
 
                         if (result.success == true) {
-                            // SỬA: Tìm thẻ a (studyset-card) bọc ngoài cùng thay vì .card-link-wrapper
-                            const cardWrapper = this.closest('.studyset-card'); 
-                            if(cardWrapper) {
+                            const cardWrapper = this.closest('.studyset-card');
+                            if (cardWrapper) {
                                 cardWrapper.style.opacity = '0';
                                 cardWrapper.style.transform = 'scale(0.9)';
+                                cardWrapper.style.transition = 'all 0.3s ease';
                                 setTimeout(() => cardWrapper.remove(), 300);
                             }
                         } else {
@@ -133,7 +158,7 @@
             });
 
             // ==========================================
-            // LOGIC MỞ POPUP & THÊM HỌC PHẦN MỚI
+            // LOGIC MỞ POPUP & THÊM HỌC PHẦN MỚI (GIỮ NGUYÊN)
             // ==========================================
             const modal = document.getElementById('addStudySetModal');
             const btnOpenModal = document.getElementById('btnOpenAddModal');
@@ -147,8 +172,6 @@
             // 1. Đóng/Mở Modal
             btnOpenModal.addEventListener('click', function () {
                 modal.classList.remove('hidden');
-                
-                // Chỉ gọi API lấy list học phần 1 lần duy nhất để tối ưu
                 if (!isLoaded) {
                     loadMyStudySets();
                 }
@@ -162,29 +185,26 @@
             // 2. Hàm Fetch lấy danh sách học phần của user
             async function loadMyStudySets() {
                 try {
-                    // Yêu cầu bạn viết 1 API GetMyStudySetsForClass trả về JSON (Id, Title, Đã có trong lớp chưa)
                     const response = await fetch(`/StudySet/GetMyStudySetsForClass?classCode=@Model.ClassCode`);
                     const data = await response.json();
-                    
-                    modalList.innerHTML = ''; // Xóa chữ loading
-                    
+
+                    modalList.innerHTML = '';
+
                     if (data.length === 0) {
-                        modalList.innerHTML = '<li class="modal-studyset-item loading-text">Bạn chưa tạo học phần nào.</li>';
+                        modalList.innerHTML = '<li class="modal-studyset-item loading-text text-muted border-0 shadow-none bg-transparent">Bạn chưa tạo học phần nào.</li>';
                         return;
                     }
 
                     data.forEach(set => {
-                        // Render từng thẻ HTML. Nếu đã thêm rồi thì disable nút
-                        if(set.status == "AVAILABLE"){
+                        let isAddedStr = '';
+                        let btnText = 'Thêm';
+                        let btnStyle = '';
+
+                        if (set.status == "AVAILABLE" || set.status == "Active") { // Chống lỗi cho cả DB cũ và DB mới
                             isAddedStr = 'disabled';
-                            btnText = 'Đã thêm ✓' ;
-                            btnStyle ='background-color: #198754; color: white;';
-                        }else{
-                            isAddedStr = '';
-                            btnText =  'Thêm';
-                            btnStyle =  '';
+                            btnText = 'Đã thêm ✓';
+                            btnStyle = 'background-color: #10b981; color: white; border-color: #10b981;';
                         }
-                        
 
                         const li = document.createElement('li');
                         li.className = 'modal-studyset-item';
@@ -200,26 +220,26 @@
                             li.querySelector('h4').setAttribute(scopeAttribute, '');
                             li.querySelector('button').setAttribute(scopeAttribute, '');
                         }
+
                         modalList.appendChild(li);
                     });
 
-                    // Gắn sự kiện click cho các nút "Thêm" vừa được tạo ra
                     attachAddEvents();
                     isLoaded = true;
 
                 } catch (error) {
-                    modalList.innerHTML = '<li class="modal-studyset-item loading-text" style="color:red">Lỗi tải dữ liệu!</li>';
+                    modalList.innerHTML = '<li class="modal-studyset-item loading-text text-danger border-0 shadow-none bg-transparent">Lỗi tải dữ liệu! Vui lòng thử lại.</li>';
                 }
             }
 
             // 3. Hàm gắn sự kiện khi bấm nút Thêm
             function attachAddEvents() {
                 const addBtns = document.querySelectorAll('.btn-modal-add:not([disabled])');
-                
                 addBtns.forEach(btn => {
-                    btn.addEventListener('click', async function() {
+                    btn.addEventListener('click', async function () {
                         const setId = this.getAttribute('data-setid');
                         this.disabled = true;
+                        this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
                         try {
                             const formData = new FormData();
@@ -234,11 +254,11 @@
                             const data = await response.json();
                             if (data.success == true) {
                                 this.innerText = "Đã thêm ✓";
-                                this.style.backgroundColor = "#198754";
-                                // F5 lại trang để cập nhật danh sách bên ngoài
+                                this.style.backgroundColor = "#10b981";
+                                this.style.borderColor = "#10b981";
+                                this.style.color = "white";
                                 setTimeout(() => window.location.reload(), 800);
                             } else {
-                                
                                 alert('Bạn không phải chủ lớp này');
                                 this.innerText = "Thêm";
                                 this.disabled = false;
@@ -251,7 +271,6 @@
                     });
                 });
             }
-
         });
     </script>
 }

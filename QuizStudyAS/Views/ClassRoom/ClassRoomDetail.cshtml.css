@@ -1,127 +1,62 @@
-﻿.classroom-detail-container {
-    max-width: 1000px;
-    margin: 40px auto;
-    padding: 0 20px;
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    color: #fff;
+﻿body {
+    background-color: #f6f7fb;
 }
 
-.class-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    border-bottom: 2px solid #2e3856;
-    padding-bottom: 20px;
-    margin-bottom: 30px;
+/* Header Lớp học */
+.card-accent-top-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, #4255ff, #0d6efd);
 }
 
-.class-title {
-    font-size: 2.5rem;
-    margin: 0 0 10px 0;
-    color: #ffffff;
+/* Thẻ Học Phần (Grid Cards) */
+.focus-card {
+    top: 0;
 }
 
-.owner-info {
+    .focus-card:hover {
+        top: -5px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08) !important;
+        border-color: #cbd5e1 !important;
+    }
+
+        .focus-card:hover .class-title {
+            color: #4255ff !important;
+        }
+
+.card-accent-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #4255ff, #8b5cf6);
+}
+
+.icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: #b8bbff;
+    justify-content: center;
+    font-size: 1.4rem;
 }
 
-.class-code-badge {
-    background: #2e3856;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    color: #fff;
-    margin-left: 15px;
-}
-
-.studyset-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.studyset-card {
-    background: #2e3856;
-    padding: 20px;
-    border-radius: 12px;
-    text-decoration: none;
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: transform 0.2s, background 0.2s;
-    border: 2px solid transparent;
-    position: relative;
-}
-
-    .studyset-card:hover {
-        transform: translateY(-5px);
-        background: #3c476e;
-        border-color: #7b79ff;
-    }
-
-.set-title {
-    margin: 0 0 5px 0;
-    font-size: 1.2rem;
-}
-
-.card-count {
-    font-size: 0.9rem;
-    color: #939bb4;
-    background: #1a1d3d;
-    padding: 2px 8px;
-    border-radius: 4px;
-}
-
-.set-icon {
-    font-size: 1.5rem;
-    color: #7b79ff;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px;
-    background: #1a1d3d;
-    border-radius: 12px;
-    color: #64748b;
-}
-
-    .empty-state i {
-        font-size: 3rem;
-        margin-bottom: 15px;
-    }
-
-.btn-add-set {
-    background-color: #4255ff;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-    .btn-add-set:hover {
-        background-color: #3144eb;
-    }
-
+/* Nút Xóa (Thùng rác) */
 .btn-delete-card {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    color: #64748b;
-    font-size: 1.2rem;
-    width: 32px;
-    height: 32px;
+    top: 12px;
+    right: 12px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #94a3b8;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -130,28 +65,39 @@
 }
 
     .btn-delete-card:hover {
-        color: #ff4757;
-        background-color: rgba(255, 71, 87, 0.1);
+        background-color: #fee2e2;
+        color: #ef4444;
+        border-color: #fca5a5;
         transform: scale(1.1);
     }
 
+/* Nút bấm Animation */
+.transition-smooth {
+    transition: all 0.2s ease;
+}
+
+    .transition-smooth:hover {
+        transform: translateY(-2px);
+    }
+
 /* -------------------------------------
-       CSS BỔ SUNG CHO POPUP (Đồng bộ Dark Mode)
-    -------------------------------------- */
+           CSS POPUP MODAL TỰ TẠO (LIGHT MODE)
+        -------------------------------------- */
 .custom-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7); /* Nền đen đậm hơn một chút */
+    background-color: rgba(15, 23, 42, 0.5); /* Nền mờ tối */
+    backdrop-filter: blur(3px); /* Làm mờ cảnh vật phía sau */
     z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
     opacity: 1;
     visibility: visible;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
     .custom-modal-overlay.hidden {
@@ -160,46 +106,50 @@
     }
 
 .custom-modal-content {
-    background-color: #1a1d3d; /* Khớp màu với empty-state của bạn */
-    width: 500px;
+    background-color: #ffffff;
+    width: 450px;
     max-width: 90%;
-    border-radius: 12px;
-    border: 1px solid #2e3856;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    transform: translateY(0);
-    transition: transform 0.3s ease;
-    color: #fff;
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(0) scale(1);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    color: #1e293b;
 }
 
 .custom-modal-overlay.hidden .custom-modal-content {
-    transform: translateY(20px);
+    transform: translateY(30px) scale(0.95);
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 24px;
-    border-bottom: 1px solid #2e3856;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: #f8fafc;
+    border-radius: 1rem 1rem 0 0;
 }
 
     .modal-header h3 {
         margin: 0;
         font-size: 1.25rem;
-        color: #fff;
+        color: #0f172a;
+        font-weight: 700;
     }
 
 .btn-close-modal {
     background: none;
     border: none;
-    font-size: 1.5rem;
-    color: #64748b;
+    font-size: 1.2rem;
+    color: #94a3b8;
     cursor: pointer;
     transition: 0.2s;
 }
 
     .btn-close-modal:hover {
-        color: #ff4757;
+        color: #ef4444;
+        transform: scale(1.1);
     }
 
 .modal-body {
@@ -207,24 +157,25 @@
     max-height: 450px;
     overflow-y: auto;
 }
-    /* Tùy chỉnh thanh cuộn cho Modal */
+
     .modal-body::-webkit-scrollbar {
-        width: 8px;
+        width: 6px;
     }
 
     .modal-body::-webkit-scrollbar-track {
-        background: #1a1d3d;
+        background: #f8fafc;
     }
 
     .modal-body::-webkit-scrollbar-thumb {
-        background: #2e3856;
-        border-radius: 4px;
+        background: #cbd5e1;
+        border-radius: 10px;
     }
 
 .modal-subtitle {
     margin: 0 0 16px 0;
-    color: #b8bbff;
+    color: #64748b;
     font-size: 0.95rem;
+    font-weight: 600;
 }
 
 .loading-text {
@@ -243,36 +194,45 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px;
-    border: 1px solid #2e3856;
-    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
     margin-bottom: 12px;
-    background: #0a092d;
+    background: #ffffff;
+    transition: all 0.2s ease;
 }
+
+    .modal-studyset-item:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
 
     .modal-studyset-item h4 {
         margin: 0;
         font-size: 1.05rem;
-        color: #fff;
+        color: #0f172a;
+        font-weight: 700;
     }
 
 .btn-modal-add {
-    background-color: #4255ff;
-    color: white;
-    border: none;
+    background-color: #f8fafc;
+    color: #4255ff;
+    border: 1px solid #4255ff;
     padding: 6px 16px;
-    border-radius: 6px;
+    border-radius: 50px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 700;
     transition: 0.2s;
 }
 
-    .btn-modal-add:hover {
-        background-color: #3144eb;
+    .btn-modal-add:hover:not([disabled]) {
+        background-color: #4255ff;
+        color: #ffffff;
     }
 
     .btn-modal-add:disabled {
-        background-color: #2e3856;
-        color: #64748b;
+        background-color: #f1f5f9;
+        color: #94a3b8;
+        border-color: #e2e8f0;
         cursor: not-allowed;
     }
