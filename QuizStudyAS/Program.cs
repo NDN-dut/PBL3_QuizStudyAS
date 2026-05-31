@@ -27,6 +27,25 @@ builder.Services.AddScoped<IStudySetService, StudySetService>();
 // Đăng kí LeaderBoardService
 builder.Services.AddScoped<ILeaderboardService, LeaderboardService>();
 
+// Thêm cấu hình Authentication (Đã gộp chung Cookie và Google)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(options =>
+{
+    options.LoginPath = "/Auth/Login";
+    options.AccessDeniedPath = "/Auth/AccessDenied"; // Đường dẫn báo lỗi quyền truy cập
+    options.ExpireTimeSpan = TimeSpan.FromDays(7);   // Thời gian sống của Cookie 7 ngày
+})
+.AddGoogle(options =>
+{
+    // Thông tin này sẽ được lấy từ file appsettings.json
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "Vui-long-cai-dat-ClientId";
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "Vui-long-cai-dat-ClientSecret";
+    //options.CallbackPath = "/Auth/GoogleResponse";
+});
+
 // 1. ĐĂNG KÝ DỊCH VỤ SESSION (Thêm đoạn này)
 builder.Services.AddDistributedMemoryCache(); // Bộ nhớ tạm để lưu Session
 builder.Services.AddSession(options =>
@@ -42,19 +61,19 @@ builder.Services.AddHttpContextAccessor();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Kích hoạt tính năng sử dụng Cookie để xác thực
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        // Nếu người dùng chưa đăng nhập mà cố tình vào URL cấm, đẩy về đây
-        options.LoginPath = "/Auth/Login";
+//// Kích hoạt tính năng sử dụng Cookie để xác thực
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//    .AddCookie(options =>
+//    {
+//        // Nếu người dùng chưa đăng nhập mà cố tình vào URL cấm, đẩy về đây
+//        options.LoginPath = "/Auth/Login";
 
-        // Nếu đăng nhập rồi nhưng không đủ quyền (ví dụ Student vào trang Admin), đẩy về đây
-        options.AccessDeniedPath = "/Auth/AccessDenied";
+//        // Nếu đăng nhập rồi nhưng không đủ quyền (ví dụ Student vào trang Admin), đẩy về đây
+//        options.AccessDeniedPath = "/Auth/AccessDenied";
 
-        // Thời gian sống của Cookie (ví dụ: 7 ngày)
-        options.ExpireTimeSpan = TimeSpan.FromDays(7);
-    });
+//        // Thời gian sống của Cookie (ví dụ: 7 ngày)
+//        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+//    });
 
 builder.Services.AddScoped<IClassRoomServices, ClassRoomServices>();
 
@@ -75,6 +94,9 @@ app.UseRouting();
 
 // 2. KÍCH HOẠT SESSION (Bắt buộc phải nằm GIỮA UseRouting và UseAuthorization)
 app.UseSession();
+
+// Thêm dòng này nếu chưa có
+app.UseAuthentication();
 
 app.UseAuthorization();
 

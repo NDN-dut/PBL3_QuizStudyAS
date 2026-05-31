@@ -20,10 +20,20 @@ namespace QuizStudyAS.Data.Configurations
                    .IsRequired()
                    .HasMaxLength(256);
 
+            // Cho phép PasswordHash nhận giá trị null
+            builder.Property(u => u.PasswordHash)
+                   .IsRequired(false);
+
             // Thêm đoạn này vào bên trong hàm Configure của UserConfiguration.cs
             builder.HasOne(u => u.Role)
                    .WithMany(r => r.Users)
                    .HasForeignKey(u => u.RoleId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            // Thiết lập khóa ngoại tới bảng AuthProvider
+            builder.HasOne(u => u.AuthProvider)
+                   .WithMany(ap => ap.Users)
+                   .HasForeignKey(u => u.AuthProviderId)
                    .OnDelete(DeleteBehavior.Restrict);
 
             // KHÔNG CẦN cấu hình các ICollection ở đây nữa.
