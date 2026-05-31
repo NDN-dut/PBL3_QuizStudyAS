@@ -40,7 +40,7 @@ namespace QuizStudyAS.Controllers
             return RedirectToAction("Index", new { NameClass = className });
         }
 
-        
+
         public async Task<IActionResult> Search() => RedirectToAction("Index");
 
         // ĐỔI TÊN TỪ Request KHÁI NIỆM TRÙNG THÀNH JoinRequests
@@ -100,6 +100,15 @@ namespace QuizStudyAS.Controllers
             return Json(new { success = result });
         }
 
+        // THÊM API NÀY ĐỂ LẤY SỐ LƯỢNG THÔNG BÁO CHO SIDEBAR
+        [HttpGet]
+        public async Task<IActionResult> GetPendingRequestCount()
+        {
+            // Tận dụng lại hàm GetJoinVMs đã có sẵn
+            var listRequest = await _ClassRoomServices.GetJoinVMs();
+            int count = listRequest.RequestJoinVMs?.Count ?? 0;
+            return Json(new { count = count });
+        }
         private IActionResult RedirectToRefererWithLockMessage(string message)
         {
             TempData["LockedMessage"] = message;
@@ -112,5 +121,6 @@ namespace QuizStudyAS.Controllers
             }
             return Redirect(referer);
         }
+    
     }
 }
