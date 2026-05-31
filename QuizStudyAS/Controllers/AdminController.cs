@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.Attributes;
 using QuizStudyAS.Services;
+using QuizStudyAS.DTOs; // Thêm thư viện DTO
 
 namespace QuizStudyAS.Controllers
 {
@@ -9,7 +11,6 @@ namespace QuizStudyAS.Controllers
     {
         private readonly IAdminService _adminService;
 
-        // Chỉ tiêm IAdminService, loại bỏ hoàn toàn AppDbContext và IPasswordHasher
         public AdminController(IAdminService adminService)
         {
             _adminService = adminService;
@@ -64,7 +65,7 @@ namespace QuizStudyAS.Controllers
         public IActionResult DeleteUser(string id)
         {
             var currentUserId = HttpContext.Session.GetString("UserId");
-            var result = _adminService.ToggleUserStatus(id, currentUserId);
+            var result = _adminService.ToggleUserStatus(id, currentUserId ?? "");
             return Json(new { success = result.Success, message = result.Message });
         }
 
@@ -74,6 +75,7 @@ namespace QuizStudyAS.Controllers
             var result = _adminService.AddUser(userName, email, password, roleId);
             return Json(new { success = result.Success, message = result.Message });
         }
+
         // ==========================================
         // QUẢN LÝ LỚP HỌC (CLASSROOM MANAGEMENT)
         // ==========================================

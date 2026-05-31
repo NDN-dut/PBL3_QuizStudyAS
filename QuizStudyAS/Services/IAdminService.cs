@@ -1,10 +1,11 @@
 ﻿using QuizStudyAS.Models;
+using QuizStudyAS.DTOs; // Thêm thư viện DTO
 
 namespace QuizStudyAS.Services
 {
     public interface IAdminService
     {
-        // Thống kê cho Dashboard
+        // Thống kê cho Dashboard (Giữ nguyên Tuple chứa dữ liệu)
         (int TotalUsers, int TotalStudySets, int TotalClassrooms, int TotalAdmins) GetDashboardStats();
 
         // Lấy danh sách người dùng (có lọc) và danh sách vai trò
@@ -13,12 +14,14 @@ namespace QuizStudyAS.Services
 
         // Các thao tác CRUD với User
         ApplicationUser? GetUserById(string id);
-        (bool Success, string Message) AddUser(string userName, string email, string password, int roleId);
-        (bool Success, string Message) EditUser(string id, string userName, int roleId);
-        (bool Success, string Message) ToggleUserStatus(string id, string currentUserId);
+        ServiceResult AddUser(string userName, string email, string password, int roleId);
+        ServiceResult EditUser(string id, string userName, int roleId);
+        ServiceResult ToggleUserStatus(string id, string currentUserId);
+
         // Các thao tác quản lý nội dung (Khóa/Mở khóa)
-        (bool Success, string Message) ToggleClassroomStatus(int classroomId);
-        (bool Success, string Message) ToggleStudySetStatus(int studySetId);
+        ServiceResult ToggleClassroomStatus(int classroomId);
+        ServiceResult ToggleStudySetStatus(int studySetId);
+
         // Lấy danh sách để Admin quản lý (bao gồm cả tìm kiếm)
         List<Classroom> GetFilteredClassrooms(string searchString);
         List<StudySet> GetFilteredStudySets(string searchString);

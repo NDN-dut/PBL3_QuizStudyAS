@@ -9,7 +9,6 @@ using System.Security.Claims;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.IO;
 
 namespace QuizStudyAS.Controllers
 {
@@ -24,7 +23,6 @@ namespace QuizStudyAS.Controllers
             _emailService = emailService;
         }
 
-        // --- GIAO DIỆN ĐĂNG KÝ ---
         [HttpGet]
         public IActionResult Register() => View();
 
@@ -41,7 +39,6 @@ namespace QuizStudyAS.Controllers
             return Json(new { success = result.Success, message = result.Message });
         }
 
-        // --- GIAO DIỆN ĐĂNG NHẬP THƯỜNG ---
         [HttpGet]
         public IActionResult Login() => View();
 
@@ -56,17 +53,17 @@ namespace QuizStudyAS.Controllers
 
             var result = _authService.AuthenticateUser(model.UserNameOrEmail, model.Password);
 
-            if (result.Success && result.User != null)
+            // SỬA: result.Data thay vì result.User
+            if (result.Success && result.Data != null)
             {
-                HttpContext.Session.SetString("UserName", result.User.UserName);
-                HttpContext.Session.SetString("UserId", result.User.Id);
-                HttpContext.Session.SetString("UserRole", result.User.Role.RoleName);
-                HttpContext.Session.SetInt32("UserLevel", result.User.Level);
-                HttpContext.Session.SetInt32("UserStreak", result.User.CurrentStreak);
-                HttpContext.Session.SetString("UserAvatar", result.User.AvatarUrl ?? "");
-
-                // ĐĂNG NHẬP THƯỜNG: Tên hiển thị chính là UserName gốc của họ
-                HttpContext.Session.SetString("UserDisplayName", result.User.UserName);
+                var user = result.Data;
+                HttpContext.Session.SetString("UserName", user.UserName);
+                HttpContext.Session.SetString("UserId", user.Id);
+                HttpContext.Session.SetString("UserRole", user.Role.RoleName);
+                HttpContext.Session.SetInt32("UserLevel", user.Level);
+                HttpContext.Session.SetInt32("UserStreak", user.CurrentStreak);
+                HttpContext.Session.SetString("UserAvatar", user.AvatarUrl ?? "");
+                HttpContext.Session.SetString("UserDisplayName", user.UserName);
 
                 return Json(new { success = true });
             }
@@ -74,7 +71,6 @@ namespace QuizStudyAS.Controllers
             return Json(new { success = false, message = result.Message });
         }
 
-        // --- ĐĂNG NHẬP BẰNG GOOGLE ---
         [HttpGet]
         public IActionResult GoogleLogin()
         {
@@ -89,7 +85,6 @@ namespace QuizStudyAS.Controllers
 
             if (!result.Succeeded)
             {
-                // SỬA: Dùng TempData thay vì ViewBag
                 TempData["GoogleError"] = "Lỗi xác thực từ Google.";
                 return RedirectToAction("Index", "Home");
             }
@@ -100,28 +95,28 @@ namespace QuizStudyAS.Controllers
 
             if (email == null)
             {
-                // SỬA: Dùng TempData
                 TempData["GoogleError"] = "Không thể lấy được email từ tài khoản Google.";
                 return RedirectToAction("Index", "Home");
             }
 
             var authResult = await _authService.AuthenticateGoogleUserAsync(email, fullName ?? "");
 
-            if (!authResult.Success || authResult.User == null)
+            // SỬA: authResult.Data thay vì authResult.User
+            if (!authResult.Success || authResult.Data == null)
             {
                 await HttpContext.SignOutAsync();
-                // SỬA: Ném câu thông báo (VD: "Tài khoản bị khóa") vào TempData và chuyển hướng
                 TempData["GoogleError"] = authResult.Message;
                 return RedirectToAction("Index", "Home");
             }
 
-            // Tạo Cookie xác thực để hệ thống nhận diện Middleware
+            var user = authResult.Data;
+
             var userClaims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, authResult.User.UserName),
-                new Claim(ClaimTypes.Email, authResult.User.Email),
-                new Claim(ClaimTypes.NameIdentifier, authResult.User.Id.ToString()),
-                new Claim(ClaimTypes.Role, authResult.User.Role?.RoleName ?? "User")
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role?.RoleName ?? "User")
             };
 
             var claimsIdentity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -132,16 +127,13 @@ namespace QuizStudyAS.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-            // Đồng bộ dữ liệu vào Session hệ thống giống luồng đăng nhập thường của nhóm
-            HttpContext.Session.SetString("UserName", authResult.User.UserName);
-            HttpContext.Session.SetString("UserId", authResult.User.Id);
-            HttpContext.Session.SetString("UserRole", authResult.User.Role?.RoleName ?? "User");
-            HttpContext.Session.SetInt32("UserLevel", authResult.User.Level);
-            HttpContext.Session.SetInt32("UserStreak", authResult.User.CurrentStreak);
-            HttpContext.Session.SetString("UserAvatar", authResult.User.AvatarUrl ?? "");
-
-            // ĐĂNG NHẬP GOOGLE: Lấy trực tiếp Tên gốc trên Google hiển thị lên Profile
-            HttpContext.Session.SetString("UserDisplayName", !string.IsNullOrEmpty(fullName) ? fullName : authResult.User.UserName);
+            HttpContext.Session.SetString("UserName", user.UserName);
+            HttpContext.Session.SetString("UserId", user.Id);
+            HttpContext.Session.SetString("UserRole", user.Role?.RoleName ?? "User");
+            HttpContext.Session.SetInt32("UserLevel", user.Level);
+            HttpContext.Session.SetInt32("UserStreak", user.CurrentStreak);
+            HttpContext.Session.SetString("UserAvatar", user.AvatarUrl ?? "");
+            HttpContext.Session.SetString("UserDisplayName", !string.IsNullOrEmpty(fullName) ? fullName : user.UserName);
 
             return RedirectToAction("Index", "Home");
         }
@@ -150,15 +142,10 @@ namespace QuizStudyAS.Controllers
         public async Task<IActionResult> Logout()
         {
             HttpContext.Session.Clear();
-            // Xóa triệt để cả phiên đăng nhập Cookie của ứng dụng lẫn Google
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
         }
 
-        [HttpGet]
-        public IActionResult Login1() => RedirectToAction("Index", "Home");
-
-        // --- QUÊN MẬT KHẨU ---
         [HttpGet]
         public IActionResult ForgotPassword() => View();
 
@@ -167,10 +154,12 @@ namespace QuizStudyAS.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var user = _authService.GeneratePasswordResetToken(model.Email);
+            var result = _authService.GeneratePasswordResetToken(model.Email);
 
-            if (user != null)
+            // SỬA: Kiểm tra result.Success và lấy result.Data
+            if (result.Success && result.Data != null)
             {
+                var user = result.Data;
                 var resetLink = Url.Action("ResetPassword", "Auth", new { token = user.ResetPasswordToken }, Request.Scheme);
                 var subject = "Yêu cầu khôi phục mật khẩu - QSAS";
                 var body = $@"
@@ -187,7 +176,6 @@ namespace QuizStudyAS.Controllers
             return View();
         }
 
-        // --- ĐẶT LẠI MẬT KHẨU ---
         [HttpGet]
         public IActionResult ResetPassword(string token)
         {
