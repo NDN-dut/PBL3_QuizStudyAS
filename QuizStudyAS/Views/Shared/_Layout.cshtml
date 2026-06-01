@@ -146,7 +146,7 @@
                     </li>
                     <li class="nav-item">
                         <a asp-controller="Admin" asp-action="ManageUsers" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Admin", "ManageUsers")">
-                            <i class="bi bi-people-fill fs-5 text-primary menu-icon"></i>
+                            <i class="bi bi-people-fill fs-5 text-secondary menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Người dùng</span>
                         </a>
                     </li>
@@ -289,6 +289,34 @@
     </div>
 
     <partial name="_AuthModal" />
+
+    @if (TempData["GoogleError"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // 1. Tự động bật Modal Đăng nhập lên
+                var authModalElement = document.getElementById('authModal');
+                if (authModalElement) {
+                    var authModal = new bootstrap.Modal(authModalElement);
+                    authModal.show();
+                }
+
+                // 2. Gắn câu thông báo lỗi vào khung Alert của Đăng nhập
+                var loginAlert = document.getElementById('loginAlert');
+                if (loginAlert) {
+                    loginAlert.className = "alert alert-danger mt-3";
+                    loginAlert.textContent = "@Html.Raw(TempData["GoogleError"])";
+                    loginAlert.classList.remove("d-none");
+                }
+
+                // 3. Kích hoạt hiệu ứng buồn và lắc đầu cho Mascot
+                var loginMascot = document.getElementById('login-mascot');
+                if (loginMascot) {
+                    loginMascot.classList.add('sad', 'shake');
+                }
+            });
+        </script>
+    }
 
     @if (TempData["LockedMessage"] != null)
     {

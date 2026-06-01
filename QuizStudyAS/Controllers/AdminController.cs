@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.Attributes;
 using QuizStudyAS.Services;
+using QuizStudyAS.DTOs;
+using System;
 
 namespace QuizStudyAS.Controllers
 {
@@ -9,7 +12,6 @@ namespace QuizStudyAS.Controllers
     {
         private readonly IAdminService _adminService;
 
-        // Chỉ tiêm IAdminService, loại bỏ hoàn toàn AppDbContext và IPasswordHasher
         public AdminController(IAdminService adminService)
         {
             _adminService = adminService;
@@ -28,13 +30,24 @@ namespace QuizStudyAS.Controllers
             return View();
         }
 
+        // ==========================================
+        // QUẢN LÝ NGƯỜI DÙNG
+        // ==========================================
+
         [HttpGet]
-        public IActionResult ManageUsers(string searchString, int? roleId)
+        // BỔ SUNG: Tham số pageIndex (mặc định = 1)
+        public IActionResult ManageUsers(string searchString, int? roleId, bool? isActive, DateTime? fromDate, DateTime? toDate, int pageIndex = 1)
         {
-            var users = _adminService.GetFilteredUsers(searchString, roleId);
+            int pageSize = 10; // Bạn có thể chỉnh sửa số bản ghi hiển thị trên 1 trang ở đây
+
+            // Kiểu trả về lúc này của "users" sẽ là PaginatedList<ApplicationUser>
+            var users = _adminService.GetFilteredUsers(searchString, roleId, isActive, fromDate, toDate, pageIndex, pageSize);
 
             ViewBag.CurrentSearch = searchString;
             ViewBag.CurrentRole = roleId;
+            ViewBag.CurrentIsActive = isActive;
+            ViewBag.CurrentFromDate = fromDate?.ToString("yyyy-MM-dd");
+            ViewBag.CurrentToDate = toDate?.ToString("yyyy-MM-dd");
             ViewBag.Roles = _adminService.GetAllRoles();
 
             return View(users);
@@ -64,7 +77,7 @@ namespace QuizStudyAS.Controllers
         public IActionResult DeleteUser(string id)
         {
             var currentUserId = HttpContext.Session.GetString("UserId");
-            var result = _adminService.ToggleUserStatus(id, currentUserId);
+            var result = _adminService.ToggleUserStatus(id, currentUserId ?? "");
             return Json(new { success = result.Success, message = result.Message });
         }
 
@@ -74,15 +87,24 @@ namespace QuizStudyAS.Controllers
             var result = _adminService.AddUser(userName, email, password, roleId);
             return Json(new { success = result.Success, message = result.Message });
         }
+
         // ==========================================
         // QUẢN LÝ LỚP HỌC (CLASSROOM MANAGEMENT)
         // ==========================================
 
         [HttpGet]
-        public IActionResult ManageClassrooms(string searchString)
+        // BỔ SUNG: Tham số pageIndex (mặc định = 1)
+        public IActionResult ManageClassrooms(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1)
         {
-            var classrooms = _adminService.GetFilteredClassrooms(searchString);
+            int pageSize = 10;
+            var classrooms = _adminService.GetFilteredClassrooms(searchString, isActive, ownerName, fromDate, toDate, pageIndex, pageSize);
+
             ViewBag.CurrentSearch = searchString;
+            ViewBag.CurrentIsActive = isActive;
+            ViewBag.CurrentOwnerName = ownerName;
+            ViewBag.CurrentFromDate = fromDate?.ToString("yyyy-MM-dd");
+            ViewBag.CurrentToDate = toDate?.ToString("yyyy-MM-dd");
+
             return View(classrooms);
         }
 
@@ -98,10 +120,18 @@ namespace QuizStudyAS.Controllers
         // ==========================================
 
         [HttpGet]
-        public IActionResult ManageStudySets(string searchString)
+        // BỔ SUNG: Tham số pageIndex (mặc định = 1)
+        public IActionResult ManageStudySets(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1)
         {
-            var studySets = _adminService.GetFilteredStudySets(searchString);
+            int pageSize = 10;
+            var studySets = _adminService.GetFilteredStudySets(searchString, isActive, ownerName, fromDate, toDate, pageIndex, pageSize);
+
             ViewBag.CurrentSearch = searchString;
+            ViewBag.CurrentIsActive = isActive;
+            ViewBag.CurrentOwnerName = ownerName;
+            ViewBag.CurrentFromDate = fromDate?.ToString("yyyy-MM-dd");
+            ViewBag.CurrentToDate = toDate?.ToString("yyyy-MM-dd");
+
             return View(studySets);
         }
 

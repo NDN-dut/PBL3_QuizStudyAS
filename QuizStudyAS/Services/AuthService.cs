@@ -2,6 +2,7 @@
 using QuizStudyAS.Data;
 using QuizStudyAS.DTOs;
 using QuizStudyAS.Models;
+using System.Threading.Tasks;
 
 namespace QuizStudyAS.Services
 {
@@ -16,39 +17,36 @@ namespace QuizStudyAS.Services
             _passwordHasher = passwordHasher;
         }
 
-        public (bool Success, string Message) RegisterUser(string username, string email, string password)
+        public ServiceResult RegisterUser(string username, string email, string password)
         {
             if (_context.Users.Any(u => u.UserName == username || u.Email == email))
             {
-                return (false, "Tên tài khoản hoặc Email đã được sử dụng.");
+                return ServiceResult.IsError("Tên tài khoản hoặc Email đã được sử dụng.");
             }
 
-            // 1. Tìm quyền "User" trong Database
             var defaultRole = _context.Roles.FirstOrDefault(r => r.RoleName == "User");
-
-            // 2. NẾU CHƯA CÓ -> TỰ ĐỘNG TẠO MỚI LUÔN ĐỂ TRÁNH LỖI KHÓA NGOẠI
             if (defaultRole == null)
             {
                 defaultRole = new Role { RoleName = "User" };
                 _context.Roles.Add(defaultRole);
-                _context.SaveChanges(); // Lưu xuống DB để lấy được RoleId chuẩn xác
+                _context.SaveChanges();
             }
 
-            // 3. Tạo tài khoản với RoleId chuẩn xác
             var newUser = new ApplicationUser
             {
                 UserName = username,
                 Email = email,
                 PasswordHash = _passwordHasher.HashPassword(password),
-                RoleId = defaultRole.RoleId // Lấy ID trực tiếp từ đối tượng Role
+                RoleId = defaultRole.RoleId
             };
 
             _context.Users.Add(newUser);
             _context.SaveChanges();
 
-            return (true, "Đăng ký thành công! Vui lòng đăng nhập.");
+            return ServiceResult.IsSuccess("Đăng ký thành công! Vui lòng đăng nhập.");
         }
-        public (bool Success, ApplicationUser? User, string Message) AuthenticateUser(string usernameOrEmail, string password)
+
+        public ServiceResult<ApplicationUser> AuthenticateUser(string usernameOrEmail, string password)
         {
             var user = _context.Users
                 .Include(u => u.Role)
@@ -56,45 +54,42 @@ namespace QuizStudyAS.Services
 
             if (user == null)
             {
-                return (false, null, "Tên đăng nhập hoặc mật khẩu không chính xác.");
+                return ServiceResult<ApplicationUser>.IsError("Tên đăng nhập hoặc mật khẩu không chính xác.");
             }
 
-            // --- CHỐT CHẶN 1: TÀI KHOẢN GOOGLE ---
-            // Nếu tài khoản không có mật khẩu (nghĩa là được tạo qua Google/Facebook)
             if (string.IsNullOrEmpty(user.PasswordHash))
             {
-                return (false, null, "Tài khoản này được liên kết với Google. Vui lòng chọn 'Đăng nhập bằng Google'.");
+                return ServiceResult<ApplicationUser>.IsError("Tài khoản này được liên kết với Google. Vui lòng chọn 'Đăng nhập bằng Google'.");
             }
 
-            // --- CHỐT CHẶN 2: SAI MẬT KHẨU ---
             if (!_passwordHasher.VerifyPassword(password, user.PasswordHash))
             {
-                return (false, null, "Tên đăng nhập hoặc mật khẩu không chính xác.");
+                return ServiceResult<ApplicationUser>.IsError("Tên đăng nhập hoặc mật khẩu không chính xác.");
             }
 
             if (!user.IsActive)
             {
-                return (false, null, "Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ Admin.");
+                return ServiceResult<ApplicationUser>.IsError("Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ Admin.");
             }
 
-            return (true, user, "Đăng nhập thành công.");
+            return ServiceResult<ApplicationUser>.IsSuccess(user, "Đăng nhập thành công.");
         }
 
-        public ApplicationUser? GeneratePasswordResetToken(string email)
+        public ServiceResult<ApplicationUser> GeneratePasswordResetToken(string email)
         {
             var user = _context.Users.FirstOrDefault(u => u.Email == email);
 
-            // Không tạo token cho user không tồn tại hoặc đã bị khóa
-            if (user == null || !user.IsActive) return null;
+            if (user == null || !user.IsActive)
+                return ServiceResult<ApplicationUser>.IsError("Email không tồn tại hoặc tài khoản đã bị khóa.");
 
             user.ResetPasswordToken = Guid.NewGuid().ToString();
             user.ResetPasswordExpiry = DateTime.Now.AddMinutes(15);
             _context.SaveChanges();
 
-            return user;
+            return ServiceResult<ApplicationUser>.IsSuccess(user);
         }
 
-        public (bool Success, string Message) ResetPassword(string token, string newPassword)
+        public ServiceResult ResetPassword(string token, string newPassword)
         {
             var user = _context.Users.FirstOrDefault(u =>
                 u.ResetPasswordToken == token &&
@@ -102,7 +97,7 @@ namespace QuizStudyAS.Services
 
             if (user == null)
             {
-                return (false, "Đường dẫn khôi phục không hợp lệ hoặc đã hết thời gian (15 phút).");
+                return ServiceResult.IsError("Đường dẫn khôi phục không hợp lệ hoặc đã hết thời gian (15 phút).");
             }
 
             user.PasswordHash = _passwordHasher.HashPassword(newPassword);
@@ -110,12 +105,11 @@ namespace QuizStudyAS.Services
             user.ResetPasswordExpiry = null;
             _context.SaveChanges();
 
-            return (true, "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay bây giờ.");
+            return ServiceResult.IsSuccess("Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay bây giờ.");
         }
 
-        public async Task<AuthResult> AuthenticateGoogleUserAsync(string email, string fullName)
+        public async Task<ServiceResult<ApplicationUser>> AuthenticateGoogleUserAsync(string email, string fullName)
         {
-            // 1. Kiểm tra xem email này đã tồn tại trong hệ thống chưa
             var user = await _context.Users
                          .Include(u => u.Role)
                          .FirstOrDefaultAsync(u => u.Email == email);
@@ -124,13 +118,11 @@ namespace QuizStudyAS.Services
             {
                 if (!user.IsActive)
                 {
-                    return new AuthResult { Success = false, User = null, Message = "Tài khoản của bạn đã bị vô hiệu hóa bởi Admin." };
+                    return ServiceResult<ApplicationUser>.IsError("Tài khoản của bạn đã bị vô hiệu hóa bởi Admin.");
                 }
-
-                return new AuthResult { Success = true, User = user, Message = "Đăng nhập qua Google thành công." };
+                return ServiceResult<ApplicationUser>.IsSuccess(user, "Đăng nhập qua Google thành công.");
             }
 
-            // 2. Nếu là người dùng mới hoàn toàn, chuẩn bị dữ liệu liên kết
             var googleProvider = await _context.AuthProviders.FirstOrDefaultAsync(p => p.Name == "Google");
             if (googleProvider == null)
             {
@@ -145,7 +137,6 @@ namespace QuizStudyAS.Services
                 _context.Roles.Add(defaultRole);
             }
 
-            // 3. Tạo tài khoản mới
             var newUser = new ApplicationUser
             {
                 UserName = email.Split('@')[0] + "_" + Guid.NewGuid().ToString().Substring(0, 4),
@@ -160,7 +151,7 @@ namespace QuizStudyAS.Services
             _context.Users.Add(newUser);
             await _context.SaveChangesAsync();
 
-            return new AuthResult { Success = true, User = newUser, Message = "Tạo tài khoản liên kết Google thành công." };
+            return ServiceResult<ApplicationUser>.IsSuccess(newUser, "Tạo tài khoản liên kết Google thành công.");
         }
     }
 }
