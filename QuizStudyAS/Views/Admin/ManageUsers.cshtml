@@ -1,5 +1,5 @@
 ﻿@* Khai báo kiểu dữ liệu Model mà View này sẽ nhận từ Controller *@
-@model IEnumerable<QuizStudyAS.Models.ApplicationUser>
+@model QuizStudyAS.DTOs.PaginatedList<QuizStudyAS.Models.ApplicationUser>
 
 @{
     ViewData["Title"] = "Quản lý Người dùng";
@@ -16,22 +16,19 @@
 
     <!-- --- THANH TÌM KIẾM VÀ LỌC --- -->
     <form method="get" asp-action="ManageUsers" class="mb-4 bg-light p-3 rounded border shadow-sm">
-        <div class="row g-2">
-            <!-- Ô nhập từ khóa -->
+        <div class="row g-2 mb-2">
             <div class="col-md-5">
                 <input type="text" name="searchString" value="@ViewBag.CurrentSearch"
                        class="form-control" placeholder="Tìm theo tên hoặc email..." />
             </div>
-
-            <!-- Ô chọn vai trò -->
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <select name="roleId" class="form-select">
                     <option value="">-- Tất cả vai trò --</option>
                     @if (ViewBag.Roles != null)
                     {
                         foreach (var role in ViewBag.Roles)
                         {
-                            if (ViewBag.CurrentRole == role.RoleId)
+                            @if (ViewBag.CurrentRole == role.RoleId)
                             {
                                 <option value="@role.RoleId" selected>@role.RoleName</option>
                             }
@@ -43,11 +40,44 @@
                     }
                 </select>
             </div>
+            <div class="col-md-4">
+                <select name="isActive" class="form-select">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    @if (ViewBag.CurrentIsActive == true)
+                    {
+                        <option value="true" selected>Hoạt động</option>
+                        <option value="false">Bị khóa</option>
+                    }
+                    else if (ViewBag.CurrentIsActive == false)
+                    {
+                        <option value="true">Hoạt động</option>
+                        <option value="false" selected>Bị khóa</option>
+                    }
+                    else
+                    {
+                        <option value="true">Hoạt động</option>
+                        <option value="false">Bị khóa</option>
+                    }
+                </select>
+            </div>
+        </div>
 
-            <!-- Nút bấm -->
-            <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100 fw-bold">Tìm kiếm</button>
-                <a asp-action="ManageUsers" class="btn btn-outline-secondary w-100 fw-bold">Xóa lọc</a>
+        <div class="row g-2">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white text-muted">Từ</span>
+                    <input type="date" name="fromDate" value="@ViewBag.CurrentFromDate" class="form-control" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white text-muted">Đến</span>
+                    <input type="date" name="toDate" value="@ViewBag.CurrentToDate" class="form-control" />
+                </div>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-50 fw-bold"><i class="bi bi-search me-1"></i> Lọc</button>
+                <a asp-action="ManageUsers" class="btn btn-outline-secondary w-50 fw-bold"><i class="bi bi-arrow-counterclockwise me-1"></i> Xóa lọc</a>
             </div>
         </div>
     </form>
@@ -67,9 +97,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model != null && Model.Any())
+                    @if (Model != null && Model.Items.Any())
                     {
-                        foreach (var user in Model)
+                        foreach (var user in Model.Items)
                         {
                             <tr>
                                 <td class="text-center text-muted small">
@@ -140,7 +170,46 @@
             </table>
         </div>
     </div>
-</div>
+</div> <nav aria-label="Page navigation" class="mt-4 mb-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+            <a class="page-link" asp-action="ManageUsers"
+               asp-route-pageIndex="@(Model.PageIndex - 1)"
+               asp-route-searchString="@ViewBag.CurrentSearch"
+               asp-route-roleId="@ViewBag.CurrentRole"
+               asp-route-isActive="@ViewBag.CurrentIsActive"
+               asp-route-fromDate="@ViewBag.CurrentFromDate"
+               asp-route-toDate="@ViewBag.CurrentToDate">
+                <i class="bi bi-chevron-left"></i> Trước
+            </a>
+        </li>
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                <a class="page-link" asp-action="ManageUsers"
+                   asp-route-pageIndex="@i"
+                   asp-route-searchString="@ViewBag.CurrentSearch"
+                   asp-route-roleId="@ViewBag.CurrentRole"
+                   asp-route-isActive="@ViewBag.CurrentIsActive"
+                   asp-route-fromDate="@ViewBag.CurrentFromDate"
+                   asp-route-toDate="@ViewBag.CurrentToDate">@i</a>
+            </li>
+        }
+
+        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+            <a class="page-link" asp-action="ManageUsers"
+               asp-route-pageIndex="@(Model.PageIndex + 1)"
+               asp-route-searchString="@ViewBag.CurrentSearch"
+               asp-route-roleId="@ViewBag.CurrentRole"
+               asp-route-isActive="@ViewBag.CurrentIsActive"
+               asp-route-fromDate="@ViewBag.CurrentFromDate"
+               asp-route-toDate="@ViewBag.CurrentToDate">
+                Sau <i class="bi bi-chevron-right"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
 
 <!-- Modal Thêm Người Dùng -->
 <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">

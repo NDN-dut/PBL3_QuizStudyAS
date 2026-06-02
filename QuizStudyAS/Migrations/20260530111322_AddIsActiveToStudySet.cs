@@ -10,7 +10,7 @@ namespace QuizStudyAS.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
+            /*migrationBuilder.AddColumn<bool>(
                 name: "IsActive",
                 table: "StudySets",
                 type: "bit",
@@ -25,6 +25,7 @@ namespace QuizStudyAS.Migrations
                 defaultValue: true,
                 oldClrType: typeof(bool),
                 oldType: "bit");
+            */
         }
 
         /// <inheritdoc />

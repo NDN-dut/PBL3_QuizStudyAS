@@ -11,7 +11,7 @@ namespace QuizStudyAS.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
+            /*migrationBuilder.CreateTable(
                 name: "Achievements",
                 columns: table => new
                 {
@@ -402,6 +402,7 @@ namespace QuizStudyAS.Migrations
                 name: "IX_Users_RoleId",
                 table: "Users",
                 column: "RoleId");
+            */
         }
 
         /// <inheritdoc />

@@ -2,7 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.Services;
 using QuizStudyAS.ViewModels;
-
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using System.Security.Claims;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace QuizStudyAS.Controllers
 {
@@ -11,14 +17,12 @@ namespace QuizStudyAS.Controllers
         private readonly IAuthService _authService;
         private readonly IEmailService _emailService;
 
-        // DBContext và Hasher đã biến mất khỏi Controller!
         public AuthController(IAuthService authService, IEmailService emailService)
         {
             _authService = authService;
             _emailService = emailService;
         }
 
-        // --- GIAO DIỆN ĐĂNG KÝ ---
         [HttpGet]
         public IActionResult Register() => View();
 
@@ -35,7 +39,6 @@ namespace QuizStudyAS.Controllers
             return Json(new { success = result.Success, message = result.Message });
         }
 
-        // --- GIAO DIỆN ĐĂNG NHẬP ---
         [HttpGet]
         public IActionResult Login() => View();
 
@@ -50,17 +53,17 @@ namespace QuizStudyAS.Controllers
 
             var result = _authService.AuthenticateUser(model.UserNameOrEmail, model.Password);
 
-            if (result.Success && result.User != null)
+            // SỬA: result.Data thay vì result.User
+            if (result.Success && result.Data != null)
             {
-                HttpContext.Session.SetString("UserName", result.User.UserName);
-                HttpContext.Session.SetString("UserId", result.User.Id);
-                HttpContext.Session.SetString("UserRole", result.User.Role.RoleName);
-
-                HttpContext.Session.SetInt32("UserLevel", result.User.Level);
-                HttpContext.Session.SetInt32("UserStreak", result.User.CurrentStreak);
-
-                //Luu Avatar
-                HttpContext.Session.SetString("UserAvatar", result.User.AvatarUrl ?? "");
+                var user = result.Data;
+                HttpContext.Session.SetString("UserName", user.UserName);
+                HttpContext.Session.SetString("UserId", user.Id);
+                HttpContext.Session.SetString("UserRole", user.Role.RoleName);
+                HttpContext.Session.SetInt32("UserLevel", user.Level);
+                HttpContext.Session.SetInt32("UserStreak", user.CurrentStreak);
+                HttpContext.Session.SetString("UserAvatar", user.AvatarUrl ?? "");
+                HttpContext.Session.SetString("UserDisplayName", user.UserName);
 
                 return Json(new { success = true });
             }
@@ -69,16 +72,80 @@ namespace QuizStudyAS.Controllers
         }
 
         [HttpGet]
-        public IActionResult Logout()
+        public IActionResult GoogleLogin()
         {
-            HttpContext.Session.Clear();
+            var properties = new AuthenticationProperties { RedirectUri = Url.Action("GoogleResponse") };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GoogleResponse()
+        {
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            if (!result.Succeeded)
+            {
+                TempData["GoogleError"] = "Lỗi xác thực từ Google.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+            var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var fullName = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
+            if (email == null)
+            {
+                TempData["GoogleError"] = "Không thể lấy được email từ tài khoản Google.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var authResult = await _authService.AuthenticateGoogleUserAsync(email, fullName ?? "");
+
+            // SỬA: authResult.Data thay vì authResult.User
+            if (!authResult.Success || authResult.Data == null)
+            {
+                await HttpContext.SignOutAsync();
+                TempData["GoogleError"] = authResult.Message;
+                return RedirectToAction("Index", "Home");
+            }
+
+            var user = authResult.Data;
+
+            var userClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role?.RoleName ?? "User")
+            };
+
+            var claimsIdentity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProperties = new AuthenticationProperties { IsPersistent = true };
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
+
+            HttpContext.Session.SetString("UserName", user.UserName);
+            HttpContext.Session.SetString("UserId", user.Id);
+            HttpContext.Session.SetString("UserRole", user.Role?.RoleName ?? "User");
+            HttpContext.Session.SetInt32("UserLevel", user.Level);
+            HttpContext.Session.SetInt32("UserStreak", user.CurrentStreak);
+            HttpContext.Session.SetString("UserAvatar", user.AvatarUrl ?? "");
+            HttpContext.Session.SetString("UserDisplayName", !string.IsNullOrEmpty(fullName) ? fullName : user.UserName);
+
             return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
-        public IActionResult Login1() => RedirectToAction("Index", "Home");
+        public async Task<IActionResult> Logout()
+        {
+            HttpContext.Session.Clear();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Home");
+        }
 
-        // --- QUÊN MẬT KHẨU ---
         [HttpGet]
         public IActionResult ForgotPassword() => View();
 
@@ -87,12 +154,13 @@ namespace QuizStudyAS.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var user = _authService.GeneratePasswordResetToken(model.Email);
+            var result = _authService.GeneratePasswordResetToken(model.Email);
 
-            if (user != null)
+            // SỬA: Kiểm tra result.Success và lấy result.Data
+            if (result.Success && result.Data != null)
             {
+                var user = result.Data;
                 var resetLink = Url.Action("ResetPassword", "Auth", new { token = user.ResetPasswordToken }, Request.Scheme);
-
                 var subject = "Yêu cầu khôi phục mật khẩu - QSAS";
                 var body = $@"
                     <h3>Xin chào {user.UserName},</h3>
@@ -108,7 +176,6 @@ namespace QuizStudyAS.Controllers
             return View();
         }
 
-        // --- ĐẶT LẠI MẬT KHẨU ---
         [HttpGet]
         public IActionResult ResetPassword(string token)
         {
