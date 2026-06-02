@@ -27,7 +27,7 @@ namespace QuizStudyAS.Services
             AdditionAlgrothim AddAl = new AdditionAlgrothim(_context);
             string currentUserId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
 
-            var allClassBasicInfo = await _context.Classrooms
+            var allClassBasicInfo = await _context.Classrooms.Where(c=>c.IsActive==true)
                                 .Select(c => new { c.ClassroomId, c.ClassName })
                                 .ToListAsync();
 
@@ -76,6 +76,13 @@ namespace QuizStudyAS.Services
         public async Task CreateRequest(string ClassName)
         {
             var User = _context.Users.FirstOrDefault(e=>e.Id == _httpContextAccessor.HttpContext.Session.GetString("UserId"));
+            var record = await _context.RequestJoinClasses.FirstOrDefaultAsync(c=>c.Classroom.ClassName == ClassName && c.UserId == User.Id);
+            if(record != null)
+            {
+                record.Status = "PENDING";
+                await _context.SaveChangesAsync();
+                return;
+            }
             var RequestJoin = await _context.RequestJoinClasses.AddAsync(new RequestJoinClass
             {
                 UserId = User.Id,
@@ -90,7 +97,7 @@ namespace QuizStudyAS.Services
         {
             var UserID = _httpContextAccessor.HttpContext.Session.GetString("UserId");
             var MyOwerClass = await _context.Classrooms
-                .Where(p=> p.OwnerUserId == UserID)
+                .Where(p=> p.OwnerUserId == UserID && p.IsActive==true)
                 .Select(c=>new ShowClassRoom{
                     ClassName = c.ClassName,
                     Link = c.InviteCode,
@@ -99,8 +106,8 @@ namespace QuizStudyAS.Services
                     Status_Class = "OWNER"
                 }).ToListAsync();
 
-            var MyJoinedClass = await _context.RequestJoinClasses
-                .Where(p => p.UserId == UserID && p.Status == "APPROVED")
+            var MyJoinedClass = await _context.ClassroomUsers
+                .Where(p => p.UserId == UserID && p.Status == "STUDYING" && p.Classroom.IsActive==true)
                 .Select(c => new ShowClassRoom
                 {
                     ClassName = c.Classroom.ClassName,
@@ -120,7 +127,7 @@ namespace QuizStudyAS.Services
         public async Task<ListRequestJoinVM> GetJoinVMs()
         {
             var ListRequestJoin = await _context.RequestJoinClasses
-                .Where(e => e.Classroom.OwnerUserId == _httpContextAccessor.HttpContext.Session.GetString("UserId") && e.Status == "PENDING")
+                .Where(e => e.Classroom.OwnerUserId == _httpContextAccessor.HttpContext.Session.GetString("UserId") && e.Status == "PENDING" && e.Classroom.IsActive==true)
                 .Select(e => new RequestJoinVM
                 {
                     UserId = e.UserId,
@@ -144,10 +151,18 @@ namespace QuizStudyAS.Services
         }
         public async Task AcceptRequest(string userid, int classroomid)
         {
+
             var request = await _context.RequestJoinClasses.FirstOrDefaultAsync(e => e.ClassroomId == classroomid && e.UserId == userid);
             if (request != null)
             {
                 request.Status = "APPROVED";
+                var record = await _context.ClassroomUsers.FirstOrDefaultAsync(c=>c.ClassroomId==classroomid && c.UserId == userid);
+                if (record != null)
+                {
+                    record.Status = "STUDYING";
+                    await _context.SaveChangesAsync();
+                    return;
+                }
                 await _context.AddAsync(new ClassroomUser
                 {
                     ClassroomId = classroomid,
@@ -263,12 +278,63 @@ namespace QuizStudyAS.Services
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<bool> DeleteClassRoom(string Classcode)
+        {
+            var classroom = await _context.Classrooms.FirstOrDefaultAsync(c=>c.InviteCode == Classcode);
+            if (classroom == null)
+            {
+                return false;
+            }
+            classroom.IsActive = false;
+            await _context.SaveChangesAsync();
+            
+            return true;
+        }
         public async Task<bool> CheckAuthorityClass(int ClassId)
         {
             string CurrentUserId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
             string OwnerClassId = await _context.Classrooms.Where(c=>c.ClassroomId== ClassId)
                                   .Select(c=>c.OwnerUserId).FirstOrDefaultAsync();
             return CurrentUserId == OwnerClassId;
+        }
+        public async Task<bool> DeleteUserOfClass(string ClassCode, string UserId)
+        {
+            var ClassId = await _context.Classrooms.Where(cl=> cl.InviteCode == ClassCode)
+                                                    .Select(cl=>cl.ClassroomId)
+                                                    .FirstOrDefaultAsync();
+            if ((await CheckAuthorityClass(ClassId)) == false)
+            {
+                return false;
+            }
+            var record = await _context.ClassroomUsers.FirstOrDefaultAsync(c => c.UserId == UserId && c.ClassroomId == ClassId);
+            var request = await _context.RequestJoinClasses.FirstOrDefaultAsync(c => c.UserId == UserId && c.ClassroomId == ClassId);
+
+            if (record != null)
+            {
+                record.Status = "KICKED";
+                request.Status = "DENIED";
+                
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<ClassRoomDetailVM> GetAllUserOfClass(string ClassCode)
+
+        {
+            var userList = await _context.ClassroomUsers
+                                                        .Where(cu => cu.Classroom.InviteCode == ClassCode && cu.Status=="STUDYING") // Móc thẳng vào thẻ Navigation
+                                                        .Select(cu => new UserInfo
+                                                        {
+                                                            UserId = cu.UserId,
+                                                            UserName = cu.User.UserName
+                                                        })
+                                                        .ToListAsync();
+            var Data = new ClassRoomDetailVM
+            {
+                ClassUsers = userList
+            };
+            return Data;
+
         }
     }
 }

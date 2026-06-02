@@ -1,0 +1,271 @@
+﻿body {
+    background-color: #f6f7fb;
+}
+
+/* Header Lớp học */
+.card-accent-top-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(90deg, #4255ff, #0d6efd);
+}
+
+/* Thẻ Học Phần (Grid Cards) */
+.focus-card {
+    top: 0;
+}
+
+    .focus-card:hover {
+        top: -5px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08) !important;
+        border-color: #cbd5e1 !important;
+    }
+
+        .focus-card:hover .class-title {
+            color: #4255ff !important;
+        }
+
+.card-accent-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #4255ff, #8b5cf6);
+}
+
+.icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+/* Nút Xóa (Thùng rác) */
+.btn-delete-card {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #94a3b8;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    transition: all 0.2s ease;
+}
+
+    .btn-delete-card:hover {
+        background-color: #fee2e2;
+        color: #ef4444;
+        border-color: #fca5a5;
+        transform: scale(1.1);
+    }
+
+/* Nút bấm Animation */
+.transition-smooth {
+    transition: all 0.2s ease;
+}
+
+    .transition-smooth:hover {
+        transform: translateY(-2px);
+    }
+
+/* -------------------------------------
+           CSS POPUP MODAL TỰ TẠO (LIGHT MODE)
+        -------------------------------------- */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(15, 23, 42, 0.5); /* Nền mờ tối */
+    backdrop-filter: blur(3px); /* Làm mờ cảnh vật phía sau */
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    visibility: visible;
+    transition: all 0.3s ease;
+}
+
+    .custom-modal-overlay.hidden {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+.custom-modal-content {
+    background-color: #ffffff;
+    width: 450px;
+    max-width: 90%;
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(0) scale(1);
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    color: #1e293b;
+}
+
+.custom-modal-overlay.hidden .custom-modal-content {
+    transform: translateY(30px) scale(0.95);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f5f9;
+    background-color: #f8fafc;
+    border-radius: 1rem 1rem 0 0;
+}
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+    .btn-close-modal:hover {
+        color: #ef4444;
+        transform: scale(1.1);
+    }
+
+.modal-body {
+    padding: 24px;
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+    .modal-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+        background: #f8fafc;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+.modal-subtitle {
+    margin: 0 0 16px 0;
+    color: #64748b;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.loading-text {
+    color: #64748b;
+    font-style: italic;
+    text-align: center;
+}
+
+.modal-studyset-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.modal-studyset-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+}
+
+    .modal-studyset-item:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .modal-studyset-item h4 {
+        margin: 0;
+        font-size: 1.05rem;
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+.modal-showuser-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+}
+
+    .modal-showuser-item:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .modal-showset-item h4 {
+        margin: 0;
+        font-size: 1.05rem;
+        color: #0f172a;
+        font-weight: 700;
+    }
+
+.btn-modal-add {
+    background-color: #f8fafc;
+    color: #4255ff;
+    border: 1px solid #4255ff;
+    padding: 6px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+    .btn-modal-add:hover:not([disabled]) {
+        background-color: #4255ff;
+        color: #ffffff;
+    }
+
+    .btn-modal-add:disabled {
+        background-color: #f1f5f9;
+        color: #94a3b8;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+    }
+.btn-usermodal-del {
+    
+    border: 1px solid #4255ff;
+    padding: 6px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: 0.2s;
+}

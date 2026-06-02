@@ -78,7 +78,9 @@
                                     }
                                     else if (item.OwnerName == HttpContextAccessor.HttpContext.Session.GetString("UserName"))
                                     {
-                                        <button class="btn btn-primary bg-opacity-10 text-primary border-0 fw-bold rounded-pill px-4" disabled>Lớp của bạn</button>
+                                        <button class="btn btn-light text-primary fw-bold rounded-pill px-4 border border-light-subtle" disabled>
+                                            <i class="bi bi-star-fill text-warning me-1"></i> Lớp của bạn
+                                        </button>
                                     }
                                     else
                                     {
@@ -152,34 +154,40 @@
                     @foreach (var cls in Model.MyClasses)
                     {
                         <div class="col-12 col-md-6 col-lg-4">
-                            <a asp-controller="ClassRoom" asp-action="ClassRoomDetail" asp-route-LinkLop="@cls.Link" class="text-decoration-none">
-                                <div class="card h-100 border border-light-subtle shadow-sm rounded-4 class-card owner-card overflow-hidden transition-smooth bg-white">
-                                    <div class="card-accent-top"></div>
-                                    <div class="card-body p-4 d-flex flex-column">
-                                        <div class="icon-circle bg-success bg-opacity-10 text-success mb-3">
-                                            <i class="bi bi-briefcase-fill"></i>
-                                        </div>
-                                        <h5 class="fw-bold text-dark mb-4 class-title flex-grow-1">@cls.ClassName</h5>
-                                        
-                                        <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3">
-                                            <div class="d-flex align-items-center text-muted small fw-medium text-truncate pe-2">
-                                                @if (!string.IsNullOrEmpty(cls.ExistingAvatarUrl))
-                                                {
-                                                    <img src="@cls.ExistingAvatarUrl" alt="Avatar" class="rounded-circle me-2 object-fit-cover shadow-sm" style="width: 28px; height: 28px; border: 1px solid #e2e8f0;" />
-                                                }
-                                                else
-                                                {
-                                                    <div class="rounded-circle me-2 bg-success bg-opacity-10 text-success d-flex justify-content-center align-items-center" style="width: 28px; height: 28px;">
-                                                        <i class="bi bi-person-fill"></i>
-                                                    </div>
-                                                }
-                                                <span class="text-truncate">Bạn</span>
+                            <div class="card h-100 border border-light-subtle shadow-sm rounded-4 class-card owner-card overflow-hidden transition-smooth bg-white">
+                                <button class="btn-delete-class shadow-sm" data-classcode="@cls.Link" title="Xóa lớp học này">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                                <a asp-controller="ClassRoom" asp-action="ClassRoomDetail" asp-route-LinkLop="@cls.Link" class="text-decoration-none">
+                                
+                                        <div class="card-accent-top"></div>
+                                        <div class="card-body p-4 d-flex flex-column">
+                                            <div class="icon-circle bg-success bg-opacity-10 text-success mb-3">
+                                                <i class="bi bi-briefcase-fill"></i>
                                             </div>
-                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 fw-semibold">Chủ phòng</span>
+                                       
+                                            <h5 class="fw-bold text-dark mb-4 class-title flex-grow-1">@cls.ClassName</h5>
+                                        
+                                            <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3">
+                                                <div class="d-flex align-items-center text-muted small fw-medium text-truncate pe-2">
+                                                    @if (!string.IsNullOrEmpty(cls.ExistingAvatarUrl))
+                                                    {
+                                                        <img src="@cls.ExistingAvatarUrl" alt="Avatar" class="rounded-circle me-2 object-fit-cover shadow-sm" style="width: 28px; height: 28px; border: 1px solid #e2e8f0;" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="rounded-circle me-2 bg-success bg-opacity-10 text-success d-flex justify-content-center align-items-center" style="width: 28px; height: 28px;">
+                                                            <i class="bi bi-person-fill"></i>
+                                                        </div>
+                                                    }
+                                                    <span class="text-truncate">Bạn</span>
+                                                </div>
+                                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 fw-semibold">Chủ phòng</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </a>
+                                
+                                </a>
+                            </div>
                         </div>
                     }
                 </div>
@@ -230,7 +238,8 @@
 
             // Kiểm tra ký tự đầu vào để kích hoạt nút submit
             if (inputName && btnSubmit) {
-                inputName.addEventListener('input', function () {
+                inputName.addEventListener('input', function (e) {
+                    
                     if (inputName.value.trim().length > 0) {
                         btnSubmit.disabled = false;
                     } else {
@@ -238,6 +247,31 @@
                     }
                 });
             }
+            const btnDeleteClass = document.querySelectorAll('.btn-delete-class');
+            btnDeleteClass.forEach(del=> {
+                del.addEventListener('click',async function(){
+                    const classcode = this.getAttribute('data-classcode');
+
+                    try{
+                        const formData = new FormData();
+                        formData.append('classcode',classcode);
+                        const response = await fetch('/ClassRoom/DeleteClass',{
+                            method: 'POST',
+                            body:formData
+                        });
+                        const result = await response.json();
+                        if(result.success == true){
+                            var colItem = this.closest('.col-12');
+                            colItem.remove();
+                        }else{
+                            alert("Database của chúng tôi đang lỗi");
+                        }                        
+                    }catch(error){
+                        alert("Có lỗi");
+                        console.error("Loi:",error);
+                    }
+                });
+            });
         });
     </script>
 }

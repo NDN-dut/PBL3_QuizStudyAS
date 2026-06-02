@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.Services;
+using QuizStudyAS.ViewModels;
 using System.Threading.Tasks;
 
 namespace QuizStudyAS.Controllers
@@ -92,6 +93,12 @@ namespace QuizStudyAS.Controllers
             bool result = await _ClassRoomServices.AddStudySet(classCode, studySetId);
             return Json(new { success = result });
         }
+        [HttpPost]
+        public async Task<IActionResult> DeleteUserOfClass(string classcode,string userid)
+        {
+            bool result = await _ClassRoomServices.DeleteUserOfClass(classcode, userid);
+            return Json(new { success = result });
+        }
 
         [HttpPost]
         public async Task<IActionResult> DeleteStudySetOfClass(string classCode, int studysetid)
@@ -99,7 +106,12 @@ namespace QuizStudyAS.Controllers
             bool result = await _ClassRoomServices.DeleteStudySet(classCode, studysetid);
             return Json(new { success = result });
         }
-
+        [HttpPost]
+        public async Task<IActionResult> DeleteClass(string classcode)
+        {
+            bool result = await _ClassRoomServices.DeleteClassRoom(classcode);
+            return Json(new {success= result });
+        }
         // THÊM API NÀY ĐỂ LẤY SỐ LƯỢNG THÔNG BÁO CHO SIDEBAR
         [HttpGet]
         public async Task<IActionResult> GetPendingRequestCount()
@@ -121,6 +133,11 @@ namespace QuizStudyAS.Controllers
             }
             return Redirect(referer);
         }
-    
+        [HttpGet]
+        public async Task<IActionResult> GetUserOfClass(string classcode)
+        {
+            ClassRoomDetailVM result = await _ClassRoomServices.GetAllUserOfClass(classcode);
+            return Json(result);
+        }
     }
 }
