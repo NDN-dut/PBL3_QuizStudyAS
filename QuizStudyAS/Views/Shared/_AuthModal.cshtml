@@ -278,8 +278,9 @@
                         }
                     }
                 } catch (error) {
+                    console.error("Chi tiết lỗi JavaScript:", error);
                     alertBox.className = "alert alert-danger";
-                    alertBox.textContent = "Có lỗi xảy ra khi kết nối máy chủ.";
+                    alertBox.textContent = error.Message;
                     alertBox.classList.remove("d-none");
                 }
             });
