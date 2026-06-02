@@ -160,7 +160,7 @@
                             <i class="bi bi-trophy-fill fs-5 text-secondary menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Bảng xếp hạng</span>
                         </a>
-                    </li> *@
+                    </li> 
                 }
                 @* --- QUYỀN DÀNH CHO USER --- *@
                 @if (userRole == "User" || userRole == "Admin")
@@ -377,22 +377,7 @@
                 fetchRequestCount();
             });
     </script>
-
     @await RenderSectionAsync("Scripts", required: false)
-    <environment include="Development">
-        <div id="agentation-mount"></div>
-        <script type="module">
-            // Import React và Agentation trực tiếp từ CDN mà không cần cài đặt Node.js hay Webpack
-            import React from 'https://esm.sh/react@18.3.1';
-            import { createRoot } from 'https://esm.sh/react-dom@18.3.1/client';
-            import { Agentation } from 'https://esm.sh/agentation?deps=react@18.3.1,react-dom@18.3.1';
-
-            const mountNode = document.getElementById('agentation-mount');
-            if (mountNode) {
-            const root = createRoot(mountNode);
-            root.render(React.createElement(Agentation));
-            }
-        </script>
-    </environment>
+    
 </body>
 </html>
