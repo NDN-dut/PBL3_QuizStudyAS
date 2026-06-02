@@ -257,5 +257,26 @@ namespace QuizStudyAS.Services
 
             return inventory;
         }
+        public async Task<bool> DeleteStudySetAsync(int id, string userId)
+        {
+            // Vẫn gọi FirstOrDefaultAsync bình thường, EF Core sẽ tự ngầm gắn Query Filter
+            var studySet = await _context.StudySets
+                .FirstOrDefaultAsync(s => s.StudySetId == id);
+
+            // Kiểm tra an toàn: Đảm bảo học phần có tồn tại và đúng chủ sở hữu
+            if (studySet == null || studySet.OwnerUserId != userId)
+            {
+                return false;
+            }
+
+            // Thực hiện Xóa mềm bằng cách đổi trạng thái hiển thị
+            studySet.IsActive = false;
+
+            // Do EF Core đang theo dõi (tracking) sự thay đổi của đối tượng này trong bộ nhớ, 
+            // nó sẽ tự động nhận diện và sinh ra câu lệnh UPDATE thay vì DELETE.
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

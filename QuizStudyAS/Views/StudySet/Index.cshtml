@@ -9,6 +9,20 @@
 }
 
 <div class="container py-4 page-fade-in" style="max-width: 1200px;">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm border-0 mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 shadow-sm border-0 mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5 gap-3">
         <div class="d-flex align-items-center gap-3">
@@ -54,10 +68,13 @@
                             <div class="grimoire-gradient-top"></div>
                             <i class="bi bi-journal-text position-absolute text-light opacity-50 card-watermark"></i>
 
-                            <div class="position-absolute top-0 end-0 m-3 z-3">
+                            <div class="position-absolute top-0 end-0 m-3 z-3 d-flex gap-2">
                                 <a asp-action="Edit" asp-route-id="@item.StudySetId" class="btn btn-light btn-sm rounded-circle shadow-sm edit-btn d-flex justify-content-center align-items-center border" style="width: 36px; height: 36px;" title="Sửa học phần">
                                     <i class="bi bi-pencil-fill text-secondary"></i>
                                 </a>
+                                <button type="button" class="btn btn-light btn-sm rounded-circle shadow-sm delete-btn d-flex justify-content-center align-items-center border text-danger" style="width: 36px; height: 36px;" title="Xóa học phần" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="@item.StudySetId" data-title="@item.Title">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
                             </div>
 
                             <a asp-action="Details" asp-route-id="@item.StudySetId" class="text-decoration-none text-dark d-flex flex-column h-100 p-4 stretched-link z-1">
@@ -151,6 +168,30 @@
     }
 </div>
 
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Xác nhận xóa
+                </h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa học phần <span id="deleteModalItemTitle" class="fw-bold text-dark"></span> không?
+                @* <br /> <small class="text-muted">(Tiến độ ôn tập và lịch sử chơi game của bạn vẫn sẽ được bảo lưu an toàn)</small> *@
+            </div>
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4 fw-semibold" data-bs-dismiss="modal">Hủy</button>
+                <form asp-action="Delete" method="post" id="deleteForm">
+                    <input type="hidden" name="id" id="deleteStudySetId" value="" />
+                    <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold">Xóa học phần</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -218,6 +259,19 @@
                     suggestionsBox.classList.add('d-none');
                 }
             });
+
+            // Logic xử lý truyền dữ liệu vào Modal Xóa
+            const deleteModal = document.getElementById('deleteModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const id = button.getAttribute('data-id');
+                    const title = button.getAttribute('data-title');
+
+                    document.getElementById('deleteStudySetId').value = id;
+                    document.getElementById('deleteModalItemTitle').textContent = '"' + title + '"';
+                });
+            }
         });
     </script>
 }
