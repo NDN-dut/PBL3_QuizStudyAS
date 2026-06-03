@@ -9,6 +9,7 @@ namespace QuizStudyAS.Services
     {
         public int ClassroomId { get; set; }
         public string ClassName { get; set; }
+        public string ClassCode {  get; set; }
         public bool IsAdded { get; set; } // Kiểm tra xem bộ thẻ đã nằm trong lớp này chưa
     }
 
