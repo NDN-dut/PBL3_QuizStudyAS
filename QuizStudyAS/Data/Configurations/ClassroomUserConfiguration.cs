@@ -22,6 +22,9 @@ namespace QuizStudyAS.Data.Configurations
                    .WithMany(u => u.JoinedClassrooms)
                    .HasForeignKey(cu => cu.UserId)
                    .OnDelete(DeleteBehavior.Restrict);
+
+            // Bổ sung đồng bộ Query Filter: Ẩn User nếu lớp học đã bị xóa
+            builder.HasQueryFilter(cu => cu.Classroom.StatusId != (int)ClassroomStatusEnum.DeletedByUser);
         }
     }
 }

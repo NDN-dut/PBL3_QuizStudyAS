@@ -25,8 +25,9 @@ namespace QuizStudyAS.Data.Configurations
                 .HasForeignKey(e => e.StudySetId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Đồng bộ Query Filter với StudySet
-            builder.HasQueryFilter(e => e.StudySet.StatusId == 1);
+            // Tài liệu chỉ hiện khi CẢ học phần VÀ lớp học đều không bị xóa mềm
+            builder.HasQueryFilter(cm => cm.StudySet.StatusId != (int)StudySetStatusEnum.DeletedByUser
+                                      && cm.ClassRoom.StatusId != (int)ClassroomStatusEnum.DeletedByUser);
         }
     }
 }

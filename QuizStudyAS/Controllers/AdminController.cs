@@ -94,13 +94,14 @@ namespace QuizStudyAS.Controllers
 
         [HttpGet]
         // BỔ SUNG: Tham số pageIndex (mặc định = 1)
-        public IActionResult ManageClassrooms(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1)
+        public IActionResult ManageClassrooms(string searchString, int? statusId, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1)
         {
             int pageSize = 10;
-            var classrooms = _adminService.GetFilteredClassrooms(searchString, isActive, ownerName, fromDate, toDate, pageIndex, pageSize);
+            var classrooms = _adminService.GetFilteredClassrooms(searchString, statusId, ownerName, fromDate, toDate, pageIndex, pageSize);
 
             ViewBag.CurrentSearch = searchString;
-            ViewBag.CurrentIsActive = isActive;
+            // THAY ĐỔI: Đổi tên ViewBag để View nhận diện được
+            ViewBag.CurrentStatusId = statusId;
             ViewBag.CurrentOwnerName = ownerName;
             ViewBag.CurrentFromDate = fromDate?.ToString("yyyy-MM-dd");
             ViewBag.CurrentToDate = toDate?.ToString("yyyy-MM-dd");

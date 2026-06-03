@@ -26,9 +26,25 @@ namespace QuizStudyAS.Data
         public DbSet<AuthProvider> AuthProviders { get; set; }
         // BỔ SUNG BẢNG MỚI TẠI ĐÂY
         public DbSet<StudySetStatus> StudySetStatuses { get; set; }
+        // BỔ SUNG BẢNG MỚI TẠI ĐÂY
+        public DbSet<ClassroomStatus> ClassroomStatuses { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Mồi dữ liệu cho StudySetStatus (Giữ lại để không bị lỗi Migration)
+            modelBuilder.Entity<StudySetStatus>().HasData(
+                new StudySetStatus { StatusId = 1, Name = "Active" },
+                new StudySetStatus { StatusId = 2, Name = "DeletedByUser" },
+                new StudySetStatus { StatusId = 3, Name = "LockedByAdmin" }
+            );
+
+            // Mồi dữ liệu cho ClassroomStatus
+            modelBuilder.Entity<ClassroomStatus>().HasData(
+                new ClassroomStatus { StatusId = 1, Name = "Active" },
+                new ClassroomStatus { StatusId = 2, Name = "DeletedByUser" },
+                new ClassroomStatus { StatusId = 3, Name = "LockedByAdmin" }
+            );
 
             // Tự động quét và áp dụng tất cả các file kế thừa IEntityTypeConfiguration trong Project
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);

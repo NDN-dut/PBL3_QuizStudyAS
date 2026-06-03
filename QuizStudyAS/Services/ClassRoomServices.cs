@@ -27,7 +27,8 @@ namespace QuizStudyAS.Services
             AdditionAlgrothim AddAl = new AdditionAlgrothim(_context);
             string currentUserId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
 
-            var allClassBasicInfo = await _context.Classrooms.Where(c=>c.IsActive==true)
+            // THAY THẾ DÒNG CŨ: var allClassBasicInfo = await _context.Classrooms.Where(c=>c.IsActive==true)
+            var allClassBasicInfo = await _context.Classrooms.Where(c=>c.StatusId == (int)ClassroomStatusEnum.Active)
                                 .Select(c => new { c.ClassroomId, c.ClassName })
                                 .ToListAsync();
 
@@ -96,8 +97,9 @@ namespace QuizStudyAS.Services
         public async Task<YourClassVM> GetYourClass()
         {
             var UserID = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            // SỬA: Đổi điều kiện thành != DeletedByUser (2)
             var MyOwerClass = await _context.Classrooms
-                .Where(p=> p.OwnerUserId == UserID && p.IsActive==true)
+                .Where(p => p.OwnerUserId == UserID && p.StatusId != (int)ClassroomStatusEnum.DeletedByUser)
                 .Select(c=>new ShowClassRoom{
                     ClassName = c.ClassName,
                     Link = c.InviteCode,
@@ -106,8 +108,9 @@ namespace QuizStudyAS.Services
                     Status_Class = "OWNER"
                 }).ToListAsync();
 
+            // Sửa câu truy vấn MyJoinedClass:
             var MyJoinedClass = await _context.ClassroomUsers
-                .Where(p => p.UserId == UserID && p.Status == "STUDYING" && p.Classroom.IsActive==true)
+                .Where(p => p.UserId == UserID && p.Status == "STUDYING" && p.Classroom.StatusId == (int)ClassroomStatusEnum.Active)
                 .Select(c => new ShowClassRoom
                 {
                     ClassName = c.Classroom.ClassName,
@@ -127,7 +130,7 @@ namespace QuizStudyAS.Services
         public async Task<ListRequestJoinVM> GetJoinVMs()
         {
             var ListRequestJoin = await _context.RequestJoinClasses
-                .Where(e => e.Classroom.OwnerUserId == _httpContextAccessor.HttpContext.Session.GetString("UserId") && e.Status == "PENDING" && e.Classroom.IsActive==true)
+                .Where(e => e.Classroom.OwnerUserId == _httpContextAccessor.HttpContext.Session.GetString("UserId") && e.Status == "PENDING" && e.Classroom.StatusId == (int)ClassroomStatusEnum.Active)
                 .Select(e => new RequestJoinVM
                 {
                     UserId = e.UserId,
@@ -222,7 +225,8 @@ namespace QuizStudyAS.Services
                     ExistingAvatarUrl = e.OwnerUser.AvatarUrl,
                     ClassCode = LinkLop,
                     // THÊM DÒNG NÀY: Lấy cờ khóa từ Database
-                    IsActive = e.IsActive,
+                    // Đổi IsActive sang đối chiếu với StatusId
+                    IsActive = e.StatusId == (int)ClassroomStatusEnum.Active,
                     StudySets = e.Materials.
                                 Where(s => s.Status == "AVAILABLE").
                                 Select(k => new StudySetItemVM
@@ -285,7 +289,9 @@ namespace QuizStudyAS.Services
             {
                 return false;
             }
-            classroom.IsActive = false;
+            // THAY THẾ DÒNG CŨ: classroom.IsActive = false;
+            // Thực hiện Xóa mềm bằng Enum
+            classroom.StatusId = (int)ClassroomStatusEnum.DeletedByUser;
             await _context.SaveChangesAsync();
             
             return true;

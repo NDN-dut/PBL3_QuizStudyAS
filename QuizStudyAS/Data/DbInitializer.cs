@@ -80,10 +80,10 @@ namespace QuizStudyAS.Data
             {
                 var classroomArray = new Classroom[]
                 {
-                    new Classroom { ClassName = "Lớp Kiến trúc Phần mềm (OOP/GRASP)", InviteCode = "GRASP2026", OwnerUserId = usersDict["admin_teacher"].Id, IsActive = true},
-                    new Classroom { ClassName = "Lớp Mạng Máy Tính Cơ Bản", InviteCode = "NET2026", OwnerUserId = usersDict["admin_teacher"].Id, IsActive = true },
-                    new Classroom { ClassName = "CLB Lịch sử & Chiến thuật", InviteCode = "HIS2026", OwnerUserId = usersDict["sv_it_01"].Id, IsActive = true },
-                    new Classroom { ClassName = "Ôn thi JLPT N3 Cấp tốc", InviteCode = "N3PASS", OwnerUserId = usersDict["sv_nn_03"].Id, IsActive = true }
+                    new Classroom { ClassName = "Lớp Kiến trúc Phần mềm (OOP/GRASP)", InviteCode = "GRASP2026", OwnerUserId = usersDict["admin_teacher"].Id, StatusId = 1},
+                    new Classroom { ClassName = "Lớp Mạng Máy Tính Cơ Bản", InviteCode = "NET2026", OwnerUserId = usersDict["admin_teacher"].Id, StatusId = 1 },
+                    new Classroom { ClassName = "CLB Lịch sử & Chiến thuật", InviteCode = "HIS2026", OwnerUserId = usersDict["sv_it_01"].Id, StatusId = 1 },
+                    new Classroom { ClassName = "Ôn thi JLPT N3 Cấp tốc", InviteCode = "N3PASS", OwnerUserId = usersDict["sv_nn_03"].Id, StatusId = 1 }
                 };
                 context.Classrooms.AddRange(classroomArray);
                 context.SaveChanges();
