@@ -167,12 +167,12 @@ namespace QuizStudyAS.Services
         {
             // 1. CHỈ LẤY DANH SÁCH CÁC LỚP DO CHÍNH USER NÀY TẠO RA (LÀM CHỦ)
             var ownedClasses = await _context.Classrooms
-                .Where(c => c.OwnerUserId == userId)
+                .Where(c => c.OwnerUserId == userId && c.StatusId == (int)ClassroomStatusEnum.Active)
                 .ToListAsync();
 
             // 2. Lấy ID các lớp đã được thêm bộ thẻ này (kiểm tra trạng thái Đã thêm)
             var sharedClassIds = await _context.ClassRoomMaterials
-                .Where(cm => cm.StudySetId == studySetId)
+                .Where(cm => cm.StudySetId == studySetId && cm.Status == "AVAILABLE")
                 .Select(cm => cm.ClassRoomId)
                 .ToListAsync();
 
@@ -181,6 +181,7 @@ namespace QuizStudyAS.Services
             {
                 ClassroomId = c.ClassroomId,
                 ClassName = c.ClassName,
+                ClassCode = c.InviteCode,
                 IsAdded = sharedClassIds.Contains(c.ClassroomId)
             }).ToList();
         }

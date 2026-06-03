@@ -293,6 +293,26 @@
         }
 
         function addToClass(studySetId, classCode, btn) {
+            /*try{
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+                btn.disabled = true;
+
+                fetch(`/StudySet/AddSetToClass`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ studySetId: studySetId, classCode: classCode })
+                })
+                    .then(res => await res.json())
+                    .then(data => {
+                        if (data.success) {
+                            btn.className = 'btn btn-sm btn-success px-3 rounded-pill fw-bold';
+                            btn.innerHTML = '<i class="bi bi-check-lg"></i> Đã thêm';
+                        }
+                    });
+            }catch(error){
+                console.error("Lỗi : ", error);
+                alert("Lỗi kết nối với Database");
+            }*/
             btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
             btn.disabled = true;
 
@@ -306,6 +326,10 @@
                     if (data.success) {
                         btn.className = 'btn btn-sm btn-success px-3 rounded-pill fw-bold';
                         btn.innerHTML = '<i class="bi bi-check-lg"></i> Đã thêm';
+                    }else{
+                        
+                        alert("Lỗi hệ thống ");
+
                     }
                 });
         }
