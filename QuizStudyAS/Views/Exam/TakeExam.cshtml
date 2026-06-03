@@ -1,0 +1,163 @@
+﻿@model QuizStudyAS.Models.ExamAttempt
+
+@{
+    ViewData["Title"] = Model.Exam.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Tính toán deadline thực tế ngay trên Razor (Server-side) để truyền xuống JS
+    var durationDeadline = Model.StartedAt.AddMinutes(Model.Exam.DurationMinutes);
+    var actualDeadline = durationDeadline < Model.Exam.EndTime ? durationDeadline : Model.Exam.EndTime;
+}
+
+<div class="container py-4 page-fade-in" style="max-width: 900px;">
+    <div class="card shadow-sm mb-4 border-0 rounded-4 sticky-top" style="top: 20px; z-index: 1000;">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0 text-primary fw-bold">@Model.Exam.Title</h4>
+                <small class="text-muted">Bắt đầu: @Model.StartedAt.ToString("HH:mm dd/MM/yyyy")</small>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-danger fs-5" id="countdown-timer">Đang tính giờ...</span>
+            </div>
+        </div>
+    </div>
+
+    <form id="examForm">
+        <input type="hidden" id="AttemptId" value="@Model.AttemptId" />
+
+        @{
+            int questionIndex = 1;
+        }
+        @foreach (var question in Model.Exam.ExamQuestions)
+        {
+            <div class="card mb-4 border-0 rounded-4 shadow-sm grimoire-card" id="question-@question.QuestionId">
+                <div class="card-body">
+                    <h5 class="card-title">Câu @questionIndex: @question.Content</h5>
+                    <hr />
+                    <div class="options-container mt-3">
+                        @foreach (var option in question.Options)
+                        {
+                            <div class="form-check custom-radio mb-2">
+                                <input class="form-check-input question-option"
+                                       type="radio"
+                                       name="q_@question.QuestionId"
+                                       id="opt_@option.OptionId"
+                                       value="@option.OptionId"
+                                       data-question-id="@question.QuestionId">
+                                <label class="form-check-label w-100 cursor-pointer" for="opt_@option.OptionId">
+                                    @option.Content
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            questionIndex++;
+        }
+
+        <div class="text-center mt-5 mb-5">
+            <button type="button" class="btn btn-primary btn-lg px-5 rounded-pill transition-btn" id="btnSubmitExam">
+                <i class="bi bi-check2-circle"></i> Nộp Bài Kiểm Tra
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Lấy thời gian Deadline từ Server (dạng chuỗi ISO an toàn)
+            const deadlineTime = new Date('@actualDeadline.ToString("yyyy-MM-ddTHH:mm:ss")').getTime();
+            const timerDisplay = document.getElementById('countdown-timer');
+            const btnSubmit = document.getElementById('btnSubmitExam');
+            let isSubmitting = false;
+
+            // 1. LOGIC ĐỒNG HỒ ĐẾM NGƯỢC
+            const timerInterval = setInterval(function () {
+                const now = new Date().getTime();
+                const distance = deadlineTime - now;
+
+                if (distance <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.innerHTML = "HẾT GIỜ";
+                    timerDisplay.classList.replace('bg-danger', 'bg-dark');
+
+                    if (!isSubmitting) {
+                        alert("Đã hết thời gian làm bài! Hệ thống sẽ tự động nộp bài của bạn.");
+                        submitExam();
+                    }
+                    return;
+                }
+
+                // Tính toán phút và giây
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // Format hiển thị (vd: 09:05)
+                timerDisplay.innerHTML =
+                    (minutes < 10 ? "0" : "") + minutes + ":" +
+                    (seconds < 10 ? "0" : "") + seconds;
+
+            }, 1000);
+
+            // 2. SỰ KIỆN NÚT NỘP BÀI THỦ CÔNG
+            btnSubmit.addEventListener('click', function () {
+                if (confirm("Bạn có chắc chắn muốn nộp bài lúc này không?")) {
+                    submitExam();
+                }
+            });
+
+            // 3. HÀM XỬ LÝ GỬI API (AUTO-SUBMIT VÀ MANUAL-SUBMIT)
+            function submitExam() {
+                if (isSubmitting) return;
+                isSubmitting = true;
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang nộp bài...';
+                clearInterval(timerInterval); // Dừng đồng hồ
+
+                const attemptId = document.getElementById('AttemptId').value;
+                const answers = [];
+
+                // Quét toàn bộ các câu hỏi đã được chọn đáp án
+                const selectedOptions = document.querySelectorAll('.question-option:checked');
+                selectedOptions.forEach(function (radio) {
+                    answers.push({
+                        QuestionId: parseInt(radio.getAttribute('data-question-id')),
+                        SelectedOptionId: parseInt(radio.value)
+                    });
+                });
+
+                // Gửi dữ liệu qua Fetch API
+                fetch('/Exam/SubmitExam', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        attemptId: attemptId,
+                        answers: answers
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message + "\\nĐiểm số của bạn: " + data.score);
+                        window.location.href = '/ClassRoom/Index'; // Trở về trang lớp học
+                    } else {
+                        alert("Lỗi: " + data.message);
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = 'Thử nộp lại';
+                        isSubmitting = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("Đã xảy ra lỗi kết nối. Vui lòng thử lại!");
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = 'Thử nộp lại';
+                    isSubmitting = false;
+                });
+            }
+        });
+    </script>
+}
