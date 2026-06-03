@@ -20,6 +20,9 @@ namespace QuizStudyAS.Data.Configurations
                    .WithMany() // Flashcard không cần thiết chứa danh sách Progress
                    .HasForeignKey(lp => lp.FlashcardId)
                    .OnDelete(DeleteBehavior.Cascade);
+
+            // Đồng bộ Query Filter: Chỉ lấy tiến độ của những thẻ thuộc về học phần đang Active
+            builder.HasQueryFilter(lp => lp.Flashcard.StudySet.StatusId == 1);
         }
     }
 }

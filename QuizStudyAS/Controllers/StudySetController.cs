@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.Services;
 using QuizStudyAS.ViewModels;
+using QuizStudyAS.Models; // THÊM DÒNG NÀY
 
 namespace QuizStudyAS.Controllers
 {
@@ -130,9 +131,9 @@ namespace QuizStudyAS.Controllers
             var studySet = await _studySetService.GetStudySetByIdAsync(id);
             if (studySet == null) return NotFound();
 
-            // THÊM DÒNG NÀY: Kiểm tra nếu bị khóa
-            if (!studySet.IsActive)
-                return RedirectToRefererWithLockMessage("Học phần này đã bị khóa bởi Quản trị viên hệ thống.");
+            // THAY THẾ DÒNG CŨ: if (!studySet.IsActive)
+                if (studySet.StatusId != (int)StudySetStatusEnum.Active)
+                    return RedirectToRefererWithLockMessage("Học phần này đã bị khóa bởi Quản trị viên hệ thống.");
 
             // Lệnh này sẽ tự động tìm và render file Views/StudySet/Learn.cshtml 
             // (Nơi chứa giao diện lật thẻ 3D cũ)
@@ -146,8 +147,8 @@ namespace QuizStudyAS.Controllers
             var studySet = await _studySetService.GetStudySetByIdAsync(id);
             if (studySet == null) return NotFound();
 
-            // THÊM DÒNG NÀY: Kiểm tra nếu bị khóa
-            if (!studySet.IsActive)
+            // THAY THẾ DÒNG CŨ: if (!studySet.IsActive)
+            if (studySet.StatusId != (int)StudySetStatusEnum.Active)
                 return RedirectToRefererWithLockMessage("Học phần này đã bị khóa bởi Quản trị viên hệ thống.");
 
             // Lệnh này sẽ tự động tìm và render file Views/StudySet/Details.cshtml
@@ -221,8 +222,8 @@ namespace QuizStudyAS.Controllers
             var studySet = await _studySetService.GetStudySetByIdAsync(id);
             if (studySet == null) return NotFound();
 
-            // THÊM DÒNG NÀY: Kiểm tra nếu bị khóa
-            if (!studySet.IsActive)
+            // THAY THẾ DÒNG CŨ: if (!studySet.IsActive)
+            if (studySet.StatusId != (int)StudySetStatusEnum.Active)
                 return RedirectToRefererWithLockMessage("Học phần này đã bị khóa bởi Quản trị viên hệ thống.");
 
             // 1. Ràng buộc cơ bản: Phải có ít nhất 1 thẻ để chơi (dành cho chế độ Tự luận)
@@ -303,6 +304,27 @@ namespace QuizStudyAS.Controllers
                 return RedirectToAction("Index", "Home");
             }
             return Redirect(referer);
+        }
+        // 8. XÓA MỀM BỘ THẺ (POST)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId)) return RedirectToAction("Index", "Home");
+
+            // Gọi hàm xóa mềm dưới tầng Service
+            var success = await _studySetService.DeleteStudySetAsync(id, userId);
+
+            if (!success)
+            {
+                // Có thể là do không tìm thấy bộ thẻ, hoặc người dùng không phải là chủ sở hữu
+                TempData["ErrorMessage"] = "Có vẻ như không thể xóa học phần này hoặc bạn không có quyền thực hiện.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            TempData["SuccessMessage"] = "Học phần đã được xóa thành công.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

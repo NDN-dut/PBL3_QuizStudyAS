@@ -24,6 +24,9 @@ namespace QuizStudyAS.Data.Configurations
                 .WithMany(p => p.MaterialsOf)
                 .HasForeignKey(e => e.StudySetId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Đồng bộ Query Filter với StudySet
+            builder.HasQueryFilter(e => e.StudySet.StatusId == 1);
         }
     }
 }

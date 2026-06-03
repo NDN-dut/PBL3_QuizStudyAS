@@ -10,10 +10,14 @@
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
-        public bool IsActive { get; set; } = true;
+        //public bool IsActive { get; set; } = true;
+        // --- THAY ĐỔI TẠI ĐÂY: Khóa ngoại trỏ sang bảng Trạng thái ---
+        public int StatusId { get; set; } = (int)StudySetStatusEnum.Active;
 
         // --- Navigation Properties ---
         public virtual ApplicationUser OwnerUser { get; set; }
+        // Thuộc tính liên kết đến bảng tra cứu trạng thái
+        public virtual StudySetStatus Status { get; set; }
         public virtual ICollection<Flashcard> Flashcards { get; set; }
         public virtual ICollection<ClassRoomMaterial> MaterialsOf { get; set; }
 

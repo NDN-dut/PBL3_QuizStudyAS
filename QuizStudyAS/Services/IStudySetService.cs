@@ -26,5 +26,6 @@ namespace QuizStudyAS.Services
         Task<bool> AddStudySetToClassAsync(int studySetId, int classroomId);
 
         Task<StudySetInventoryVM> GetInventoryByUserIdAsync(string userId);
+        Task<bool> DeleteStudySetAsync(int id, string userId);
     }
 }
