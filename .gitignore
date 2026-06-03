@@ -366,5 +366,7 @@ FodyWeavers.xsd
 appsettings.json
 appsettings.Development.json
 /QuizStudyAS/appsettings.json
+
 /QuizStudyAS/appsettings.Example.json
 /QuizStudyAS/appsettings.Development.json
+

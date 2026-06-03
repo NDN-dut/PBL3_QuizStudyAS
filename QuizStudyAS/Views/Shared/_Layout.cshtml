@@ -152,28 +152,8 @@
                     </li>
 
                     <li class="nav-item">
-                        @*<a asp-controller="Classroom" asp-action="JoinRequests" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "JoinRequests")">
-                            <i class="bi bi-bell fs-5 text-info menu-icon position-relative">
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger request-badge-count" style="font-size: 0.55rem; padding: 0.35em 0.5em; display: none; transition: all 0.3s ease;">0</span>
-                              </i>
-                        </a>*@
-                        <a asp-controller="Admin" asp-action="ManageClassrooms" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Admin", "ManageClassrooms")">
-                            <i class="bi bi-easel-fill fs-5 text-success menu-icon"></i>
-                            <span class="sidebar-text ms-3 fw-bold">Quản lý lớp học</span>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a asp-controller="Admin" asp-action="ManageStudySets" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Admin", "ManageStudySets")">
-                            <i class="bi bi-journal-text fs-5 text-warning menu-icon"></i>
-                            <span class="sidebar-text ms-3 fw-bold">Quản lý học phần</span>
-                        </a>
-                    </li>
-
-                    @* <li class="nav-item">
                         <a asp-controller="Classroom" asp-action="JoinRequests" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "JoinRequests")">
                             <i class="bi bi-bell fs-5 text-info menu-icon"></i>
-
                             <span class="sidebar-text ms-3 fw-bold">Thông báo</span>
                         </a>
                     </li>
@@ -182,7 +162,7 @@
                             <i class="bi bi-trophy-fill fs-5 text-secondary menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Bảng xếp hạng</span>
                         </a>
-                    </li> *@
+                    </li> 
                 }
                 @* --- QUYỀN DÀNH CHO USER --- *@
                 @if (userRole == "User" || userRole == "Admin")
@@ -203,9 +183,7 @@
                     </li>
                     <li class="nav-item">
                         <a asp-controller="Classroom" asp-action="JoinRequests" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "JoinRequests")">
-                            <i class="bi bi-bell fs-5 text-info menu-icon position-relative">
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger request-badge-count" style="font-size: 0.55rem; padding: 0.35em 0.5em; display: none; transition: all 0.3s ease;">0</span>
-                            </i>
+                            <i class="bi bi-bell fs-5 text-info menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Thông báo</span>
                         </a>
                     </li>
@@ -429,22 +407,7 @@
                 fetchRequestCount();
             });
     </script>
-
     @await RenderSectionAsync("Scripts", required: false)
-    <environment include="Development">
-        <div id="agentation-mount"></div>
-        <script type="module">
-            // Import React và Agentation trực tiếp từ CDN mà không cần cài đặt Node.js hay Webpack
-            import React from 'https://esm.sh/react@18.3.1';
-            import { createRoot } from 'https://esm.sh/react-dom@18.3.1/client';
-            import { Agentation } from 'https://esm.sh/agentation?deps=react@18.3.1,react-dom@18.3.1';
-
-            const mountNode = document.getElementById('agentation-mount');
-            if (mountNode) {
-            const root = createRoot(mountNode);
-            root.render(React.createElement(Agentation));
-            }
-        </script>
-    </environment>
+    
 </body>
 </html>

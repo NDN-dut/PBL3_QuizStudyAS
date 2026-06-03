@@ -240,6 +240,7 @@
 
 @section Scripts {
     <script>
+        
         const allCards = @Html.Raw(Json.Serialize(Model.Flashcards.Select(f => new { term = f.Term, def = f.Definition })));
         let currentDeck = allCards.map(c => ({ ...c, status: null }));
         let currentIndex = 0;
@@ -264,12 +265,6 @@
             loadCard('right');
         });
 
-<<<<<<< HEAD
-        // Lật thẻ khi Click
-        uiCard.addEventListener('click', () => {
-           uiCard.classList.toggle('flipped');
-        });
-=======
         document.getElementById('flashcard').onclick = function () {
             this.classList.toggle('flipped');
         };
@@ -282,7 +277,7 @@
             uiLiveKnown.innerText = k;
             uiLiveUnknown.innerText = u;
         }
->>>>>>> 40dca79edf674e3cf4de874162d3ab41a3ea1243
+
 
         // HÀM TẢI THẺ (ĐÃ FIX LỖI MẤT 3D VÀ TRƯỢT MƯỢT MÀ)
         function loadCard(direction = 'right') {

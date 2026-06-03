@@ -24,6 +24,7 @@ namespace QuizStudyAS.Services
                 return ServiceResult.IsError("Tên tài khoản hoặc Email đã được sử dụng.");
             }
 
+            // 1. Tìm hoặc tạo quyền mặc định (User)
             var defaultRole = _context.Roles.FirstOrDefault(r => r.RoleName == "User");
             if (defaultRole == null)
             {
@@ -32,16 +33,27 @@ namespace QuizStudyAS.Services
                 _context.SaveChanges();
             }
 
+            // 2. Tìm hoặc tạo AuthProvider mặc định (Local) - ĐÂY LÀ PHẦN CODE ĐƯỢC THÊM VÀO
+            var localProvider = _context.AuthProviders.FirstOrDefault(p => p.Name == "Local");
+            if (localProvider == null)
+            {
+                localProvider = new AuthProvider { Name = "Local" };
+                _context.AuthProviders.Add(localProvider);
+                _context.SaveChanges();
+            }
+
+            // 3. Khởi tạo User mới với đầy đủ thông tin
             var newUser = new ApplicationUser
             {
                 UserName = username,
                 Email = email,
                 PasswordHash = _passwordHasher.HashPassword(password),
-                RoleId = defaultRole.RoleId
+                RoleId = defaultRole.RoleId,
+                AuthProvider = localProvider // ĐÃ SỬA LỖI: Gán AuthProvider để không bị lỗi Khóa ngoại
             };
 
             _context.Users.Add(newUser);
-            _context.SaveChanges();
+            _context.SaveChanges(); // Khúc này sẽ chạy mượt mà 100%
 
             return ServiceResult.IsSuccess("Đăng ký thành công! Vui lòng đăng nhập.");
         }

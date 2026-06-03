@@ -11,7 +11,7 @@ body.dark-theme #main-content {
     color: #e0e0e0 !important;
 }
 
-    /* 2. Biến các khối trắng (Navbar, Sidebar, Card, Search) thành Xám Đậm */
+    /* 2. Biến các khối trắng thành Xám Đậm */
     body.dark-theme .bg-white,
     body.dark-theme .bg-light,
     body.dark-theme .card,
@@ -23,25 +23,32 @@ body.dark-theme #main-content {
     body.dark-theme .input-group,
     body.dark-theme .list-group-item,
     body.dark-theme .flip-card-front,
-    body.dark-theme .flip-card-back {
+    body.dark-theme .flip-card-back,
+    body.dark-theme .table {
         background-color: #242424 !important;
         color: #e0e0e0 !important;
         border-color: #3f3f3f !important;
     }
 
-    /* 3. Ép toàn bộ Tiêu đề và Văn bản thành Trắng Xám (Chống chói) */
+    /* 3. Ép toàn bộ Tiêu đề, Văn bản và các class Bootstrap cứng đầu thành Trắng Xám */
     body.dark-theme h1, body.dark-theme h2, body.dark-theme h3,
     body.dark-theme h4, body.dark-theme h5, body.dark-theme h6,
-    body.dark-theme p, body.dark-theme span,
+    body.dark-theme p, body.dark-theme span, body.dark-theme label,
     body.dark-theme .text-dark,
     body.dark-theme .fw-bold.text-dark,
-    body.dark-theme .display-4 {
+    body.dark-theme .display-4,
+    body.dark-theme .dropdown-item {
         color: #f1f1f1 !important;
     }
 
-    /* Fix chữ xám nhạt */
+    /* Fix chữ xám nhạt và hover dropdown */
     body.dark-theme .text-muted {
         color: #a0a0a0 !important;
+    }
+
+    body.dark-theme .dropdown-item:hover {
+        background-color: #333 !important;
+        color: #fff !important;
     }
 
     /* 4. Fix màu hiển thị của Sidebar Menu */
@@ -62,24 +69,28 @@ body.dark-theme #main-content {
     body.dark-theme .form-control,
     body.dark-theme .form-select,
     body.dark-theme #search-input {
-        background-color: transparent !important;
+        background-color: #1e1e1e !important; /* Đổi sang nền xám đậm thay vì trong suốt để chống chói chữ */
         color: #f1f1f1 !important;
         border-color: #444 !important;
     }
 
-        body.dark-theme .form-control:focus {
+        body.dark-theme .form-control:focus,
+        body.dark-theme .form-select:focus {
             background-color: #333 !important;
             color: #fff !important;
-            border-color: #5865f2 !important;
+            border-color: #6ea8fe !important;
+            box-shadow: 0 0 0 0.25rem rgba(110, 168, 254, 0.25) !important;
         }
 
-        body.dark-theme #search-input::placeholder {
+        body.dark-theme #search-input::placeholder,
+        body.dark-theme .form-control::placeholder {
             color: #888 !important;
         }
 
     body.dark-theme .input-group-text {
-        background-color: transparent !important;
+        background-color: #242424 !important;
         border-color: #3f3f3f !important;
+        color: #a0a0a0 !important;
     }
 
         body.dark-theme .input-group-text i {
@@ -100,6 +111,7 @@ body.dark-theme #main-content {
 
         body.dark-theme .btn-light:hover {
             background-color: #444 !important;
+            color: #fff !important;
         }
 
         /* Nút sửa màu vàng giữ nguyên */
@@ -139,3 +151,138 @@ body.dark-theme #main-content {
         border-color: #6ea8fe !important;
         box-shadow: 0 0 0 0.25rem rgba(110, 168, 254, 0.25);
     }
+
+    /* ==========================================
+   FIX NÚT BẤM TRANG DETAILS (DARK MODE)
+   ========================================== */
+
+    /* Nút Học Ghi Nhớ (Primary): Giữ màu xanh, làm sáng chữ và viền */
+    body.dark-theme .btn-qz-action-primary {
+        background-color: #4255ff !important;
+        color: #ffffff !important;
+        border-color: #4255ff !important;
+        box-shadow: 0 4px 12px rgba(66, 85, 255, 0.4) !important; /* Thêm ánh sáng xanh nhẹ để nổi bật trên nền đen */
+    }
+
+        body.dark-theme .btn-qz-action-primary:hover {
+            background-color: #5b6cff !important;
+            border-color: #5b6cff !important;
+        }
+
+    /* Nút Luyện Tập Quiz (Secondary): Đổi nền trắng/xanh nhạt thành xanh trong suốt mờ ảo */
+    body.dark-theme .btn-qz-action-secondary {
+        background-color: rgba(66, 85, 255, 0.15) !important;
+        color: #8295ff !important; /* Chữ xanh sáng */
+        border-color: transparent !important;
+    }
+
+        body.dark-theme .btn-qz-action-secondary:hover {
+            background-color: rgba(66, 85, 255, 0.25) !important;
+            color: #a3b1ff !important;
+        }
+
+    /* Nút Thêm Vào Lớp (Outline): Đổi nền trắng thành xám đậm, chữ sáng */
+    body.dark-theme .btn-qz-action-outline {
+        background-color: #242424 !important;
+        color: #e0e0e0 !important;
+        border-color: #3f3f3f !important;
+    }
+
+        body.dark-theme .btn-qz-action-outline:hover {
+            background-color: #333 !important;
+            border-color: #555 !important;
+            color: #ffffff !important;
+        }
+
+    /* ==========================================
+   FIX GIAO DIỆN HỌC GHI NHỚ (LEARN.CSHTML)
+   ========================================== */
+
+    /* 1. Xóa nền trắng chói lóa của toàn bộ khu vực học */
+    body.dark-theme .focus-mode-bg {
+        background-color: transparent !important;
+    }
+
+    /* 2. Fix mặt sau của thẻ (Xóa cái gradient trắng/xanh sáng của chế độ Light) */
+    body.dark-theme .flip-card-back {
+        background: #242424 !important;
+        border-color: #3f3f3f !important;
+    }
+
+    /* 3. Fix các nút điều hướng (Trái / Phải) */
+    body.dark-theme .btn-circle-nav {
+        background-color: #242424 !important;
+        border-color: #3f3f3f !important;
+        color: #f1f1f1 !important;
+    }
+
+        body.dark-theme .btn-circle-nav:hover {
+            background-color: #333 !important;
+            border-color: #555 !important;
+        }
+
+        body.dark-theme .btn-circle-nav i {
+            color: #f1f1f1 !important;
+        }
+
+    /* 4. Fix nút "Chưa thuộc" (Đổi nền trắng thành xám tối) */
+    body.dark-theme #btn-unknown {
+        background-color: #242424 !important;
+        color: #e0e0e0 !important;
+        border-color: #3f3f3f !important;
+    }
+
+        body.dark-theme #btn-unknown:hover {
+            background-color: #333 !important;
+            color: #fff !important;
+        }
+
+    /* 5. Fix bảng Thống kê Kết quả (Result Screen) khi học xong */
+    body.dark-theme #result-screen {
+        background-color: #1e1e1e !important;
+        border-color: #333 !important;
+    }
+
+        body.dark-theme #result-screen .bg-primary.bg-opacity-10 {
+            background-color: rgba(66, 85, 255, 0.15) !important; /* Xanh dương tối mờ */
+        }
+
+        body.dark-theme #result-screen .bg-light {
+            background-color: #242424 !important;
+        }
+
+    /* 5. Phá vỡ nền trắng dốc (gradient) bị gán cứng bằng inline-style ở khu vực Bục vinh quang */
+    body.dark-theme .arena-body-grid .col-lg-5 {
+        background: transparent !important;
+        border-color: #333 !important;
+    }
+    /* 6. Fix hiệu ứng hover khi rê chuột vào danh sách Top 4,5,6 */
+    body.dark-theme .rank-list-row:hover {
+        background: #2d2d2d !important;
+    }
+
+    /* 7. Đổi màu khung số thứ tự (bị gán cứng mã #f1f5f9) */
+    body.dark-theme .rank-list-row div[style*="background: #f1f5f9"] {
+        background: #333 !important;
+        color: #e0e0e0 !important;
+    }
+
+/* ==========================================
+   HIỆU ỨNG LẤP LÁNH CHO QUẢN LÝ LỚP HỌC (MÀU XANH LÁ)
+   ========================================== */
+.classroom-title-shine {
+    /* Dải màu Xanh lục đậm -> Xanh ngọc sáng -> Xanh lục đậm */
+    background: linear-gradient(to right, #059669 0%, #34d399 50%, #059669 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 3s linear infinite;
+}
+
+/* Đổi sang tone màu xanh ngọc sáng hơn để nổi bật khi bật Dark Mode */
+body.dark-theme .classroom-title-shine {
+    background: linear-gradient(to right, #34d399 0%, #a7f3d0 50%, #34d399 100%) !important;
+    background-size: 200% auto !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
