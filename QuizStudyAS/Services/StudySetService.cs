@@ -269,8 +269,9 @@ namespace QuizStudyAS.Services
                 return false;
             }
 
-            // Thực hiện Xóa mềm bằng cách đổi trạng thái hiển thị
-            studySet.IsActive = false;
+            // THAY THẾ DÒNG CŨ: studySet.IsActive = false;
+            // Thực hiện Xóa mềm bằng cách đổi trạng thái sang DeletedByUser (Id = 2)
+            studySet.StatusId = (int)StudySetStatusEnum.DeletedByUser;
 
             // Do EF Core đang theo dõi (tracking) sự thay đổi của đối tượng này trong bộ nhớ, 
             // nó sẽ tự động nhận diện và sinh ra câu lệnh UPDATE thay vì DELETE.

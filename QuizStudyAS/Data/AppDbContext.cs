@@ -24,6 +24,8 @@ namespace QuizStudyAS.Data
         public DbSet<Achievement> Achievements { get; set; }
         public DbSet<UserAchievement> UserAchievements { get; set; }
         public DbSet<AuthProvider> AuthProviders { get; set; }
+        // BỔ SUNG BẢNG MỚI TẠI ĐÂY
+        public DbSet<StudySetStatus> StudySetStatuses { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

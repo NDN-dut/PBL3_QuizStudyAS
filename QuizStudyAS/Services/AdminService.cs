@@ -129,14 +129,22 @@ namespace QuizStudyAS.Services
 
         public ServiceResult ToggleStudySetStatus(int studySetId)
         {
-            var studySet = _context.StudySets.Find(studySetId);
+            // Bổ sung IgnoreQueryFilters() để Admin có thể tìm thấy cả học phần đã ẩn
+            var studySet = _context.StudySets.IgnoreQueryFilters().FirstOrDefault(s => s.StudySetId == studySetId);
             if (studySet == null)
                 return ServiceResult.IsError("Không tìm thấy học phần.");
 
-            studySet.IsActive = !studySet.IsActive;
+            // Tránh việc Admin thao tác nhầm lên học phần mà User đã tự xóa
+            if (studySet.StatusId == (int)StudySetStatusEnum.DeletedByUser)
+                return ServiceResult.IsError("Học phần này đã bị người dùng xóa, không thể thay đổi trạng thái.");
+
+            bool isCurrentlyActive = studySet.StatusId == (int)StudySetStatusEnum.Active;
+
+            // Chuyển đổi qua lại giữa Trạng thái Hoạt động (1) và Bị khóa (3)
+            studySet.StatusId = isCurrentlyActive ? (int)StudySetStatusEnum.LockedByAdmin : (int)StudySetStatusEnum.Active;
             _context.SaveChanges();
 
-            var msg = studySet.IsActive ? "Đã mở khóa học phần thành công." : "Đã khóa học phần thành công.";
+            var msg = !isCurrentlyActive ? "Đã mở khóa học phần thành công." : "Đã khóa học phần thành công.";
             return ServiceResult.IsSuccess(msg);
         }
 
@@ -167,9 +175,10 @@ namespace QuizStudyAS.Services
             return PaginatedList<Classroom>.Create(query, pageIndex, pageSize);
         }
 
-        public PaginatedList<StudySet> GetFilteredStudySets(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1, int pageSize = 10)
+        public PaginatedList<StudySet> GetFilteredStudySets(string searchString, int? statusId, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1, int pageSize = 10)
         {
-            var query = _context.StudySets.Include(s => s.OwnerUser).AsQueryable();
+            // BẮT BUỘC DÙNG IgnoreQueryFilters() ĐỂ ADMIN CÓ THỂ QUẢN LÝ TOÀN BỘ
+            var query = _context.StudySets.IgnoreQueryFilters().Include(s => s.OwnerUser).AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
                 query = query.Where(s => s.Title.Contains(searchString));
@@ -177,8 +186,11 @@ namespace QuizStudyAS.Services
             if (!string.IsNullOrEmpty(ownerName))
                 query = query.Where(s => s.OwnerUser.UserName.Contains(ownerName));
 
-            if (isActive.HasValue)
-                query = query.Where(s => s.IsActive == isActive.Value);
+            // THAY ĐỔI LOGIC LỌC: So sánh trực tiếp với StatusId
+            if (statusId.HasValue)
+            {
+                query = query.Where(s => s.StatusId == statusId.Value);
+            }
 
             if (fromDate.HasValue)
                 query = query.Where(s => s.CreatedAt >= fromDate.Value.Date);

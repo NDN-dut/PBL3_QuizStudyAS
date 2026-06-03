@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.Services;
 using QuizStudyAS.ViewModels;
+using QuizStudyAS.Models; // THÊM DÒNG NÀY
 
 namespace QuizStudyAS.Controllers
 {
@@ -130,9 +131,9 @@ namespace QuizStudyAS.Controllers
             var studySet = await _studySetService.GetStudySetByIdAsync(id);
             if (studySet == null) return NotFound();
 
-            // THÊM DÒNG NÀY: Kiểm tra nếu bị khóa
-            if (!studySet.IsActive)
-                return RedirectToRefererWithLockMessage("Học phần này đã bị khóa bởi Quản trị viên hệ thống.");
+            // THAY THẾ DÒNG CŨ: if (!studySet.IsActive)
+                if (studySet.StatusId != (int)StudySetStatusEnum.Active)
+                    return RedirectToRefererWithLockMessage("Học phần này đã bị khóa bởi Quản trị viên hệ thống.");
 
             // Lệnh này sẽ tự động tìm và render file Views/StudySet/Learn.cshtml 
             // (Nơi chứa giao diện lật thẻ 3D cũ)
@@ -146,8 +147,8 @@ namespace QuizStudyAS.Controllers
             var studySet = await _studySetService.GetStudySetByIdAsync(id);
             if (studySet == null) return NotFound();
 
-            // THÊM DÒNG NÀY: Kiểm tra nếu bị khóa
-            if (!studySet.IsActive)
+            // THAY THẾ DÒNG CŨ: if (!studySet.IsActive)
+            if (studySet.StatusId != (int)StudySetStatusEnum.Active)
                 return RedirectToRefererWithLockMessage("Học phần này đã bị khóa bởi Quản trị viên hệ thống.");
 
             // Lệnh này sẽ tự động tìm và render file Views/StudySet/Details.cshtml
@@ -221,8 +222,8 @@ namespace QuizStudyAS.Controllers
             var studySet = await _studySetService.GetStudySetByIdAsync(id);
             if (studySet == null) return NotFound();
 
-            // THÊM DÒNG NÀY: Kiểm tra nếu bị khóa
-            if (!studySet.IsActive)
+            // THAY THẾ DÒNG CŨ: if (!studySet.IsActive)
+            if (studySet.StatusId != (int)StudySetStatusEnum.Active)
                 return RedirectToRefererWithLockMessage("Học phần này đã bị khóa bởi Quản trị viên hệ thống.");
 
             // 1. Ràng buộc cơ bản: Phải có ít nhất 1 thẻ để chơi (dành cho chế độ Tự luận)

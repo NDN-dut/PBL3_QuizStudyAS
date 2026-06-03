@@ -25,6 +25,6 @@ namespace QuizStudyAS.Services
         // Lấy danh sách Lớp học (có lọc và phân trang)
         PaginatedList<Classroom> GetFilteredClassrooms(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1, int pageSize = 10);
         // Lấy danh sách Học phần (có lọc và phân trang)
-        PaginatedList<StudySet> GetFilteredStudySets(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1, int pageSize = 10);
+        PaginatedList<StudySet> GetFilteredStudySets(string searchString, int? statusId, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1, int pageSize = 10);
     }
 }

@@ -22,6 +22,9 @@ namespace QuizStudyAS.Data.Configurations
                    .WithMany() // StudySet có thể không cần danh sách GameSession
                    .HasForeignKey(g => g.StudySetId)
                    .OnDelete(DeleteBehavior.Cascade);
+
+            // Đồng bộ Query Filter với StudySet
+            builder.HasQueryFilter(g => g.StudySet.StatusId == 1);
         }
     }
 }

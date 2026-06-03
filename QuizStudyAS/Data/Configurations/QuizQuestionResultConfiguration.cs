@@ -20,6 +20,9 @@ namespace QuizStudyAS.Data.Configurations
                    .WithMany()
                    .HasForeignKey(q => q.FlashcardId)
                    .OnDelete(DeleteBehavior.Restrict); // Nếu Flashcard bị xóa, kết quả cũ vẫn không làm sập Database
+
+            // Đồng bộ Query Filter với trạng thái của học phần
+            builder.HasQueryFilter(q => q.Flashcard.StudySet.StatusId == 1);
         }
     }
 }

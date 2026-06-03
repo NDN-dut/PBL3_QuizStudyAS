@@ -19,6 +19,9 @@ namespace QuizStudyAS.Data.Configurations
                    .WithMany(s => s.Flashcards)
                    .HasForeignKey(f => f.StudySetId)
                    .OnDelete(DeleteBehavior.Cascade); // Xóa bộ thẻ -> Xóa sạch Flashcard bên trong
+
+            // Đồng bộ Query Filter: Nếu StudySet bị ẩn, Flashcard cũng tự động bị ẩn
+            builder.HasQueryFilter(f => f.StudySet.StatusId == 1);
         }
     }
 }
