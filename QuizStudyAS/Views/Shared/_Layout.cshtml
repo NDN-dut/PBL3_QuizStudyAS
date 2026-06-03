@@ -202,6 +202,15 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a asp-controller="Exam" asp-action="MyExams" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Exam", "MyExams")">
+                            <i class="bi bi-clipboard-check fs-5 text-secondary menu-icon"></i>
+                            <span class="sidebar-text ms-3 fw-bold w-100 d-flex justify-content-between align-items-center">
+                                Nhiệm vụ
+                                <span id="exam-badge" class="badge bg-danger rounded-pill shadow-sm" style="display: none;">0</span>
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a asp-controller="Classroom" asp-action="JoinRequests" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "JoinRequests")">
                             <i class="bi bi-bell fs-5 text-info menu-icon position-relative">
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger request-badge-count" style="font-size: 0.55rem; padding: 0.35em 0.5em; display: none; transition: all 0.3s ease;">0</span>
@@ -424,9 +433,32 @@
                         })
                         .catch(err => console.error("Lỗi tải thông báo", err));
                 }
+
+                // HÀM MỚI: TẢI SỐ LƯỢNG BÀI KIỂM TRA CHƯA LÀM
+                function fetchExamCount() {
+                    fetch('/Exam/GetPendingExamCount')
+                        .then(response => response.json())
+                        .then(data => {
+                            const badge = document.getElementById('exam-badge');
+                            if (badge) {
+                                if (data.count > 0) {
+                                    // Nếu lớn hơn 9 thì hiện 9+ cho đẹp
+                                    badge.innerText = data.count > 9 ? '9+' : data.count;
+                                    badge.style.display = 'inline-block';
+
+                                    // Thêm một chút hiệu ứng nhịp tim nhẹ nhàng để thu hút sự chú ý
+                                    badge.style.animation = 'pulse 2s infinite';
+                                } else {
+                                    badge.style.display = 'none';
+                                }
+                            }
+                        })
+                        .catch(err => console.error("Lỗi tải thông báo bài kiểm tra", err));
+                }
                 
                 // Gọi ngay khi load trang
                 fetchRequestCount();
+            fetchExamCount();
             });
     </script>
 

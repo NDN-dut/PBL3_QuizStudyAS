@@ -91,6 +91,88 @@
     }
 </div>
 
+<div class="mt-5 mb-4 d-flex justify-content-between align-items-center">
+    <h4 class="fw-bold text-dark m-0">
+        <i class="bi bi-card-checklist text-primary me-2"></i>Bài kiểm tra (@Model.Exams.Count)
+    </h4>
+    @if (Model.IsOwner)
+    {
+        <a href="/Exam/Create?classroomId=@Model.ClassroomId" class="btn btn-outline-primary fw-bold rounded-pill shadow-sm transition-smooth">
+            <i class="bi bi-plus-circle-fill me-1"></i> Tạo bài kiểm tra
+        </a>
+    }
+</div>
+
+@if (Model.Exams != null && Model.Exams.Any())
+{
+    <div class="row g-4 mb-5">
+        @foreach (var exam in Model.Exams)
+        {
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 border border-light-subtle shadow-sm rounded-4 focus-card bg-white overflow-hidden transition-smooth position-relative">
+                    <div class="card-accent-top"></div>
+                    <div class="card-body p-4 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="icon-circle bg-info bg-opacity-10 text-info">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-2 py-1">
+                                @exam.DurationMinutes phút
+                            </span>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-3">@exam.Title</h5>
+
+                        <div class="mb-3 text-muted small">
+                            <div class="mb-1"><i class="bi bi-calendar-event me-1"></i> Mở: <span class="fw-medium text-dark">@exam.StartTime.ToString("HH:mm dd/MM/yyyy")</span></div>
+                            <div><i class="bi bi-calendar-x me-1"></i> Đóng: <span class="fw-medium text-dark">@exam.EndTime.ToString("HH:mm dd/MM/yyyy")</span></div>
+                        </div>
+
+                        <div class="mt-auto pt-3 border-top border-light-subtle">
+                            @if (Model.IsOwner)
+                            {
+                                <a href="/Exam/Results/@exam.ExamId" class="btn btn-outline-primary w-100 rounded-pill fw-semibold shadow-sm">
+                                    <i class="bi bi-bar-chart-fill me-1"></i> Xem thống kê điểm
+                                </a>
+                            }
+                            else
+                            {
+                                @if (DateTime.Now >= exam.StartTime && DateTime.Now <= exam.EndTime)
+                                {
+                                    <a href="/Exam/TakeExam/@exam.ExamId" class="btn btn-primary w-100 rounded-pill fw-semibold shadow-sm">
+                                        <i class="bi bi-pencil-square me-1"></i> Làm bài ngay
+                                    </a>
+                                }
+                                else if (DateTime.Now < exam.StartTime)
+                                {
+                                    <button class="btn btn-light w-100 rounded-pill fw-semibold text-muted border" disabled>
+                                        <i class="bi bi-lock me-1"></i> Chưa mở
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-light w-100 rounded-pill fw-semibold text-muted border" disabled>
+                                        <i class="bi bi-x-circle me-1"></i> Đã đóng
+                                    </button>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5 bg-white rounded-4 shadow-sm border border-light-subtle mt-4 mb-5">
+        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+            <i class="bi bi-card-heading text-muted opacity-50" style="font-size: 2.5rem;"></i>
+        </div>
+        <h5 class="fw-bold text-dark">Chưa có bài kiểm tra nào</h5>
+        <p class="text-muted mb-0">Lớp học này hiện tại chưa có bài kiểm tra nào được giao.</p>
+    </div>
+}
+
 <div id="addStudySetModal" class="custom-modal-overlay hidden">
     <div class="custom-modal-content">
         <div class="modal-header">

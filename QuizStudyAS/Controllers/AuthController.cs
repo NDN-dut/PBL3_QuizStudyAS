@@ -141,6 +141,7 @@ namespace QuizStudyAS.Controllers
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
+            TempData.Clear(); // BỔ SUNG DÒNG NÀY ĐỂ XÓA SẠCH "BÓNG MA" THÔNG BÁO
             HttpContext.Session.Clear();
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");

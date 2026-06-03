@@ -216,17 +216,23 @@ namespace QuizStudyAS.Services
         }
         public async Task<ClassRoomDetailVM> GetClassRoomDetail(string LinkLop)
         {
+            // 1. Lấy UserId đang đăng nhập để xác định xem họ có phải Chủ phòng không
+            string currentUserId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
+
             var ClassRoomDetailData = await _context.Classrooms
                 .Where(c => c.InviteCode == LinkLop)
                 .Select(e => new ClassRoomDetailVM
                 {
+                    ClassroomId = e.ClassroomId, // BỔ SUNG để làm Link tạo đề thi
                     ClassName = e.ClassName,
                     OwnerName = e.OwnerUser.UserName,
                     ExistingAvatarUrl = e.OwnerUser.AvatarUrl,
                     ClassCode = LinkLop,
-                    // THÊM DÒNG NÀY: Lấy cờ khóa từ Database
-                    // Đổi IsActive sang đối chiếu với StatusId
                     IsActive = e.StatusId == (int)ClassroomStatusEnum.Active,
+
+                    // BỔ SUNG: Kiểm tra cờ Chủ phòng
+                    IsOwner = e.OwnerUserId == currentUserId,
+
                     StudySets = e.Materials.
                                 Where(s => s.Status == "AVAILABLE").
                                 Select(k => new StudySetItemVM
@@ -235,6 +241,26 @@ namespace QuizStudyAS.Services
                                     Title = k.StudySet.Title
                                 }).ToList()
                 }).FirstOrDefaultAsync();
+
+            // 2. Lấy bổ sung danh sách Bài kiểm tra nếu tìm thấy lớp học
+            if (ClassRoomDetailData != null)
+            {
+                var exams = await _context.Exams
+                    .Where(ex => ex.ClassroomId == ClassRoomDetailData.ClassroomId)
+                    .Select(ex => new ClassroomExamItemVM
+                    {
+                        ExamId = ex.ExamId,
+                        Title = ex.Title,
+                        StartTime = ex.StartTime,
+                        EndTime = ex.EndTime,
+                        DurationMinutes = ex.DurationMinutes
+                    })
+                    .OrderByDescending(ex => ex.ExamId) // Bài thi mới tạo xếp lên đầu
+                    .ToListAsync();
+
+                ClassRoomDetailData.Exams = exams;
+            }
+
             return ClassRoomDetailData;
         }
         public async Task<bool> AddStudySet(string ClassCode, int StudySetId)
@@ -325,7 +351,6 @@ namespace QuizStudyAS.Services
             return true;
         }
         public async Task<ClassRoomDetailVM> GetAllUserOfClass(string ClassCode)
-
         {
             var userList = await _context.ClassroomUsers
                                                         .Where(cu => cu.Classroom.InviteCode == ClassCode && cu.Status=="STUDYING") // Móc thẳng vào thẻ Navigation
