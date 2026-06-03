@@ -24,6 +24,9 @@ namespace QuizStudyAS.Data.Configurations
                 .WithMany(p => p.JoinRequests)
                 .HasForeignKey(e=>e.ClassroomId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Bổ sung đồng bộ Query Filter: Ẩn Yêu cầu nếu lớp học đã bị xóa
+            builder.HasQueryFilter(r => r.Classroom.StatusId != (int)ClassroomStatusEnum.DeletedByUser);
         }
     }
 }

@@ -20,23 +20,11 @@
                        class="form-control" placeholder="Tìm theo tên người tạo..." />
             </div>
             <div class="col-md-4">
-                <select name="isActive" class="form-select">
+                <select name="statusId" class="form-select">
                     <option value="">-- Tất cả trạng thái --</option>
-                    @if (ViewBag.CurrentIsActive == true)
-                    {
-                        <option value="true" selected>Hoạt động</option>
-                        <option value="false">Bị khóa</option>
-                    }
-                    else if (ViewBag.CurrentIsActive == false)
-                    {
-                        <option value="true">Hoạt động</option>
-                        <option value="false" selected>Bị khóa</option>
-                    }
-                    else
-                    {
-                        <option value="true">Hoạt động</option>
-                        <option value="false">Bị khóa</option>
-                    }
+                    <option value="1" selected="@(ViewBag.CurrentStatusId == 1 ? "selected" : null)">Hoạt động</option>
+                    <option value="2" selected="@(ViewBag.CurrentStatusId == 2 ? "selected" : null)">Đã xóa</option>
+                    <option value="3" selected="@(ViewBag.CurrentStatusId == 3 ? "selected" : null)">Bị khóa</option>
                 </select>
             </div>
         </div>
@@ -88,19 +76,28 @@
                             <td>@cls.CreatedAt.ToString("dd/MM/yyyy")</td>
 
                             <td>
-                                @if (cls.IsActive)
+                                @if (cls.StatusId == (int)QuizStudyAS.Models.ClassroomStatusEnum.Active)
                                 {
                                     <span class="badge bg-success">Hoạt động</span>
                                 }
-                                else
+                                else if (cls.StatusId == (int)QuizStudyAS.Models.ClassroomStatusEnum.LockedByAdmin)
                                 {
                                     <span class="badge bg-danger">Bị khóa</span>
                                 }
+                                else if (cls.StatusId == (int)QuizStudyAS.Models.ClassroomStatusEnum.DeletedByUser)
+                                {
+                                    <span class="badge bg-warning text-dark">Đã xóa</span>
+                                }
                             </td>
                             <td class="text-center">
-                                <button class="btn btn-sm @(cls.IsActive ? "btn-outline-danger" : "btn-outline-success")"
-                                        onclick="toggleClassroomStatus(@cls.ClassroomId, @(cls.IsActive.ToString().ToLower()))">
-                                    @(cls.IsActive ? "Khóa lớp" : "Mở khóa")
+                                @{
+                                    bool isCurrentlyActive = cls.StatusId == (int)QuizStudyAS.Models.ClassroomStatusEnum.Active;
+                                    bool isDeleted = cls.StatusId == (int)QuizStudyAS.Models.ClassroomStatusEnum.DeletedByUser;
+                                }
+                                <button class="btn btn-sm @(isCurrentlyActive ? "btn-outline-danger" : "btn-outline-success")"
+                                        @(isDeleted ? "disabled title='Không thể thao tác trên lớp học đã bị xóa'" : "")
+                                        onclick="toggleClassroomStatus(@cls.ClassroomId, @(isCurrentlyActive.ToString().ToLower()))">
+                                    @(isCurrentlyActive ? "Khóa lớp" : "Mở khóa")
                                 </button>
                             </td>
                         </tr>
@@ -121,7 +118,7 @@
                    asp-route-pageIndex="@(Model.PageIndex - 1)"
                    asp-route-searchString="@ViewBag.CurrentSearch"
                    asp-route-ownerName="@ViewBag.CurrentOwnerName"
-                   asp-route-isActive="@ViewBag.CurrentIsActive"
+                   asp-route-statusId="@ViewBag.CurrentStatusId"
                    asp-route-fromDate="@ViewBag.CurrentFromDate"
                    asp-route-toDate="@ViewBag.CurrentToDate">Trước</a>
             </li>
@@ -133,7 +130,7 @@
                        asp-route-pageIndex="@i"
                        asp-route-searchString="@ViewBag.CurrentSearch"
                        asp-route-ownerName="@ViewBag.CurrentOwnerName"
-                       asp-route-isActive="@ViewBag.CurrentIsActive"
+                       asp-route-statusId="@ViewBag.CurrentStatusId"
                        asp-route-fromDate="@ViewBag.CurrentFromDate"
                        asp-route-toDate="@ViewBag.CurrentToDate">@i</a>
                 </li>
@@ -144,7 +141,7 @@
                    asp-route-pageIndex="@(Model.PageIndex + 1)"
                    asp-route-searchString="@ViewBag.CurrentSearch"
                    asp-route-ownerName="@ViewBag.CurrentOwnerName"
-                   asp-route-isActive="@ViewBag.CurrentIsActive"
+                   asp-route-statusId="@ViewBag.CurrentStatusId"
                    asp-route-fromDate="@ViewBag.CurrentFromDate"
                    asp-route-toDate="@ViewBag.CurrentToDate">Sau</a>
             </li>

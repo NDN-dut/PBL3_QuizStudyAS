@@ -222,6 +222,24 @@
     </div>
 </div>
 
+<div class="modal fade" id="deleteClassModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-danger text-white border-0 px-4 pt-4 pb-3">
+                <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Xác nhận xóa lớp học</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 bg-white">
+                <p class="text-dark fs-6 mb-0">Bạn có tương đối chắc chắn muốn xóa lớp học này không? Hành động này sẽ chuyển lớp học vào trạng thái đã xóa.</p>
+            </div>
+            <div class="modal-footer border-0 px-4 pb-4 pt-0 bg-white">
+                <button type="button" class="btn btn-light fw-bold px-4 rounded-pill border" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" id="btnConfirmDelete" class="btn btn-danger fw-bold px-4 rounded-pill shadow-sm">Xóa lớp</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -247,30 +265,51 @@
                     }
                 });
             }
-            const btnDeleteClass = document.querySelectorAll('.btn-delete-class');
-            btnDeleteClass.forEach(del=> {
-                del.addEventListener('click',async function(){
-                    const classcode = this.getAttribute('data-classcode');
+            // BIẾN TOÀN CỤC LƯU TRỮ TRẠNG THÁI XÓA
+            let classToDelete = '';
+            let classCardElement = null;
+            let deleteModalInstance = null;
 
-                    try{
-                        const formData = new FormData();
-                        formData.append('classcode',classcode);
-                        const response = await fetch('/ClassRoom/DeleteClass',{
-                            method: 'POST',
-                            body:formData
-                        });
-                        const result = await response.json();
-                        if(result.success == true){
-                            var colItem = this.closest('.col-12');
-                            colItem.remove();
-                        }else{
-                            alert("Database của chúng tôi đang lỗi");
-                        }                        
-                    }catch(error){
-                        alert("Có lỗi");
-                        console.error("Loi:",error);
+            // BẮT SỰ KIỆN CLICK NÚT THÙNG RÁC ĐỂ MỞ MODAL
+            const btnDeleteClass = document.querySelectorAll('.btn-delete-class');
+            btnDeleteClass.forEach(del => {
+                del.addEventListener('click', function (e) {
+                    e.preventDefault(); // Ngăn chặn sự kiện click lan truyền
+                    classToDelete = this.getAttribute('data-classcode');
+                    classCardElement = this.closest('.col-12');
+
+                    if (!deleteModalInstance) {
+                        deleteModalInstance = new bootstrap.Modal(document.getElementById('deleteClassModal'));
                     }
+                    deleteModalInstance.show();
                 });
+            });
+
+            // BẮT SỰ KIỆN XÁC NHẬN TRÊN MODAL
+            document.getElementById('btnConfirmDelete').addEventListener('click', async function () {
+                try {
+                    const formData = new FormData();
+                    formData.append('classcode', classToDelete);
+
+                    const response = await fetch('/ClassRoom/DeleteClass', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success === true) {
+                        classCardElement.remove();
+                        deleteModalInstance.hide();
+                    } else {
+                        alert("Database của chúng tôi đang lỗi hoặc bạn không có quyền xóa.");
+                        deleteModalInstance.hide();
+                    }
+                } catch (error) {
+                    alert("Có lỗi xảy ra trong quá trình kết nối.");
+                    console.error("Loi:", error);
+                    deleteModalInstance.hide();
+                }
             });
         });
     </script>

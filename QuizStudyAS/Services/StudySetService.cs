@@ -219,12 +219,12 @@ namespace QuizStudyAS.Services
 
             // 2. Thu thập tất cả ID Lớp học (Do mình tạo + Tham gia)
             var ownedClassIds = await _context.Classrooms
-                .Where(c => c.OwnerUserId == userId && c.IsActive==true)
+                .Where(c => c.OwnerUserId == userId && c.StatusId == (int)ClassroomStatusEnum.Active)
                 .Select(c => c.ClassroomId)
                 .ToListAsync();
 
             var joinedClassIds = await _context.ClassroomUsers
-                .Where(cu => cu.UserId == userId && cu.Classroom.IsActive == true && cu.Status=="STUDYING")
+                .Where(cu => cu.UserId == userId && cu.Classroom.StatusId == (int)ClassroomStatusEnum.Active && cu.Status == "STUDYING")
                 .Select(cu => cu.ClassroomId)
                 .ToListAsync();
 

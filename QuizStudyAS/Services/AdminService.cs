@@ -116,14 +116,22 @@ namespace QuizStudyAS.Services
 
         public ServiceResult ToggleClassroomStatus(int classroomId)
         {
-            var classroom = _context.Classrooms.Find(classroomId);
+            // Bổ sung IgnoreQueryFilters()
+            var classroom = _context.Classrooms.IgnoreQueryFilters().FirstOrDefault(c => c.ClassroomId == classroomId);
             if (classroom == null)
                 return ServiceResult.IsError("Không tìm thấy lớp học.");
 
-            classroom.IsActive = !classroom.IsActive;
+            // Tránh Admin thao tác trên lớp đã bị xóa
+            if (classroom.StatusId == (int)ClassroomStatusEnum.DeletedByUser)
+                return ServiceResult.IsError("Lớp học này đã bị giáo viên xóa, không thể thay đổi trạng thái.");
+
+            bool isCurrentlyActive = classroom.StatusId == (int)ClassroomStatusEnum.Active;
+
+            // Đổi qua lại giữa Active (1) và LockedByAdmin (3)
+            classroom.StatusId = isCurrentlyActive ? (int)ClassroomStatusEnum.LockedByAdmin : (int)ClassroomStatusEnum.Active;
             _context.SaveChanges();
 
-            var msg = classroom.IsActive ? "Đã mở khóa lớp học thành công." : "Đã khóa lớp học thành công.";
+            var msg = !isCurrentlyActive ? "Đã mở khóa lớp học thành công." : "Đã khóa lớp học thành công.";
             return ServiceResult.IsSuccess(msg);
         }
 
@@ -148,9 +156,10 @@ namespace QuizStudyAS.Services
             return ServiceResult.IsSuccess(msg);
         }
 
-        public PaginatedList<Classroom> GetFilteredClassrooms(string searchString, bool? isActive, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1, int pageSize = 10)
+        public PaginatedList<Classroom> GetFilteredClassrooms(string searchString, int? statusId, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1, int pageSize = 10)
         {
-            var query = _context.Classrooms.Include(c => c.OwnerUser).AsQueryable();
+            // THÊM IgnoreQueryFilters() ĐỂ ADMIN THẤY MỌI TRẠNG THÁI
+            var query = _context.Classrooms.IgnoreQueryFilters().Include(c => c.OwnerUser).AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))
                 query = query.Where(c => c.ClassName.Contains(searchString) || c.InviteCode.Contains(searchString));
@@ -158,8 +167,9 @@ namespace QuizStudyAS.Services
             if (!string.IsNullOrEmpty(ownerName))
                 query = query.Where(c => c.OwnerUser.UserName.Contains(ownerName));
 
-            if (isActive.HasValue)
-                query = query.Where(c => c.IsActive == isActive.Value);
+            // THAY ĐỔI CÁCH LỌC BẰNG STATUSID
+            if (statusId.HasValue)
+                query = query.Where(c => c.StatusId == statusId.Value);
 
             if (fromDate.HasValue)
                 query = query.Where(c => c.CreatedAt >= fromDate.Value.Date);
