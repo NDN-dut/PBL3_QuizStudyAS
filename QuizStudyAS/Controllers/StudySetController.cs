@@ -196,10 +196,10 @@ namespace QuizStudyAS.Controllers
         {
             var userId = GetCurrentUserId();
             if (string.IsNullOrEmpty(userId)) return Json(new { success = false, message = "Vui lòng đăng nhập" });
-
+            
             // GỌI THẲNG XUỐNG SERVICE: Truyền đúng Mã code lớp và ID bộ thẻ
             bool isSuccess = await _classRoomServices.AddStudySet(req.classCode, req.studySetId);
-
+            
             if (isSuccess)
             {
                 return Json(new { success = true, message = "Đã chia sẻ học phần vào lớp thành công!" });
