@@ -115,14 +115,6 @@
                     if (string.IsNullOrEmpty(a)) return "active";
                     return currentAct == a.ToLower() ? "active" : "text-muted";
                 }
-
-                // Hàm 2: Dành ĐẶC BIỆT cho Lớp học
-                // Mục Lớp học sẽ sáng lên ở mọi Action (Index, Detail, Share...) NGOẠI TRỪ trang Request (Thông báo)
-                // string GetClassroomActive()
-                // {
-                    // Sửa "request" thành "joinrequests"
-                //     return (currentCtrl == "classroom" && currentAct != "joinrequests") ? "active-sidebar-item" : "text-muted";
-                // }
             }
 
             <ul class="nav nav-pills flex-column px-2 py-3 gap-2 mb-auto">
@@ -152,11 +144,6 @@
                     </li>
 
                     <li class="nav-item">
-                        @*<a asp-controller="Classroom" asp-action="JoinRequests" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "JoinRequests")">
-                            <i class="bi bi-bell fs-5 text-info menu-icon position-relative">
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger request-badge-count" style="font-size: 0.55rem; padding: 0.35em 0.5em; display: none; transition: all 0.3s ease;">0</span>
-                              </i>
-                        </a>*@
                         <a asp-controller="Admin" asp-action="ManageClassrooms" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Admin", "ManageClassrooms")">
                             <i class="bi bi-easel-fill fs-5 text-success menu-icon"></i>
                             <span class="sidebar-text ms-3 fw-bold">Quản lý lớp học</span>
@@ -169,20 +156,6 @@
                             <span class="sidebar-text ms-3 fw-bold">Quản lý học phần</span>
                         </a>
                     </li>
-
-                    @* <li class="nav-item">
-                        <a asp-controller="Classroom" asp-action="JoinRequests" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Classroom", "JoinRequests")">
-                            <i class="bi bi-bell fs-5 text-info menu-icon"></i>
-
-                            <span class="sidebar-text ms-3 fw-bold">Thông báo</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a asp-controller="Leaderboard" asp-action="Index" class="nav-link sidebar-link d-flex align-items-center rounded-3 px-3 py-2 @GetActive("Leaderboard")">
-                            <i class="bi bi-trophy-fill fs-5 text-secondary menu-icon"></i>
-                            <span class="sidebar-text ms-3 fw-bold">Bảng xếp hạng</span>
-                        </a>
-                    </li> *@
                 }
                 @* --- QUYỀN DÀNH CHO USER --- *@
                 @if (userRole == "User" || userRole == "Admin")
@@ -360,107 +333,6 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    
-    <script>
-            document.addEventListener("DOMContentLoaded", function () {
-            
-                // ==========================================
-                // 1. ĐIỀU KHIỂN SIDEBAR (GIỮ NGUYÊN)
-                // ==========================================
-                const btnToggle = document.getElementById('btn-toggle-sidebar');
-                if (btnToggle) {
-                    btnToggle.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        document.documentElement.classList.toggle('sidebar-expanded-state');
-                    
-                        const isExpanded = document.documentElement.classList.contains('sidebar-expanded-state');
-                        localStorage.setItem('quiz_study_sidebar_state', isExpanded);
-                    });
-                }
-
-                // ==========================================
-                // 2. ĐIỀU KHIỂN GIAO DIỆN SÁNG / TỐI (ĐÃ FIX LỖI)
-                // ==========================================
-                const themeBtns = document.querySelectorAll('.theme-toggle-btn');
-                const themeIcons = document.querySelectorAll('.theme-icon');
-                const themeTexts = document.querySelectorAll('.theme-text');
-
-                function syncThemeUI(isDark) {
-                themeIcons.forEach(icon => {
-                // Thêm class me-2/me-3 tùy vị trí để không mất khoảng cách
-                const marginClass = icon.classList.contains('me-3') ? 'me-3' : (icon.classList.contains('me-2') ? 'me-2' : '');
-                icon.className = isDark ? `bi bi-sun-fill fs-6 text-warning theme-icon ${marginClass}` : `bi bi-moon-stars-fill fs-6 text-secondary theme-icon ${marginClass}`;
-                });
-                themeTexts.forEach(text => {
-                text.innerText = isDark ? 'Giao diện sáng' : 'Giao diện tối';
-                });
-                }
-
-                const isCurrentlyDark = document.documentElement.classList.contains('dark-theme');
-                syncThemeUI(isCurrentlyDark);
-
-                themeBtns.forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                e.preventDefault();
-                // Tránh menu dropdown bị đóng ngay lập tức nếu click vào trong
-                e.stopPropagation();
-
-                document.documentElement.classList.toggle('dark-theme');
-                document.body.classList.toggle('dark-theme');
-
-                const nowDark = document.documentElement.classList.contains('dark-theme');
-                syncThemeUI(nowDark);
-                localStorage.setItem('quiz_study_theme', nowDark ? 'dark' : 'light');
-                });
-                });
-
-                // ==========================================
-                // 3. TẢI SỐ LƯỢNG THÔNG BÁO (BADGE)
-                // ==========================================
-                function fetchRequestCount() {
-                    fetch('/Classroom/GetPendingRequestCount')
-                        .then(res => res.json())
-                        .then(data => {
-                            const badges = document.querySelectorAll('.request-badge-count');
-                            badges.forEach(badge => {
-                                if (data.count > 0) {
-                                    badge.innerText = data.count > 99 ? '99+' : data.count;
-                                    badge.style.display = 'inline-block';
-                                } else {
-                                    badge.style.display = 'none';
-                                }
-                            });
-                        })
-                        .catch(err => console.error("Lỗi tải thông báo", err));
-                }
-
-                // HÀM MỚI: TẢI SỐ LƯỢNG BÀI KIỂM TRA CHƯA LÀM
-                function fetchExamCount() {
-                    fetch('/Exam/GetPendingExamCount')
-                        .then(response => response.json())
-                        .then(data => {
-                            const badge = document.getElementById('exam-badge');
-                            if (badge) {
-                                if (data.count > 0) {
-                                    // Nếu lớn hơn 9 thì hiện 9+ cho đẹp
-                                    badge.innerText = data.count > 9 ? '9+' : data.count;
-                                    badge.style.display = 'inline-block';
-
-                                    // Thêm một chút hiệu ứng nhịp tim nhẹ nhàng để thu hút sự chú ý
-                                    badge.style.animation = 'pulse 2s infinite';
-                                } else {
-                                    badge.style.display = 'none';
-                                }
-                            }
-                        })
-                        .catch(err => console.error("Lỗi tải thông báo bài kiểm tra", err));
-                }
-                
-                // Gọi ngay khi load trang
-                fetchRequestCount();
-            fetchExamCount();
-            });
-    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
     <environment include="Development">
