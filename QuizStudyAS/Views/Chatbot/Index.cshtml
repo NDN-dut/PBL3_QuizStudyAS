@@ -1,0 +1,96 @@
+﻿@{
+    ViewData["Title"] = "Trợ lý học tập AI";
+}
+
+<style>
+    /* Ép style cho các bảng (Table) do Markdown sinh ra bên trong khung chat */
+    #chat-box table {
+        width: 100%;
+        margin-bottom: 1rem;
+        border-collapse: collapse;
+    }
+
+    #chat-box th, #chat-box td {
+        border: 1px solid #dee2e6;
+        padding: 0.5rem;
+    }
+
+    #chat-box th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+
+    body.dark-theme #chat-box th {
+        background-color: #333;
+        border-color: #555;
+    }
+
+    body.dark-theme #chat-box td {
+        border-color: #555;
+    }
+</style>
+
+<div class="container py-4 page-fade-in" style="max-width: 900px;">
+    <div class="text-center mb-4">
+        <div class="ghost-wrapper" style="height: 140px;">
+            <div class="ghost-container" id="ai-mascot">
+                <div class="ghost-body">
+                    <div class="ghost-face">
+                        <div class="eye left"></div>
+                        <div class="eye right"></div>
+                        <div class="cheek left"></div>
+                        <div class="cheek right"></div>
+                        <div class="mouth"></div>
+                    </div>
+                    <div class="arm left"></div>
+                    <div class="arm right"></div>
+                    <div class="ghost-skirt">
+                        <div class="bump"></div>
+                        <div class="bump"></div>
+                        <div class="bump"></div>
+                    </div>
+                </div>
+                <div class="ghost-shadow"></div>
+            </div>
+        </div>
+        <h3 class="fw-bold text-primary mt-2">Trợ lý ảo QSAS</h3>
+        <p class="text-muted">Hỏi tôi bất cứ điều gì về bài học của bạn!</p>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden grimoire-card">
+        <div class="card-body p-4 d-flex flex-column" id="chat-box" style="height: 50vh; overflow-y: auto; background-color: #f8fafc;">
+            <div class="d-flex mb-4 justify-content-start">
+                <div class="bg-white border shadow-sm rounded-3 py-2 px-3 text-dark" style="max-width: 75%; border-bottom-left-radius: 0 !important;">
+                    Xin chào! Mình là trợ lý học tập AI của QSAS. Mình có thể giúp gì cho bạn hôm nay?
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer bg-white border-top p-3">
+            <div class="d-flex gap-2 w-100">
+                <input type="text" id="chat-input" class="form-control shadow-none py-2 rounded-3" placeholder="Nhập câu hỏi của bạn..." autocomplete="off">
+                <button class="btn btn-outline-primary px-4 fw-bold rounded-3 flex-shrink-0" id="btn-send" type="button">
+                    <i class="bi bi-send-fill"></i> Gửi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            }
+        };
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script src="~/js/chatbot.js" asp-append-version="true"></script>
+}

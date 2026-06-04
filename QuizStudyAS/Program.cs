@@ -28,6 +28,8 @@ builder.Services.AddScoped<IStudySetService, StudySetService>();
 builder.Services.AddScoped<ILeaderboardService, LeaderboardService>();
 // Đăng ký ExamService
 builder.Services.AddScoped<IExamService, ExamService>();
+// --- BỔ SUNG DÒNG NÀY ĐỂ ĐĂNG KÝ BỘ NÃO AI ---
+builder.Services.AddHttpClient<IAiService, AiService>();
 // Thêm cấu hình Authentication (Đã gộp chung Cookie và Google)
 builder.Services.AddAuthentication(options =>
 {
