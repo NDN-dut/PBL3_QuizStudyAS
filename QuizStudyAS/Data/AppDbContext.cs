@@ -28,6 +28,12 @@ namespace QuizStudyAS.Data
         public DbSet<StudySetStatus> StudySetStatuses { get; set; }
         // BỔ SUNG BẢNG MỚI TẠI ĐÂY
         public DbSet<ClassroomStatus> ClassroomStatuses { get; set; }
+        // BỔ SUNG CÁC BẢNG CHO TÍNH NĂNG KIỂM TRA
+        public DbSet<Exam> Exams { get; set; }
+        public DbSet<ExamQuestion> ExamQuestions { get; set; }
+        public DbSet<QuestionOption> QuestionOptions { get; set; }
+        public DbSet<ExamAttempt> ExamAttempts { get; set; }
+        public DbSet<ExamAttemptDetail> ExamAttemptDetails { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -1,0 +1,18 @@
+﻿Để hệ thống đọc file .csv của bạn một cách trơn tru và không bị 
+lỗi, đây là 3 quy tắc cốt lõi dựa trên đoạn code 
+CreateExamFromCsvAsync mà chúng ta đã xây dựng:
+
+Dòng tiêu đề (Header): Dòng đầu tiên bắt buộc phải là: 
+Cau_hoi,A,B,C,D,Dap_an_dung,Giai_thich. 
+Hệ thống sẽ tự động bỏ qua dòng này khi đọc dữ liệu.
+
+Xử lý dấu phẩy trong nội dung: Vì file CSV dùng dấu phẩy (,) để 
+chia cột, nên nếu trong câu hỏi hoặc đáp án của bạn có chứa dấu 
+phẩy, bạn phải bọc toàn bộ nội dung đó trong cặp dấu ngoặc kép 
+" ". (Hàm Regex của chúng ta đã được thiết kế để xử lý thông 
+minh chuẩn này).
+
+Định dạng file: Khi lưu file bằng Notepad hoặc Excel, hãy chắc 
+chắn chọn chuẩn UTF-8 (hoặc UTF-8 with BOM) để tiếng Việt có dấu 
+không bị biến thành ký tự rác. Cột Dap_an_dung chỉ được điền 1 
+chữ cái duy nhất: A, B, C, hoặc D.

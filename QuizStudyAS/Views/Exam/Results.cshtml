@@ -1,0 +1,107 @@
+﻿@model QuizStudyAS.ViewModels.ExamResultVM
+
+@{
+    ViewData["Title"] = "Kết quả: " + Model.Title;
+}
+
+<div class="container py-4 page-fade-in mx-auto" style="max-width: 1000px;">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <div>
+            <h3 class="fw-bold text-dark mb-1">@Model.Title</h3>
+            <div class="text-muted small">
+                <span class="me-3"><i class="bi bi-clock-history me-1"></i> @Model.DurationMinutes phút</span>
+                <span><i class="bi bi-calendar-check me-1"></i> Đóng lúc: @Model.EndTime.ToString("HH:mm dd/MM/yyyy")</span>
+            </div>
+        </div>
+
+        <div>
+            <a href="/Exam/ExportResultsCsv/@Model.ExamId" class="btn btn-success fw-bold rounded-pill px-4 shadow-sm transition-btn">
+                <i class="bi bi-file-earmark-spreadsheet me-1"></i> Xuất file CSV
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4 py-3 text-muted small text-uppercase">Học sinh</th>
+                        <th class="py-3 text-muted small text-uppercase">Trạng thái</th>
+                        <th class="py-3 text-muted small text-uppercase">Bắt đầu</th>
+                        <th class="py-3 text-muted small text-uppercase">Nộp bài</th>
+                        <th class="pe-4 py-3 text-end text-muted small text-uppercase">Điểm số</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.StudentResults.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                Lớp học này hiện chưa có học sinh nào tham gia.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var student in Model.StudentResults)
+                        {
+                            <tr>
+                                <td class="ps-4 py-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width: 40px; height: 40px;">
+                                            @student.UserName.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">@student.UserName</div>
+                                            <div class="small text-muted">ID: @student.UserId.Substring(0, 8)...</div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="py-3">
+                                    @if (student.AttemptId.HasValue)
+                                    {
+                                        <a href="/Exam/Review?attemptId=@student.AttemptId.Value" class="text-decoration-none" title="Nhấn để xem bài làm">
+                                            <span class="badge bg-@student.StatusColor bg-opacity-10 text-@student.StatusColor border border-@student.StatusColor border-opacity-25 rounded-pill px-2 py-1 transition-btn hover-shadow">
+                                                @student.Status <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                                            </span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-@student.StatusColor bg-opacity-10 text-@student.StatusColor border border-@student.StatusColor border-opacity-25 rounded-pill px-2 py-1">
+                                            @student.Status
+                                        </span>
+                                    }
+                                </td>
+
+                                <td class="py-3 text-muted small">
+                                    @(student.StartedAt.HasValue? student.StartedAt.Value.ToString("HH:mm dd/MM") : "-")
+                                </td>
+
+                                <td class="py-3 text-muted small">
+                                    @(student.CompletedAt.HasValue? student.CompletedAt.Value.ToString("HH:mm dd/MM") : "-")
+                                </td>
+
+                                <td class="pe-4 py-3 text-end">
+                                    @if (student.Score.HasValue)
+                                    {
+                                        <span class="fw-black fs-5 text-primary">@student.Score.Value</span>
+                            
+                                        <span class="text-muted small">/10</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
