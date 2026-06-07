@@ -286,3 +286,98 @@ body.dark-theme .classroom-title-shine {
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
 }
+
+/* ==========================================
+   FIX GIAO DIỆN TRỢ LÝ AI (CHATBOT)
+   ========================================== */
+
+/* 1. Xóa nền trắng/xám nội tuyến của khung chat, đổi thành xám đen dịu mắt */
+body.dark-theme #chat-box {
+    background-color: #1a1a1a !important;
+}
+
+/* 2. Fix khu vực nhập tin nhắn (Footer) bên dưới */
+body.dark-theme .grimoire-card .card-footer {
+    background-color: #242424 !important;
+    border-color: #3f3f3f !important;
+}
+
+/* 3. Fix bong bóng chat của Bot (bị gán bg-white) */
+body.dark-theme #chat-box .bg-white {
+    background-color: #2d2d2d !important;
+    border-color: #444 !important;
+    color: #e0e0e0 !important;
+}
+
+/* 4. Đảm bảo nút Gửi không bị chói */
+body.dark-theme .grimoire-card .btn-outline-primary {
+    border-color: #6ea8fe !important;
+    color: #6ea8fe !important;
+}
+
+    body.dark-theme .grimoire-card .btn-outline-primary:hover {
+        background-color: #6ea8fe !important;
+        color: #000 !important;
+    }
+/* ==========================================
+   FIX GIAO DIỆN MODAL TRONG TRANG LỚP HỌC
+   ========================================== */
+
+/* 1. Nhuộm đen khung ngoài của Modal */
+body.dark-theme .custom-modal-content {
+    background-color: #1a1a1a !important;
+    border: 1px solid #333 !important;
+}
+
+    /* 2. Đổi màu Header của Modal */
+    body.dark-theme .custom-modal-content .modal-header {
+        background-color: #242424 !important;
+        border-bottom: 1px solid #3f3f3f !important;
+    }
+
+        body.dark-theme .custom-modal-content .modal-header h3 {
+            color: #e0e0e0 !important;
+        }
+
+/* 3. Đổi màu Danh sách học phần/Thành viên bên trong Modal */
+body.dark-theme .modal-studyset-item,
+body.dark-theme .modal-showuser-item {
+    background-color: #242424 !important;
+    border-color: #3f3f3f !important;
+}
+
+    body.dark-theme .modal-studyset-item h4,
+    body.dark-theme .modal-showuser-item h4 {
+        color: #f1f1f1 !important;
+    }
+
+    body.dark-theme .modal-studyset-item:hover,
+    body.dark-theme .modal-showuser-item:hover {
+        background-color: #333 !important;
+        border-color: #555 !important;
+    }
+
+/* 4. Đổi màu nút đóng (X) và dòng chữ mô tả */
+body.dark-theme .modal-subtitle {
+    color: #a0a0a0 !important;
+}
+
+body.dark-theme .btn-close-modal {
+    color: #888 !important;
+}
+
+    body.dark-theme .btn-close-modal:hover {
+        color: #ff4d4f !important;
+    }
+
+/* 5. Nút bấm "Thêm" (Nút Xóa đỏ thì tự nhiên đã nổi rồi nên không cần sửa) */
+body.dark-theme .btn-modal-add:not([disabled]) {
+    background-color: #1e1e1e !important;
+    color: #6ea8fe !important;
+    border-color: #6ea8fe !important;
+}
+
+    body.dark-theme .btn-modal-add:not([disabled]):hover {
+        background-color: #6ea8fe !important;
+        color: #000 !important;
+    }
