@@ -1,87 +1,118 @@
-# 📚 QuizStudyAS - Interactive Study & Flashcard Platform
+# 📚 QuizStudyAS
 
-![.NET Core](https://img.shields.io/badge/.NET%20Core-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
-![ASP.NET MVC](https://img.shields.io/badge/ASP.NET%20MVC-0088CC?style=for-the-badge&logo=asp.net&logoColor=white)
-![Entity Framework Core](https://img.shields.io/badge/Entity_Framework-339933?style=for-the-badge&logo=nuget&logoColor=white)
-![SQL Server](https://img.shields.io/badge/SQL_Server-CC2927?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)
+**QuizStudyAS** is a comprehensive, interactive study and flashcard platform designed to seamlessly connect learning, classroom management, and online examinations. Developed as a **PBL3 (Project-Based Learning)** capstone project.
 
-## 📌 Giới thiệu (About The Project)
-**QuizStudyAS** là một hệ thống ứng dụng web được phát triển nhằm hỗ trợ quá trình học tập và ôn thi. Ứng dụng cung cấp các công cụ tạo bộ thẻ ghi nhớ (Flashcards), quản lý tiến độ học tập (Learning Progress), tổ chức lớp học (Classrooms) và các bài kiểm tra trắc nghiệm tương tác (Game Sessions). 
+## 🚀 Overview
 
-Đây là sản phẩm phục vụ cho đồ án Project-Based Learning (PBL3), được thiết kế với trọng tâm vào luồng dữ liệu chặt chẽ và trải nghiệm người dùng tối ưu.
+**QuizStudyAS** empowers both students and educators to:
+- Create, manage, and master **flashcard sets**.
+- Organize **virtual classrooms** and share learning materials.
+- Conduct **timed multiple-choice exams** (with automated CSV import capabilities).
+- Track progress dynamically via **XP, daily streaks, and leaderboards**.
+- Interact with a smart **AI study assistant** powered by Google Gemini.
 
-## 🚀 Kỹ thuật & Kiến trúc nổi bật (Technical Highlights)
-Thay vì chỉ viết code trên Controller, dự án này được thiết kế với tư duy chia tách trách nhiệm rõ ràng (Separation of Concerns), điểm cộng lớn đối với hệ thống Enterprise:
-* **Architecture:** Mô hình MVC (Model-View-Controller) kết hợp chặt chẽ với Service Pattern.
-* **Dependency Injection (DI):** Đăng ký và tiêm các dependencies (như `IAuthService`, `IEmailService`, `IAdminService`) giúp code dễ dàng bảo trì và Unit Test.
-* **Security:** Tích hợp `BCryptPasswordHasher` để mã hóa mật khẩu an toàn. Phân quyền (Role-based Authorization) với Custom Attributes (`AuthorizeRoleAttribute`).
-* **Database ORM:** Sử dụng Entity Framework Core (Code-First Approach) với các file Configuration (`IEntityTypeConfiguration`) riêng biệt cho từng Entity để giữ `AppDbContext` gọn gàng.
+## 🛠 Tech Stack
 
-## 🔑 Các tính năng chính (Key Features)
-- **Hệ thống Tài khoản (Authentication):** Đăng ký, Đăng nhập, Quên mật khẩu (gửi mã qua Email Service).
-- **Quản lý Lớp học (Classrooms):** Tạo lớp, yêu cầu tham gia (`RequestJoinClass`), duyệt thành viên.
-- **Tài nguyên Học tập (Study Sets & Flashcards):** Tạo, chỉnh sửa bộ từ vựng/kiến thức, trình bày dưới dạng thẻ lật.
-- **Đánh giá & Trắc nghiệm (Quiz & Game Sessions):** Tham gia các session làm bài, lưu kết quả từng câu hỏi (`QuizQuestionResult`).
-- **Phân tích (Learning Progress):** Theo dõi tiến độ học tập và tỉ lệ hoàn thành của người dùng.
-- **Admin Dashboard:** Quản lý toàn bộ người dùng, bộ học liệu và lớp học trên hệ thống.
+- **Backend Framework:** ASP.NET Core 10 (.NET 10) — MVC
+- **Frontend UI:** Razor Views, Bootstrap 5, Bootstrap Icons, Custom CSS/JS
+- **Database & ORM:** SQL Server + Entity Framework Core 10 (Code-First)
+- **Authentication:** Cookie Auth + Google OAuth
+- **Security:** BCrypt password hashing, Role-based authorization
+- **External Services:** SMTP (Password Recovery), Google Gemini API (AI Chatbot)
 
-## 🛠 Hướng dẫn Cài đặt & Chạy dự án (Getting Started)
+## 🏗 Architecture & Patterns
 
-**Yêu cầu hệ thống:**
-* [.NET SDK 8.0](https://dotnet.microsoft.com/download) (Hoặc phiên bản nhóm đang dùng)
-* SQL Server
-* Visual Studio 2022 / Visual Studio Code
+The application is built upon an **MVC + Service Layer** architecture to ensure clean separation of concerns, scalability, and maintainability.
 
-Dưới đây là các bước để cài đặt và chạy hệ thống trên môi trường local của bạn:
+```text
+Controllers  →  Services  →  AppDbContext  →  SQL Server
+     ↓
+  Views / ViewModels / DTOs
+```
 
-**1. Clone repository:**
-Mở terminal hoặc Git Bash và chạy lệnh sau để tải source code về máy:
+**Key Implementation Patterns:**
+- **Dependency Injection (DI):** Centralized service registration in `Program.cs`.
+- **Service Pattern:** Business logic is encapsulated in the `Services/` layer, ensuring thin and highly testable controllers.
+- **EF Core Configurations:** Explicit entity mappings utilizing Fluent API decoupled into `Data/Configurations/`.
 
-git clone [https://github.com/your-username/pbl3_quizstudyas.git](https://github.com/your-username/pbl3_quizstudyas.git)
+## ✨ Key Features
 
-**2. Mở Solution:**
-Khởi động Visual Studio và mở file QuizStudyAS.slnx nằm trong thư mục dự án vừa tải về.
+| Feature | Description |
+|---|---|
+| 🔐 **Authentication** | Register, Login, Google OAuth integration, Password recovery via Email (SMTP). |
+| 🗂️ **Study Sets** | Create/manage Flashcard sets, Learn mode with intuitive card flipping effects. |
+| 🏫 **Classrooms** | Classroom space management: Invite codes, member approval system, shared learning materials. |
+| 📝 **Exams** | Timed multiple-choice exams, automatic exam import from `.csv` files, exam history tracking. |
+| 🎮 **Gamification** | Experience points (XP) system, levels, learning streaks, automatic leaderboards. |
+| 🤖 **AI Chatbot** | Smart virtual learning assistant utilizing the power of the Google Gemini API. |
+| ⚙️ **Admin Panel** | Centralized administration dashboard for Admins to manage Users, Classrooms, and Study Sets. |
 
-**3. Thiết lập chuỗi kết nối cơ sở dữ liệu:**
+## ⚙️ Getting Started
 
-Tìm đến file appsettings.json (hoặc copy nội dung từ appsettings.Example.json nếu chưa có).
+### 1. Requirements
+- [.NET SDK 10.0](https://dotnet.microsoft.com/download)
+- SQL Server 
+- Visual Studio 2022 / Visual Studio Code
 
-Thay đổi chuỗi kết nối DefaultConnection sao cho phù hợp với cấu hình SQL Server trên máy của bạn.
+### 2. Clone the repository
+```bash
+git clone https://github.com/NDN-dut/PBL3_QuizStudyAS.git
+cd PBL3_QuizStudyAS/QuizStudyAS
+```
 
-(Tùy chọn) Cấu hình thêm thông tin SMTP cho Email Service nếu bạn muốn test tính năng gửi mail khôi phục mật khẩu.
+### 3. Application Configuration
+Create an `appsettings.json` file in the root directory `QuizStudyAS` (Do not commit real API keys to version control).
 
-**4. Áp dụng Migrations để tạo Database:**
-Mở công cụ Package Manager Console (PMC) trong Visual Studio và chạy lệnh:
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=.\\SQLEXPRESS;Database=QuizStudyAS_DB;Trusted_Connection=True;TrustServerCertificate=True"
+  },
+  "EmailSettings": {
+    "SmtpServer": "smtp.gmail.com",
+    "Port": 587,
+    "SenderName": "QSAS System",
+    "SenderEmail": "your-email@gmail.com",
+    "AppPassword": "your-app-password"
+  },
+  "Authentication": {
+    "Google": {
+      "ClientId": "your-google-client-id",
+      "ClientSecret": "your-google-client-secret"
+    }
+  },
+  "GeminiSettings": {
+    "ApiKey": "your-gemini-api-key",
+    "Model": "gemini-2.5-flash"
+  }
+}
+```
 
-PowerShell
+### 4. Database Initialization
+Apply Entity Framework Core migrations to build the database schema.
+
+Using .NET CLI:
+```bash
+dotnet ef database update
+```
+*Alternatively, using Package Manager Console in Visual Studio:*
+```powershell
 Update-Database
-(Hoặc nếu bạn sử dụng .NET CLI ở terminal, hãy chạy: dotnet ef database update)
+```
 
-**5. Build và Run dự án:**
-Nhấn F5 hoặc nút Run trên Visual Studio. Hệ thống DbInitializer sẽ tự động chạy và seed (khởi tạo) dữ liệu tài khoản Admin mặc định cùng các Role cần thiết nếu đã được cấu hình.
+### 5. Run the Application
+```bash
+dotnet run
+```
+*Note: In the Development environment, the application automatically runs migrations and seeds default accounts/sample classrooms via `DbInitializer` upon startup.*
 
-📸 Giao diện ứng dụng (Screenshots)
-Dưới đây là một số hình ảnh thực tế về giao diện và tính năng của hệ thống:
+## 🧑‍💻 Team Development
 
-Trang chủ (Homepage)
-Mô tả ngắn gọn: Giao diện tổng quan nơi người dùng bắt đầu các phiên học và xem danh sách lớp.
+| Member | Tasks & Technical Implementation |
+|------------|--------------------------------|
+| **Hồ Hoàng Phong Hào** | **Flashcard Logic, UI & Frontend**<br>- Design and develop the user interface (UI) using **Razor Views**, **Bootstrap 5**, and custom CSS/JS.<br>- Implement Flashcard, Flip card, and Learn mode feature logic. Handle client-side interactions and render data from Controllers to Views. |
+| **Nguyễn Danh Ngôn** | **Database Design, Authentication & System Architecture**<br>- Design the **SQL Server** database system using **Entity Framework Core 10 (Code-First)**.<br>- Set up the overall system architecture following the **MVC + Service Layer** pattern, integrating **Dependency Injection**.<br>- Implement security and authorization: **Cookie Auth**, **Google OAuth**, password hashing with **BCrypt**, and password recovery via **SMTP**. |
+| **Nguyễn Hữu Minh Khoa** | **Classroom & Exam Features**<br>- Build the Classroom management module (create classes, invite codes, approve join requests) leveraging MVC architecture.<br>- Develop the timed multiple-choice exam system, track results, and manage exam history.<br>- Process file read/write operations to support the **Automatic exam import via CSV file** feature. |
 
-Giao diện học Flashcard
-Mô tả ngắn gọn: Màn hình tương tác lật thẻ nhớ giúp học viên ôn tập hiệu quả.
-
-Dashboard Quản lý (Admin/Teacher)
-Mô tả ngắn gọn: Nơi giáo viên hoặc Admin quản lý danh sách học viên, bộ đề và tiến độ học tập.
-
-🤝 Đội ngũ phát triển (Team)
-Dự án PBL3 này được thiết kế và phát triển bởi sinh viên Bách Khoa Đà Nẵng:
-
-🧑‍💻 Hồ Hoàng Phong Hào * Vai trò: xử lí logic cho chức năng tạo và học bằng flashcard , thiết kế UI và FrontEnd
-GitHub: https://github.com/HaoVann
-
-👩‍💻 Nguyễn Danh Ngôn * Vai trò: thiết kế database , tổ chức hệ thống , xử lí chức năng đăng nhập
-
-GitHub: https://github.com/NDN-dut
-
-🧑‍💻 Nguyễn Hữu Minh Khoa * Vai trò: tổ chức các chức năng liên quan đến tạo lớp học
-GitHub: https://github.com/simpboy2k6
+## 📄 License
+Academic / educational project — see repository owner for usage terms.
