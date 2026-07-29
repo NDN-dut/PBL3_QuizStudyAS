@@ -1,103 +1,70 @@
-# QuizStudyAS
+# 📚 QuizStudyAS
 
-Interactive study and flashcard platform for learning, classroom management, and online exams. Built as a **PBL3 (Project-Based Learning)** capstone project.
+**QuizStudyAS** is a comprehensive, interactive study and flashcard platform designed to seamlessly connect learning, classroom management, and online examinations. Developed as a **PBL3 (Project-Based Learning)** capstone project.
 
-## Overview
+## 🚀 Overview
 
-**QuizStudyAS** helps students and teachers:
+**QuizStudyAS** empowers both students and educators to:
+- Create, manage, and master **flashcard sets**.
+- Organize **virtual classrooms** and share learning materials.
+- Conduct **timed multiple-choice exams** (with automated CSV import capabilities).
+- Track progress dynamically via **XP, daily streaks, and leaderboards**.
+- Interact with a smart **AI study assistant** powered by Google Gemini.
 
-- Create and study **flashcard sets**
-- Organize **classrooms** and share materials
-- Take **timed multiple-choice exams** (including CSV import)
-- Track **learning progress**, **XP**, **streaks**, and **leaderboards**
-- Chat with an **AI study assistant** powered by Google Gemini
+## 🛠 Tech Stack
 
-## Tech Stack
+- **Backend Framework:** ASP.NET Core 10 (.NET 10) — MVC
+- **Frontend UI:** Razor Views, Bootstrap 5, Bootstrap Icons, Custom CSS/JS
+- **Database & ORM:** SQL Server + Entity Framework Core 10 (Code-First)
+- **Authentication:** Cookie Auth + Google OAuth
+- **Security:** BCrypt password hashing, Role-based authorization
+- **External Services:** SMTP (Password Recovery), Google Gemini API (AI Chatbot)
 
-| Layer | Technology |
-|-------|------------|
-| Backend | ASP.NET Core 10 (.NET 10) — MVC |
-| Frontend | Razor Views, Bootstrap 5, Bootstrap Icons, custom CSS/JS |
-| Database | SQL Server + Entity Framework Core 10 (Code-First) |
-| Authentication | Cookie auth + Google OAuth |
-| Security | BCrypt password hashing, role-based authorization |
-| Email | SMTP (password reset) |
-| AI | Google Gemini API |
+## 🏗 Architecture & Patterns
 
-## Architecture
+The application is built upon an **MVC + Service Layer** architecture to ensure clean separation of concerns, scalability, and maintainability.
 
-The project uses **MVC + Service Layer** with clear separation of concerns:
-
-```
+```text
 Controllers  →  Services  →  AppDbContext  →  SQL Server
      ↓
   Views / ViewModels / DTOs
 ```
 
-### Key patterns
+**Key Implementation Patterns:**
+- **Dependency Injection (DI):** Centralized service registration in `Program.cs`.
+- **Service Pattern:** Business logic is encapsulated in the `Services/` layer, ensuring thin and highly testable controllers.
+- **EF Core Configurations:** Explicit entity mappings utilizing Fluent API decoupled into `Data/Configurations/`.
 
-- **Dependency Injection** — services registered in `Program.cs`
-- **Service pattern** — business logic in `Services/`, controllers stay thin
-- **EF Core configurations** — entity mappings in `Data/Configurations/`
-- **Session + cookies** — user session for app state; cookies for authentication
+## ✨ Key Features
 
-### Project structure
+| Feature | Description |
+|---|---|
+| 🔐 **Authentication** | Register, Login, Google OAuth integration, Password recovery via Email (SMTP). |
+| 🗂️ **Study Sets** | Create/manage Flashcard sets, Learn mode with intuitive card flipping effects. |
+| 🏫 **Classrooms** | Classroom space management: Invite codes, member approval system, shared learning materials. |
+| 📝 **Exams** | Timed multiple-choice exams, automatic exam import from `.csv` files, exam history tracking. |
+| 🎮 **Gamification** | Experience points (XP) system, levels, learning streaks, automatic leaderboards. |
+| 🤖 **AI Chatbot** | Smart virtual learning assistant utilizing the power of the Google Gemini API. |
+| ⚙️ **Admin Panel** | Centralized administration dashboard for Admins to manage Users, Classrooms, and Study Sets. |
 
-```
-QuizStudyAS/
-├── Controllers/       # HTTP endpoints (Auth, StudySet, ClassRoom, Exam, Admin, …)
-├── Services/          # Business logic
-├── Models/            # Domain entities
-├── ViewModels/        # View-specific data shapes
-├── DTOs/              # API request/response objects
-├── Data/              # DbContext, DbInitializer, EF configurations
-├── Views/             # Razor UI
-├── wwwroot/           # Static assets (css, js, lib)
-├── Migrations/        # EF Core database migrations
-├── DataSamples/       # Sample CSV files for exam import
-└── Program.cs         # App entry point & DI setup
-```
+## ⚙️ Getting Started
 
-## Features
-
-| Module | Description |
-|--------|-------------|
-| **Authentication** | Register, login, Google OAuth, forgot password via email |
-| **Study Sets** | Create/edit flashcard sets, learn mode with flip cards |
-| **Classrooms** | Create classes, invite codes, join requests, shared materials |
-| **Exams** | Timed MCQ exams, CSV import, attempt tracking, review & results |
-| **Gamification** | XP, levels, daily streaks, achievements, leaderboard |
-| **AI Chatbot** | Gemini-powered study assistant for logged-in users |
-| **Admin** | User, study set, and classroom management dashboard |
-
-## Prerequisites
-
+### 1. Requirements
 - [.NET SDK 10.0](https://dotnet.microsoft.com/download)
-- SQL Server (e.g. SQL Server Express)
-- Visual Studio 2022 / VS Code (optional)
+- SQL Server 
+- Visual Studio 2022 / Visual Studio Code
 
-## Getting Started
-
-### 1. Clone the repository
-
+### 2. Clone the repository
 ```bash
-git clone https://github.com/your-username/pbl3_quizstudyas.git
-cd pbl3_quizstudyas/QuizStudyAS
+git clone https://github.com/NDN-dut/PBL3_QuizStudyAS.git
+cd PBL3_QuizStudyAS/QuizStudyAS
 ```
 
-### 2. Configure application settings
-
-Create `appsettings.json` (and optionally `appsettings.Development.json`) in the project root. These files are gitignored — do not commit secrets.
+### 3. Application Configuration
+Create an `appsettings.json` file in the root directory `QuizStudyAS` (Do not commit real API keys to version control).
 
 ```json
 {
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "AllowedHosts": "*",
   "ConnectionStrings": {
     "DefaultConnection": "Server=.\\SQLEXPRESS;Database=QuizStudyAS_DB;Trusted_Connection=True;TrustServerCertificate=True"
   },
@@ -121,89 +88,31 @@ Create `appsettings.json` (and optionally `appsettings.Development.json`) in the
 }
 ```
 
-Adjust `DefaultConnection` to match your SQL Server instance.
+### 4. Database Initialization
+Apply Entity Framework Core migrations to build the database schema.
 
-### 3. Apply database migrations
-
-From the `QuizStudyAS` folder:
-
+Using .NET CLI:
 ```bash
 dotnet ef database update
 ```
-
-Or use **Package Manager Console** in Visual Studio:
-
+*Alternatively, using Package Manager Console in Visual Studio:*
 ```powershell
 Update-Database
 ```
 
-### 4. Run the application
-
+### 5. Run the Application
 ```bash
 dotnet run
 ```
+*Note: In the Development environment, the application automatically runs migrations and seeds default accounts/sample classrooms via `DbInitializer` upon startup.*
 
-Or open `QuizStudyAS.slnx` in Visual Studio and press **F5**.
+## 🧑‍💻 Team Development
 
-Default URLs (Development):
+| Member | Tasks & Technical Implementation |
+|------------|--------------------------------|
+| **Hồ Hoàng Phong Hào** | **Flashcard Logic, UI & Frontend**<br>- Design and develop the user interface (UI) using **Razor Views**, **Bootstrap 5**, and custom CSS/JS.<br>- Implement Flashcard, Flip card, and Learn mode feature logic. Handle client-side interactions and render data from Controllers to Views. |
+| **Nguyễn Danh Ngôn** | **Database Design, Authentication & System Architecture**<br>- Design the **SQL Server** database system using **Entity Framework Core 10 (Code-First)**.<br>- Set up the overall system architecture following the **MVC + Service Layer** pattern, integrating **Dependency Injection**.<br>- Implement security and authorization: **Cookie Auth**, **Google OAuth**, password hashing with **BCrypt**, and password recovery via **SMTP**. |
+| **Nguyễn Hữu Minh Khoa** | **Classroom & Exam Features**<br>- Build the Classroom management module (create classes, invite codes, approve join requests) leveraging MVC architecture.<br>- Develop the timed multiple-choice exam system, track results, and manage exam history.<br>- Process file read/write operations to support the **Automatic exam import via CSV file** feature. |
 
-- HTTP: `http://localhost:5150`
-- HTTPS: `https://localhost:7235`
-
-In **Development**, the app automatically runs migrations and seeds sample data via `DbInitializer`.
-
-## Default Seed Accounts
-
-| Username | Role | Password |
-|----------|------|----------|
-| `admin_teacher` | Admin | `123456` |
-| `sv_it_01` | User | `123456` |
-| `sv_it_02` | User | `123456` |
-| `sv_nn_03` | User | `123456` |
-| `sv_it_04` | User | `123456` |
-
-Sample classrooms are also seeded (e.g. invite code `GRASP2026`).
-
-## Exam CSV Import Format
-
-Exams can be created by uploading a `.csv` file. See `DataSamples/` for examples.
-
-**Header row (required):**
-
-```
-Cau_hoi,A,B,C,D,Dap_an_dung,Giai_thich
-```
-
-**Rules:**
-
-1. First row must be the header above (skipped during import).
-2. Wrap fields containing commas in double quotes (`"`).
-3. Save as **UTF-8** so Vietnamese characters display correctly.
-4. `Dap_an_dung` must be a single letter: `A`, `B`, `C`, or `D`.
-
-## Main Controllers
-
-| Controller | Purpose |
-|------------|---------|
-| `AuthController` | Login, register, password reset |
-| `StudySetController` | Flashcard sets & learn mode |
-| `ClassRoomController` | Classrooms & join requests |
-| `ExamController` | Create, take, and review exams |
-| `ChatbotController` | AI study assistant |
-| `LeaderboardController` | Rankings & gamification |
-| `AdminController` | Admin dashboard (Admin role only) |
-| `UserController` | User profile & settings |
-
-## Team
-
-PBL3 project — Da Nang University of Science and Technology (DUT):
-
-| Member | Role |
-|--------|------|
-| Hồ Hoàng Phong Hào | Flashcard logic, UI & frontend |
-| Nguyễn Danh Ngôn | Database design, auth, system organization |
-| Nguyễn Hữu Minh Khoa | Classroom features |
-
-## License
-
+## 📄 License
 Academic / educational project — see repository owner for usage terms.
