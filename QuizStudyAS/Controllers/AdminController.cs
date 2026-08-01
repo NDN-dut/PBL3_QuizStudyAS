@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.Attributes;
-using QuizStudyAS.Services;
+using QuizStudyAS.Services.Admin;
 using QuizStudyAS.DTOs;
 using System;
 

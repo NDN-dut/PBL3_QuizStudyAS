@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.ViewModels;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.ClassRoom
 {
     public interface IClassRoomServices
     {

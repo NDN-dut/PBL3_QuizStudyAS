@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using QuizStudyAS.Services;
+using Microsoft.AspNetCore.Mvc;
+using QuizStudyAS.Services.Ai;
 using System.Threading.Tasks;
 
 namespace QuizStudyAS.Controllers

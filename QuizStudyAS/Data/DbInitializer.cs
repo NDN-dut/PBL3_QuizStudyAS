@@ -1,7 +1,7 @@
-﻿using QuizStudyAS.Models;
+using QuizStudyAS.Models;
 using System.Linq;
 using System.Collections.Generic;
-using QuizStudyAS.Services;
+using QuizStudyAS.Services.Auth;
 
 namespace QuizStudyAS.Data
 {

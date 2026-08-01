@@ -1,4 +1,4 @@
-﻿namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Auth
 {
     public class PlainTextPasswordHasher : IPasswordHasher
     {

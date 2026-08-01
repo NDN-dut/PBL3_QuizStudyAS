@@ -1,8 +1,8 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Email
 {
     public class EmailService : IEmailService
     {

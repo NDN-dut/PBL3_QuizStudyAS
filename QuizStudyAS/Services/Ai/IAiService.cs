@@ -1,7 +1,7 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using QuizStudyAS.DTOs;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Ai
 {
     public interface IAiService
     {

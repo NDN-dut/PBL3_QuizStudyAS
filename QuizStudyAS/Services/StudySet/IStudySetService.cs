@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.Models;
 using QuizStudyAS.ViewModels;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.StudySet
 {
+    using StudySet = QuizStudyAS.Models.StudySet;
     // ĐÃ ĐƯA RA NGOÀI: Class DTO khai báo độc lập để mọi nơi đều dùng được
     public class ClassroomShareDTO
     {

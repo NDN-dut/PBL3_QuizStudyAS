@@ -1,8 +1,8 @@
-﻿using QuizStudyAS.Models;
+using QuizStudyAS.Models;
 using QuizStudyAS.DTOs;
 using System.Threading.Tasks;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Auth
 {
     public interface IAuthService
     {

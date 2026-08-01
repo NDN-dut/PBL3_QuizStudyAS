@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using QuizStudyAS.DTOs;
-using QuizStudyAS.Services;
+using QuizStudyAS.Services.Exam;
 using QuizStudyAS.ViewModels;
 using System.Collections.Generic;
 using System.Text;

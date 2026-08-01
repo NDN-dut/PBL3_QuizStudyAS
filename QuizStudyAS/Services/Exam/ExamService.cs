@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
 using QuizStudyAS.DTOs;
 using QuizStudyAS.Models;
@@ -6,8 +6,9 @@ using QuizStudyAS.ViewModels;
 using System.Text.RegularExpressions;
 using System.IO;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Exam
 {
+    using Exam = QuizStudyAS.Models.Exam;
     public class ExamService : IExamService
     {
         private readonly AppDbContext _context;

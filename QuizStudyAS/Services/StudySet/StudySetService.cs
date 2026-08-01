@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
 using QuizStudyAS.Models;
 using QuizStudyAS.ViewModels;
 using Microsoft.AspNetCore.Http; // Thư viện cần cho IHttpContextAccessor của bạn
-using static QuizStudyAS.Services.IStudySetService; // Thư viện để nhận diện DTO mới
-
-namespace QuizStudyAS.Services
+using static QuizStudyAS.Services.StudySet.IStudySetService; // Thư viện để nhận diện DTO mới
+namespace QuizStudyAS.Services.StudySet
 {
+    using StudySet = QuizStudyAS.Models.StudySet;
     public class StudySetService : IStudySetService
     {
         private readonly AppDbContext _context;

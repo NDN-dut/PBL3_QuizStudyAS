@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
 using QuizStudyAS.Models;
 using QuizStudyAS.DTOs; // Thêm thư viện DTO
-
-namespace QuizStudyAS.Services
+using QuizStudyAS.Services.Auth;
+namespace QuizStudyAS.Services.Admin
 {
+    using StudySet = QuizStudyAS.Models.StudySet;
     public class AdminService : IAdminService
     {
         private readonly AppDbContext _context;

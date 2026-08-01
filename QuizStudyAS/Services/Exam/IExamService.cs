@@ -1,8 +1,8 @@
-﻿using QuizStudyAS.DTOs;
+using QuizStudyAS.DTOs;
 using QuizStudyAS.Models;
 using QuizStudyAS.ViewModels;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Exam
 {
     public interface IExamService
     {

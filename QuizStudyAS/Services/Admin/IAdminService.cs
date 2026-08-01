@@ -1,8 +1,9 @@
-﻿using QuizStudyAS.Models;
+using QuizStudyAS.Models;
 using QuizStudyAS.DTOs; // Thêm thư viện DTO
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Admin
 {
+    using StudySet = QuizStudyAS.Models.StudySet;
     public interface IAdminService
     {
         // Thống kê cho Dashboard (Giữ nguyên Tuple chứa dữ liệu)

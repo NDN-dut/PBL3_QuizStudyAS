@@ -1,6 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
-using QuizStudyAS.Services;
+using QuizStudyAS.Services.Admin;
+using QuizStudyAS.Services.Ai;
+using QuizStudyAS.Services.Auth;
+using QuizStudyAS.Services.ClassRoom;
+using QuizStudyAS.Services.Email;
+using QuizStudyAS.Services.Exam;
+using QuizStudyAS.Services.Gamification;
+using QuizStudyAS.Services.Leaderboard;
+using QuizStudyAS.Services.StudySet;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);

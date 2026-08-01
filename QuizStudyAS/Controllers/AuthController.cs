@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using QuizStudyAS.Services;
+using QuizStudyAS.Services.Auth;
+using QuizStudyAS.Services.Email;
 using QuizStudyAS.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;

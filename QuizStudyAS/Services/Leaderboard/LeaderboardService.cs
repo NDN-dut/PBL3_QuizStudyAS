@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
 using QuizStudyAS.ViewModels;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Leaderboard
 {
     public class LeaderboardService : ILeaderboardService
     {

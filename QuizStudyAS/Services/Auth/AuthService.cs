@@ -1,10 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
 using QuizStudyAS.DTOs;
 using QuizStudyAS.Models;
 using System.Threading.Tasks;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Auth
 {
     public class AuthService : IAuthService
     {

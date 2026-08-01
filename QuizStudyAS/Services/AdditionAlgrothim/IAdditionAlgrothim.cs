@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using QuizStudyAS.Models;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.AdditionAlgrothim
 {
     public interface IAdditionAlgrothim
     {

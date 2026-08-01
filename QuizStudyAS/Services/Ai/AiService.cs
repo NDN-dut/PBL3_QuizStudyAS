@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Net.Http;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using QuizStudyAS.DTOs;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Ai
 {
     public class AiService : IAiService
     {

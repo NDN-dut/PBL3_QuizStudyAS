@@ -1,7 +1,7 @@
-﻿using QuizStudyAS.ViewModels;
+using QuizStudyAS.ViewModels;
 using System.Threading.Tasks;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Leaderboard
 {
     public interface ILeaderboardService
     {

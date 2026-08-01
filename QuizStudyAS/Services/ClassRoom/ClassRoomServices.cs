@@ -5,8 +5,9 @@ using QuizStudyAS.Data;
 using QuizStudyAS.Models;
 using QuizStudyAS.ViewModels;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.ClassRoom
 {
+    using AdditionAlgrothim = QuizStudyAS.Services.AdditionAlgrothim.AdditionAlgrothim;
     public class ClassRoomServices : IClassRoomServices
     {
         private readonly AppDbContext _context;

@@ -1,6 +1,6 @@
-﻿using BCrypt.Net;
+using BCrypt.Net;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Auth
 {
     public class BCryptPasswordHasher : IPasswordHasher
     {

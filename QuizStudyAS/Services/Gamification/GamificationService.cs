@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
 using QuizStudyAS.Models;
 
-namespace QuizStudyAS.Services
+namespace QuizStudyAS.Services.Gamification
 {
     public class GamificationService : IGamificationService
     {
