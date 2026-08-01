@@ -1,4 +1,4 @@
-﻿@model QuizStudyAS.ViewModels.ClassRoomDetailVM
+@model QuizStudyAS.ViewModels.ClassRoomDetailVM
 
 @{
     ViewData["Title"] = Model.ClassName;
@@ -32,9 +32,19 @@
             </div>
 
             <div class="d-flex gap-3">
-                <button id="btnOpenAddModal" class="btn btn-primary btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
-                    <i class="bi bi-plus-circle-fill fs-5"></i> Thêm học phần
-                </button>
+                @if(Model.IsOwner)
+                {
+                    <button id="btnOpenAddModal" class="btn btn-primary btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
+                        <i class="bi bi-plus-circle-fill fs-5"></i> Thêm học phần
+                    </button>
+                }
+                else
+                {
+                    <button type="button" onclick="confirmLeaveClass('@Model.ClassCode')" class="btn btn-outline-danger btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
+                        <i class="bi bi-box-arrow-right fs-5"></i> Rời khỏi lớp
+                    </button>
+                }
+
                 <button id="btnOpenShowUserModal" class="btn btn-primary btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
                     <i class="bi bi-people fs-5"></i> Xem thành viên
                 </button>
@@ -268,17 +278,23 @@ else
             let isLoadedStudySetModal = false; // Cờ kiểm tra xem đã tải data chưa
             let scopeAttribute = Array.from(modal.attributes).find(attr => attr.name.startsWith('b-'))?.name;
             // 1. Đóng/Mở Modal
-            btnOpenModal.addEventListener('click', function () {
-                modal.classList.remove('hidden');
-                if (!isLoadedStudySetModal) {
-                    loadMyStudySets();
-                }
-            });
+            if(btnOpenModal){
+                btnOpenModal.addEventListener('click', function () {
+                    modal.classList.remove('hidden');
+                    if (!isLoadedStudySetModal) {
+                        loadMyStudySets();
+                    }
+                });
+            }
 
+            if(btnCloseModal){
             btnCloseModal.addEventListener('click', () => modal.classList.add('hidden'));
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) modal.classList.add('hidden');
-            });
+            }
+            if(modal){
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.classList.add('hidden');
+                });
+            }
 
             // 2. Hàm Fetch lấy danh sách học phần của user
             async function loadMyStudySets() {
@@ -447,6 +463,30 @@ else
                         };
                     });
                 });
+            }
+            window.confirmLeaveClass = function (classCode) {
+                if (confirm("Bạn có chắc chắn muốn rời khỏi lớp học này không?")) {
+                    fetch('/ClassRoom/LeaveClass', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({ 'classCode': classCode })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Bạn đã rời khỏi lớp học thành công.");
+                            window.location.href = '/ClassRoom/Index';
+                        } else {
+                            alert("Không thể rời khỏi lớp học. Vui lòng thử lại!");
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Có lỗi xảy ra kết nối!");
+                    });
+                }
             }
         });
     </script>

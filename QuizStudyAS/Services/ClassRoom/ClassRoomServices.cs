@@ -316,6 +316,7 @@ namespace QuizStudyAS.Services.ClassRoom
             await _context.SaveChangesAsync();
             return true;
         }
+
         public async Task<bool> DeleteClassRoom(string Classcode)
         {
             int Classid = await _context.Classrooms.Where(c => c.InviteCode == Classcode)
@@ -335,6 +336,43 @@ namespace QuizStudyAS.Services.ClassRoom
             classroom.StatusId = (int)ClassroomStatusEnum.DeletedByUser;
             await _context.SaveChangesAsync();
             
+            return true;
+        }
+
+        public async Task<bool> LeaveClassRoom(string classCode)
+        {
+            string? currentUserId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return false;
+            }
+            // 1. Find the classroom by invite code
+            var classroom = await _context.Classrooms
+                .FirstOrDefaultAsync(c => c.InviteCode == classCode && c.StatusId == (int)ClassroomStatusEnum.Active);
+            if (classroom == null)
+            {
+                return false;
+            }
+            // 2. Prevent Owner from leaving their own classroom (Owner must delete or transfer ownership)
+            if (classroom.OwnerUserId == currentUserId)
+            {
+                return false;
+            }
+            // 3. Find user membership record
+            var memberRecord = await _context.ClassroomUsers
+                .FirstOrDefaultAsync(cu => cu.ClassroomId == classroom.ClassroomId && cu.UserId == currentUserId);
+            if (memberRecord != null)
+            {
+                memberRecord.Status = ClassroomUserStatus.Left;
+            }
+            // 4. Also clean up any pending/approved join requests so the user can re-apply in the future if desired
+            var joinRequest = await _context.RequestJoinClasses
+                .FirstOrDefaultAsync(r => r.ClassroomId == classroom.ClassroomId && r.UserId == currentUserId);
+            if (joinRequest != null)
+            {
+                joinRequest.Status = RequestJoinStatus.Denied;
+            }
+            await _context.SaveChangesAsync();
             return true;
         }
         public async Task<bool> CheckAuthorityClass(int ClassId)

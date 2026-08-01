@@ -19,6 +19,7 @@ namespace QuizStudyAS.Services.ClassRoom
         public Task<bool> CheckAuthorityClass(int ClassId);
         public Task<bool> DeleteUserOfClass(string ClassCode,string UserId);
         public Task<bool> DeleteClassRoom(string Classcode);
+        public Task<bool> LeaveClassRoom(string classCode);
         public Task<ClassRoomDetailVM> GetAllUserOfClass(string ClassCode);
     }
 }
