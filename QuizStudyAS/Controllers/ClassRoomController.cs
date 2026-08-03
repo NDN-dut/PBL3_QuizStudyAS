@@ -119,6 +119,17 @@ namespace QuizStudyAS.Controllers
             bool result = await _ClassRoomServices.LeaveClassRoom(classCode);
             return Json(new { success = result });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> RegenerateInviteCode(string classCode)
+        {
+            string? newCode = await _ClassRoomServices.RegenerateInviteCode(classCode);
+            if (newCode == null)
+            {
+                return Json(new { success = false, message = "Không có quyền thực hiện thao tác này." });
+            }
+            return Json(new { success = true, newCode = newCode });
+        }
         
         // THÊM API NÀY ĐỂ LẤY SỐ LƯỢNG THÔNG BÁO CHO SIDEBAR
         [HttpGet]

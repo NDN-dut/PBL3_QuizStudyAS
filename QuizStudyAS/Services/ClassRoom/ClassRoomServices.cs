@@ -430,5 +430,28 @@ namespace QuizStudyAS.Services.ClassRoom
             return Data;
 
         }
+        public async Task<string?> RegenerateInviteCode(string oldClassCode)
+        {
+            var classroom = await _context.Classrooms
+                .FirstOrDefaultAsync(c => c.InviteCode == oldClassCode);
+
+            if (classroom == null)
+            {
+                return null;
+            }
+
+            // Security check: Only the classroom owner can regenerate the code
+            if (!await CheckAuthorityClass(classroom.ClassroomId))
+            {
+                return null;
+            }
+
+            // Generate a new unique 8-character invite code
+            string newCode = await CreateUniqueLink();
+            classroom.InviteCode = newCode;
+
+            await _context.SaveChangesAsync();
+            return newCode;
+        }
     }
 }

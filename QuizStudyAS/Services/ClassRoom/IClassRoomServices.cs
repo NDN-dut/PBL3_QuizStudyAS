@@ -20,6 +20,7 @@ namespace QuizStudyAS.Services.ClassRoom
         public Task<bool> DeleteUserOfClass(string ClassCode,string UserId);
         public Task<bool> DeleteClassRoom(string Classcode);
         public Task<bool> LeaveClassRoom(string classCode);
+        public Task<string?> RegenerateInviteCode(string oldClassCode);
         public Task<ClassRoomDetailVM> GetAllUserOfClass(string ClassCode);
     }
 }

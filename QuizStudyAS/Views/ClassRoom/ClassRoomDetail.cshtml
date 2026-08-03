@@ -26,8 +26,17 @@
                         Giảng viên: <strong class="ms-2 text-dark">@Model.OwnerName</strong>
                     </span>
                     <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fs-6 shadow-xs">
-                        <i class="bi bi-upc-scan me-1"></i> Mã lớp: @Model.ClassCode
+                        <i class="bi bi-upc-scan me-1"></i> Mã lớp: <strong id="lblClassCode">@Model.ClassCode</strong>
                     </span>
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="copyClassLink()" title="Sao chép liên kết">
+                        <i class="bi bi-clipboard me-1"></i> Copy Link
+                    </button>
+                    @if (Model.IsOwner)
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3" onclick="confirmRegenerateCode('@Model.ClassCode')" title="Đổi mã lớp mới">
+                            <i class="bi bi-arrow-repeat me-1"></i> Đổi mã
+                        </button>
+                    }
                 </div>
             </div>
 
@@ -485,6 +494,39 @@ else
                     .catch(err => {
                         console.error(err);
                         alert("Có lỗi xảy ra kết nối!");
+                    });
+                }
+            }
+
+            window.copyClassLink = function () {
+                const classCode = document.getElementById('lblClassCode').innerText.trim();
+                const joinUrl = `${window.location.origin}/ClassRoom/Index?NameClass=${classCode}`;
+                navigator.clipboard.writeText(joinUrl).then(() => {
+                    alert('Đã sao chép liên kết tham gia lớp học!');
+                }).catch(err => {
+                    console.error('Lỗi khi sao chép link:', err);
+                });
+            }
+
+            window.confirmRegenerateCode = function (oldCode) {
+                if (confirm('Bạn có chắc chắn muốn tạo mã lớp mới? Mã cũ sẽ không còn hiệu lực.')) {
+                    fetch('/ClassRoom/RegenerateInviteCode', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({ 'classCode': oldCode })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('lblClassCode').innerText = data.newCode;
+                            alert('Đã đổi mã lớp mới thành công: ' + data.newCode);
+                        } else {
+                            alert(data.message || 'Không thể tạo lại mã lớp.');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Có lỗi xảy ra kết nối!');
                     });
                 }
             }
