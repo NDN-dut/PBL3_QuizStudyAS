@@ -24,59 +24,66 @@ namespace QuizStudyAS.Services.ClassRoom
         }
         public async Task<ListShowClassRoomVM> FindClassRoomByName(string NameClass)
         {
-            // THÊM ĐOẠN KIỂM TRA CHẶN NULL HOẶC RỖNG Ở ĐÂY
             if (string.IsNullOrWhiteSpace(NameClass))
             {
                 return new ListShowClassRoomVM { ListClassRoom = new List<ShowClassRoom>() };
             }
 
-            AdditionAlgrothim AddAl = new AdditionAlgrothim(_context);
-            string currentUserId = GetCurrentUserId();
+            string currentUserId = GetCurrentUserId() ?? "";
+            string nameToSearch = NameClass.Trim().ToLower();
 
-            // THAY THẾ DÒNG CŨ: var allClassBasicInfo = await _context.Classrooms.Where(c=>c.IsActive==true)
-            var allClassBasicInfo = await _context.Classrooms.Where(c=>c.StatusId == (int)ClassroomStatusEnum.Active)
-                                .Select(c => new { c.ClassroomId, c.ClassName })
-                                .ToListAsync();
+            //STAGE 1: SQL LIKE filter — fast, runs directly on the indexed DB
+            var sqlCandidates = await _context.Classrooms
+                .Where(c => c.StatusId == (int)ClassroomStatusEnum.Active &&
+                            EF.Functions.Like(c.ClassName, $"%{NameClass.Trim()}%"))
+                .Select(c => new { c.ClassroomId, c.ClassName })
+                .Take(20)
+                .ToListAsync();
 
-            // BƯỚC 2: Chạy Levenshtein trên RAM để lấy ra 5 ID có độ lệch thấp nhất
-            var nameToSearch = NameClass.ToLower();
+            List<int> candidateIds;
 
-            var top5Ids = allClassBasicInfo
-                .OrderBy(c => AddAl.DistanceLevenshtein(c.ClassName.ToLower(), nameToSearch))
-                .Take(5)
-                .Select(c => c.ClassroomId)
-                .ToList();
+            if (sqlCandidates.Any())
+            {
+                candidateIds = sqlCandidates
+                    .Select(c => c.ClassroomId)
+                    .ToList();
+            }
+            else
+            {
+                //STAGE 2: Levenshtein fallback on a capped pool (max 50 rows)
+                AdditionAlgrothim AddAl = new AdditionAlgrothim(_context);
+                var fallbackPool = await _context.Classrooms
+                    .Where(c => c.StatusId == (int)ClassroomStatusEnum.Active)
+                    .Select(c => new { c.ClassroomId, c.ClassName })
+                    .Take(50)
+                    .ToListAsync();
 
-            // Nếu không tìm thấy gì (DB rỗng)
-            if (!top5Ids.Any()) return new ListShowClassRoomVM();
+                candidateIds = fallbackPool
+                    .OrderBy(c => AddAl.DistanceLevenshtein(c.ClassName.ToLower(), nameToSearch))
+                    .Take(5)
+                    .Select(c => c.ClassroomId)
+                    .ToList();
+            }
 
-            // BƯỚC 3: Lấy chi tiết 5 lớp học dựa trên 5 cái ID vừa tìm được (Giữ nguyên cấu trúc Select của bạn)
-            var top5Classrooms = await _context.Classrooms
-                .Where(p => top5Ids.Contains(p.ClassroomId)) 
+            if (!candidateIds.Any()) return new ListShowClassRoomVM { ListClassRoom = new List<ShowClassRoom>() };
+
+            // Load full details for the matching candidate IDs
+            var classroomsData = await _context.Classrooms
+                .Where(p => candidateIds.Contains(p.ClassroomId))
                 .Select(p => new ShowClassRoom
                 {
                     ClassName = p.ClassName,
                     Link = p.InviteCode,
                     OwnerName = p.OwnerUser.UserName,
                     ExistingAvatarUrl = p.OwnerUser.AvatarUrl,
-                    // Vẫn lấy Status bình thường dựa vào currentUserId
                     Status_Class = p.JoinRequests
                                     .Where(r => r.UserId == currentUserId)
                                     .Select(r => r.Status)
                                     .FirstOrDefault()
                 })
-                .ToListAsync(); // Sửa FirstOrDefaultAsync thành ToListAsync vì giờ là lấy 1 list
-            
-            // BƯỚC 4: (Quan trọng) Sắp xếp lại thứ tự list cuối cùng 
-            // Vì toán tử .Contains(ID) của SQL không đảm bảo trả về đúng thứ tự độ lệch Levenshtein
-            var finalResult = top5Classrooms
-                .OrderBy(p => AddAl.DistanceLevenshtein(p.ClassName.ToLower(), nameToSearch))
-                .ToList();
-            var data = new ListShowClassRoomVM()
-            {
-                ListClassRoom = finalResult
-            };
-            return data;
+                .ToListAsync();
+
+            return new ListShowClassRoomVM { ListClassRoom = classroomsData };
         }
         
 
