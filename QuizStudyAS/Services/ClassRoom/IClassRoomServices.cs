@@ -22,5 +22,7 @@ namespace QuizStudyAS.Services.ClassRoom
         public Task<bool> LeaveClassRoom(string classCode);
         public Task<string?> RegenerateInviteCode(string oldClassCode);
         public Task<ClassRoomDetailVM> GetAllUserOfClass(string ClassCode);
+        public Task<bool> CreatePost(string classCode, string content);
+        public Task<bool> DeletePost(int postId);
     }
 }

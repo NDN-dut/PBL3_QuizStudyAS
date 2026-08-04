@@ -257,7 +257,7 @@ namespace QuizStudyAS.Services.ClassRoom
                                 }).ToList()
                 }).FirstOrDefaultAsync();
 
-            // 2. Lấy bổ sung danh sách Bài kiểm tra nếu tìm thấy lớp học
+            // 2. Lấy bổ sung danh sách Bài kiểm tra và Thông báo nếu tìm thấy lớp học
             if (ClassRoomDetailData != null)
             {
                 var exams = await _context.Exams
@@ -270,10 +270,26 @@ namespace QuizStudyAS.Services.ClassRoom
                         EndTime = ex.EndTime,
                         DurationMinutes = ex.DurationMinutes
                     })
-                    .OrderByDescending(ex => ex.ExamId) // Bài thi mới tạo xếp lên đầu
+                    .OrderByDescending(ex => ex.ExamId)
                     .ToListAsync();
 
                 ClassRoomDetailData.Exams = exams;
+
+                // Load posts newest-first
+                var posts = await _context.ClassroomPosts
+                    .Where(p => p.ClassroomId == ClassRoomDetailData.ClassroomId)
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Select(p => new ClassroomPostVM
+                    {
+                        PostId = p.PostId,
+                        AuthorName = p.Author.UserName,
+                        AuthorAvatarUrl = p.Author.AvatarUrl,
+                        Content = p.Content,
+                        CreatedAt = p.CreatedAt
+                    })
+                    .ToListAsync();
+
+                ClassRoomDetailData.Posts = posts;
             }
 
             return ClassRoomDetailData;
@@ -459,6 +475,50 @@ namespace QuizStudyAS.Services.ClassRoom
 
             await _context.SaveChangesAsync();
             return newCode;
+        }
+        public async Task<bool> CreatePost(string classCode, string content)
+        {
+            if (string.IsNullOrWhiteSpace(content)) return false;
+
+            string? currentUserId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId)) return false;
+
+            var classroom = await _context.Classrooms
+                .FirstOrDefaultAsync(c => c.InviteCode == classCode);
+
+            if (classroom == null) return false;
+
+            // Only the classroom owner can post announcements
+            if (!await CheckAuthorityClass(classroom.ClassroomId)) return false;
+
+            await _context.ClassroomPosts.AddAsync(new ClassroomPost
+            {
+                ClassroomId = classroom.ClassroomId,
+                AuthorUserId = currentUserId,
+                Content = content.Trim(),
+                CreatedAt = DateTime.Now
+            });
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> DeletePost(int postId)
+        {
+            string? currentUserId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId)) return false;
+
+            var post = await _context.ClassroomPosts
+                .Include(p => p.Classroom)
+                .FirstOrDefaultAsync(p => p.PostId == postId);
+
+            if (post == null) return false;
+
+            // Only the classroom owner can delete posts
+            if (post.AuthorUserId != currentUserId) return false;
+
+            _context.ClassroomPosts.Remove(post);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

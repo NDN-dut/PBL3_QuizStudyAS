@@ -130,6 +130,20 @@ namespace QuizStudyAS.Controllers
             }
             return Json(new { success = true, newCode = newCode });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePost(string classCode, string content)
+        {
+            bool result = await _ClassRoomServices.CreatePost(classCode, content);
+            return Json(new { success = result });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeletePost(int postId)
+        {
+            bool result = await _ClassRoomServices.DeletePost(postId);
+            return Json(new { success = result });
+        }
         
         // THÊM API NÀY ĐỂ LẤY SỐ LƯỢNG THÔNG BÁO CHO SIDEBAR
         [HttpGet]
