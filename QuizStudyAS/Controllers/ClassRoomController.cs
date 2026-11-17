@@ -49,8 +49,8 @@ namespace QuizStudyAS.Controllers
         // ĐỔI TÊN TỪ Request KHÁI NIỆM TRÙNG THÀNH JoinRequests
         public async Task<IActionResult> JoinRequests()
         {
-            var ListRequesData = await _ClassRoomServices.GetJoinVMs();
-            return View(ListRequesData);
+            var listRequestData = await _ClassRoomServices.GetJoinVMs();
+            return View(listRequestData);
         }
 
         [HttpPost]
@@ -63,7 +63,7 @@ namespace QuizStudyAS.Controllers
         [HttpPost]
         public async Task<IActionResult> DeniedRequest(string userId, int classroomId)
         {
-            var result = await _ClassRoomServices.DeninedRequest(userId, classroomId);
+            var result = await _ClassRoomServices.DeniedRequest(userId, classroomId);
             return Json(new { success = result });
         }
 
@@ -74,16 +74,17 @@ namespace QuizStudyAS.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> ClassRoomDetail(string LinkLop)
+        public async Task<IActionResult> ClassRoomDetail(string? classCode, string? LinkLop)
         {
-            if (string.IsNullOrEmpty(LinkLop)) return NotFound();
+            string targetCode = classCode ?? LinkLop ?? "";
+            if (string.IsNullOrEmpty(targetCode)) return NotFound();
 
-            if (!await _ClassRoomServices.IsMemberOrOwner(LinkLop))
+            if (!await _ClassRoomServices.IsMemberOrOwner(targetCode))
             {
                 return RedirectToRefererWithLockMessage("Bạn chưa phải là thành viên của lớp học này. Vui lòng gửi yêu cầu tham gia và chờ phê duyệt!");
             }
 
-            var ClassRoomDetailData = await _ClassRoomServices.GetClassRoomDetail(LinkLop);
+            var ClassRoomDetailData = await _ClassRoomServices.GetClassRoomDetail(targetCode);
 
             if (ClassRoomDetailData == null) return NotFound();
 

@@ -1,12 +1,12 @@
 using QuizStudyAS.Data;
 
-namespace QuizStudyAS.Services.AdditionAlgrothim
+namespace QuizStudyAS.Services.AdditionAlgorithm
 {
-    public class AdditionAlgrothim : IAdditionAlgrothim
+    public class AdditionAlgorithm : IAdditionAlgorithm
     {
         private readonly AppDbContext? _context;
 
-        public AdditionAlgrothim(AppDbContext? context = null)
+        public AdditionAlgorithm(AppDbContext? context = null)
         {
             _context = context;
         }

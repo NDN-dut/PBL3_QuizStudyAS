@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace QuizStudyAS.Services.ClassRoom
 {
-    using AdditionAlgrothim = QuizStudyAS.Services.AdditionAlgrothim.AdditionAlgrothim;
+    using AdditionAlgorithm = QuizStudyAS.Services.AdditionAlgorithm.AdditionAlgorithm;
     public class ClassRoomServices : IClassRoomServices
     {
         private readonly AppDbContext _context;
@@ -52,7 +52,7 @@ namespace QuizStudyAS.Services.ClassRoom
             else
             {
                 //STAGE 2: Levenshtein fallback on a capped pool (max 50 rows)
-                AdditionAlgrothim AddAl = new AdditionAlgrothim(_context);
+                AdditionAlgorithm addAlgorithm = new AdditionAlgorithm(_context);
                 var fallbackPool = await _context.Classrooms
                     .Where(c => c.StatusId == (int)ClassroomStatusEnum.Active)
                     .Select(c => new { c.ClassroomId, c.ClassName })
@@ -60,7 +60,7 @@ namespace QuizStudyAS.Services.ClassRoom
                     .ToListAsync();
 
                 candidateIds = fallbackPool
-                    .OrderBy(c => AddAl.DistanceLevenshtein(c.ClassName.ToLower(), nameToSearch))
+                    .OrderBy(c => addAlgorithm.DistanceLevenshtein(c.ClassName.ToLower(), nameToSearch))
                     .Take(5)
                     .Select(c => c.ClassroomId)
                     .ToList();
@@ -120,7 +120,7 @@ namespace QuizStudyAS.Services.ClassRoom
         public async Task<YourClassVM> GetYourClass()
         {
             var UserID = GetCurrentUserId();
-            var MyOwerClass = await _context.Classrooms
+            var MyOwnerClass = await _context.Classrooms
                 .Where(p => p.OwnerUserId == UserID && p.StatusId != (int)ClassroomStatusEnum.DeletedByUser)
                 .Select(c=>new ShowClassRoom{
                     ClassName = c.ClassName,
@@ -144,7 +144,7 @@ namespace QuizStudyAS.Services.ClassRoom
 
             return new YourClassVM
             {
-                MyClasses = MyOwerClass,
+                MyClasses = MyOwnerClass,
                 JoinedClasses = MyJoinedClass
             };
             
@@ -166,7 +166,7 @@ namespace QuizStudyAS.Services.ClassRoom
                 RequestJoinVMs = ListRequestJoin
             };
         }
-        public async Task<bool> DeninedRequest(string userid, int classroomid)
+        public async Task<bool> DeniedRequest(string userid, int classroomid)
         {
             if (!await CheckAuthorityClass(classroomid)) return false;
 

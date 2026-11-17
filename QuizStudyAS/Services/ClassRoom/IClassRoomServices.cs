@@ -9,7 +9,7 @@ namespace QuizStudyAS.Services.ClassRoom
         public Task CreateRequest(string classCode);
         public Task<YourClassVM> GetYourClass();
         public Task<ListRequestJoinVM> GetJoinVMs();
-        public Task<bool> DeninedRequest(string userid, int classroomid);
+        public Task<bool> DeniedRequest(string userid, int classroomid);
         public Task<bool> AcceptRequest(string userid, int classroomid);
         public Task CreateClassRoom(string ClassName);
         public Task<string> CreateUniqueLink();

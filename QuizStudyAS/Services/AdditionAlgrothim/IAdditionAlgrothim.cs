@@ -1,6 +1,6 @@
-namespace QuizStudyAS.Services.AdditionAlgrothim
+namespace QuizStudyAS.Services.AdditionAlgorithm
 {
-    public interface IAdditionAlgrothim
+    public interface IAdditionAlgorithm
     {
         int DistanceLevenshtein(string s1, string s2);
     }
