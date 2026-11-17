@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
 using QuizStudyAS.Models;
 using QuizStudyAS.ViewModels;
-using Microsoft.AspNetCore.Http; // Thư viện cần cho IHttpContextAccessor của bạn
-using static QuizStudyAS.Services.StudySet.IStudySetService; // Thư viện để nhận diện DTO mới
+using Microsoft.AspNetCore.Http;
+using static QuizStudyAS.Services.StudySet.IStudySetService;
 namespace QuizStudyAS.Services.StudySet
 {
     using StudySet = QuizStudyAS.Models.StudySet;
@@ -13,7 +13,6 @@ namespace QuizStudyAS.Services.StudySet
         private readonly AppDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        // GIỮ NGUYÊN Constructor cũ của bạn
         public StudySetService(AppDbContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
@@ -143,7 +142,6 @@ namespace QuizStudyAS.Services.StudySet
                 .ToListAsync();
         }
 
-        // GIỮ NGUYÊN hàm cũ của bạn với logic check MaterialsOf
         public async Task<List<StudySetItemVM>> GetStudySetForClass(string ClassCode)
         {
             var ClassId = await _context.Classrooms.Where(c => c.InviteCode == ClassCode).Select(c => c.ClassroomId).FirstOrDefaultAsync();
@@ -159,24 +157,17 @@ namespace QuizStudyAS.Services.StudySet
             return MyStudySet;
         }
 
-        // ========================================================
-        // 2 HÀM MỚI BỔ SUNG CHO TÍNH NĂNG "THÊM VÀO LỚP HỌC"
-        // ========================================================
-
         public async Task<List<ClassroomShareDTO>> GetClassesForSharingAsync(string userId, int studySetId)
         {
-            // 1. CHỈ LẤY DANH SÁCH CÁC LỚP DO CHÍNH USER NÀY TẠO RA (LÀM CHỦ)
             var ownedClasses = await _context.Classrooms
                 .Where(c => c.OwnerUserId == userId && c.StatusId == (int)ClassroomStatusEnum.Active)
                 .ToListAsync();
 
-            // 2. Lấy ID các lớp đã được thêm bộ thẻ này (kiểm tra trạng thái Đã thêm)
             var sharedClassIds = await _context.ClassRoomMaterials
                 .Where(cm => cm.StudySetId == studySetId && cm.Status == "AVAILABLE")
                 .Select(cm => cm.ClassRoomId)
                 .ToListAsync();
 
-            // 3. Trả về kết quả
             return ownedClasses.Select(c => new ClassroomShareDTO
             {
                 ClassroomId = c.ClassroomId,

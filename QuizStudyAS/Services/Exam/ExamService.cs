@@ -394,7 +394,7 @@ namespace QuizStudyAS.Services.Exam
                 }
                 else
                 {
-                    studentResult.AttemptId = attempt.AttemptId; // BỔ SUNG DÒNG NÀY
+                    studentResult.AttemptId = attempt.AttemptId;
                     studentResult.StartedAt = attempt.StartedAt;
                     studentResult.CompletedAt = attempt.CompletedAt;
 

@@ -4,6 +4,7 @@ using QuizStudyAS.Constants;
 using QuizStudyAS.Data;
 using QuizStudyAS.Models;
 using QuizStudyAS.ViewModels;
+using System.Security.Cryptography;
 
 namespace QuizStudyAS.Services.ClassRoom
 {
@@ -119,7 +120,6 @@ namespace QuizStudyAS.Services.ClassRoom
         public async Task<YourClassVM> GetYourClass()
         {
             var UserID = GetCurrentUserId();
-            // SỬA: Đổi điều kiện thành != DeletedByUser (2)
             var MyOwerClass = await _context.Classrooms
                 .Where(p => p.OwnerUserId == UserID && p.StatusId != (int)ClassroomStatusEnum.DeletedByUser)
                 .Select(c=>new ShowClassRoom{
@@ -207,17 +207,16 @@ namespace QuizStudyAS.Services.ClassRoom
         }
         public async Task CreateClassRoom(string ClassName)
         {
-            var newLink = CreateUniqueLink();
+            var newLink = await CreateUniqueLink();
             await _context.Classrooms.AddAsync(new Classroom
             {
-                InviteCode = await newLink,
+                InviteCode = newLink,
                 ClassName = ClassName,
                 OwnerUserId = GetCurrentUserId()
-
             });
             await _context.SaveChangesAsync();
-            
         }
+
         public async Task<string> CreateUniqueLink()
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -226,19 +225,12 @@ namespace QuizStudyAS.Services.ClassRoom
 
             while (!isUnique)
             {
-                var codeArray = new char[8];
-                for (int i = 0; i < 8; i++)
-                {
-                    // Random.Shared.Next() lấy ngẫu nhiên 1 vị trí trong chuỗi chars
-                    codeArray[i] = chars[Random.Shared.Next(chars.Length)];
-                }
-                newLink = new string(codeArray);
+                newLink = RandomNumberGenerator.GetString(chars, 8);
+                bool linkExists = await _context.Classrooms.AnyAsync(c => c.InviteCode == newLink);
 
-                bool LinkExists = await _context.Classrooms.AnyAsync(c => c.InviteCode == newLink);
-
-                if (!LinkExists)
+                if (!linkExists)
                 {
-                    isUnique = true; // Mã duy nhất -> Dừng vòng lặp!
+                    isUnique = true;
                 }
             }
 
@@ -253,16 +245,13 @@ namespace QuizStudyAS.Services.ClassRoom
                 .Where(c => c.InviteCode == LinkLop)
                 .Select(e => new ClassRoomDetailVM
                 {
-                    ClassroomId = e.ClassroomId, // BỔ SUNG để làm Link tạo đề thi
+                    ClassroomId = e.ClassroomId,
                     ClassName = e.ClassName,
                     OwnerName = e.OwnerUser.UserName,
                     ExistingAvatarUrl = e.OwnerUser.AvatarUrl,
                     ClassCode = LinkLop,
                     IsActive = e.StatusId == (int)ClassroomStatusEnum.Active,
-
-                    // BỔ SUNG: Kiểm tra cờ Chủ phòng
                     IsOwner = e.OwnerUserId == currentUserId,
-
                     StudySets = e.Materials.
                                 Where(s => s.Status == ClassroomMaterialStatus.Available).
                                 Select(k => new StudySetItemVM
@@ -272,7 +261,6 @@ namespace QuizStudyAS.Services.ClassRoom
                                 }).ToList()
                 }).FirstOrDefaultAsync();
 
-            // 2. Lấy bổ sung danh sách Bài kiểm tra và Thông báo nếu tìm thấy lớp học
             if (ClassRoomDetailData != null)
             {
                 var exams = await _context.Exams

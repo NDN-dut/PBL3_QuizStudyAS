@@ -9,9 +9,6 @@ namespace QuizStudyAS.Data
     {
         public static void Initialize(AppDbContext context, IPasswordHasher passwordHasher)
         {
-            // ==========================================
-            // THÊM: SEED DATA CHO AUTH PROVIDERS
-            // ==========================================
             if (!context.AuthProviders.Any())
             {
                 var providers = new List<AuthProvider>

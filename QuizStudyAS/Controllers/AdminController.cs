@@ -35,12 +35,9 @@ namespace QuizStudyAS.Controllers
         // ==========================================
 
         [HttpGet]
-        // BỔ SUNG: Tham số pageIndex (mặc định = 1)
         public IActionResult ManageUsers(string searchString, int? roleId, bool? isActive, DateTime? fromDate, DateTime? toDate, int pageIndex = 1)
         {
-            int pageSize = 10; // Bạn có thể chỉnh sửa số bản ghi hiển thị trên 1 trang ở đây
-
-            // Kiểu trả về lúc này của "users" sẽ là PaginatedList<ApplicationUser>
+            int pageSize = 10;
             var users = _adminService.GetFilteredUsers(searchString, roleId, isActive, fromDate, toDate, pageIndex, pageSize);
 
             ViewBag.CurrentSearch = searchString;
@@ -93,14 +90,12 @@ namespace QuizStudyAS.Controllers
         // ==========================================
 
         [HttpGet]
-        // BỔ SUNG: Tham số pageIndex (mặc định = 1)
         public IActionResult ManageClassrooms(string searchString, int? statusId, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1)
         {
             int pageSize = 10;
             var classrooms = _adminService.GetFilteredClassrooms(searchString, statusId, ownerName, fromDate, toDate, pageIndex, pageSize);
 
             ViewBag.CurrentSearch = searchString;
-            // THAY ĐỔI: Đổi tên ViewBag để View nhận diện được
             ViewBag.CurrentStatusId = statusId;
             ViewBag.CurrentOwnerName = ownerName;
             ViewBag.CurrentFromDate = fromDate?.ToString("yyyy-MM-dd");
@@ -121,15 +116,12 @@ namespace QuizStudyAS.Controllers
         // ==========================================
 
         [HttpGet]
-        // BỔ SUNG: Tham số pageIndex (mặc định = 1)
         public IActionResult ManageStudySets(string searchString, int? statusId, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1)
         {
             int pageSize = 10;
-            // Cập nhật hàm gọi xuống Service để truyền statusId
             var studySets = _adminService.GetFilteredStudySets(searchString, statusId, ownerName, fromDate, toDate, pageIndex, pageSize);
 
             ViewBag.CurrentSearch = searchString;
-            // THAY ĐỔI: Đổi tên ViewBag để View nhận diện được
             ViewBag.CurrentStatusId = statusId;
             ViewBag.CurrentOwnerName = ownerName;
             ViewBag.CurrentFromDate = fromDate?.ToString("yyyy-MM-dd");

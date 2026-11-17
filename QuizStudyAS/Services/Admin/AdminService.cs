@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
 using QuizStudyAS.Models;
-using QuizStudyAS.DTOs; // Thêm thư viện DTO
+using QuizStudyAS.DTOs;
 using QuizStudyAS.Services.Auth;
 namespace QuizStudyAS.Services.Admin
 {
@@ -117,7 +117,6 @@ namespace QuizStudyAS.Services.Admin
 
         public ServiceResult ToggleClassroomStatus(int classroomId)
         {
-            // Bổ sung IgnoreQueryFilters()
             var classroom = _context.Classrooms.IgnoreQueryFilters().FirstOrDefault(c => c.ClassroomId == classroomId);
             if (classroom == null)
                 return ServiceResult.IsError("Không tìm thấy lớp học.");
@@ -138,7 +137,6 @@ namespace QuizStudyAS.Services.Admin
 
         public ServiceResult ToggleStudySetStatus(int studySetId)
         {
-            // Bổ sung IgnoreQueryFilters() để Admin có thể tìm thấy cả học phần đã ẩn
             var studySet = _context.StudySets.IgnoreQueryFilters().FirstOrDefault(s => s.StudySetId == studySetId);
             if (studySet == null)
                 return ServiceResult.IsError("Không tìm thấy học phần.");
@@ -159,7 +157,6 @@ namespace QuizStudyAS.Services.Admin
 
         public PaginatedList<Classroom> GetFilteredClassrooms(string searchString, int? statusId, string? ownerName, DateTime? fromDate, DateTime? toDate, int pageIndex = 1, int pageSize = 10)
         {
-            // THÊM IgnoreQueryFilters() ĐỂ ADMIN THẤY MỌI TRẠNG THÁI
             var query = _context.Classrooms.IgnoreQueryFilters().Include(c => c.OwnerUser).AsQueryable();
 
             if (!string.IsNullOrEmpty(searchString))

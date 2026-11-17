@@ -6,7 +6,7 @@ namespace QuizStudyAS.Services.Gamification
 {
     public class GamificationService : IGamificationService
     {
-        private readonly AppDbContext _context; // Thay bằng tên DbContext của bạn
+        private readonly AppDbContext _context;
 
         public GamificationService(AppDbContext context)
         {
@@ -16,13 +16,10 @@ namespace QuizStudyAS.Services.Gamification
         public async Task<GamificationResultVM> UpdateUserProgressAsync(string userId, int earnedXP)
         {
             var result = new GamificationResultVM { Success = false };
-            var user = await _context.Users.FindAsync(userId); // Thay Users bằng tên DbSet User của bạn
+            var user = await _context.Users.FindAsync(userId);
 
             if (user == null) return result;
 
-            // ==========================================
-            // 1. TÍNH TOÁN CHUỖI NGÀY HỌC (STREAK)
-            // ==========================================
             var today = DateTime.Today;
             result.IsStreakSaved = false;
 
@@ -32,7 +29,6 @@ namespace QuizStudyAS.Services.Gamification
 
                 if (lastDate == today.AddDays(-1))
                 {
-                    // Đã học hôm qua -> Cứu chuỗi thành công, cộng thêm 1 ngày
                     user.CurrentStreak++;
                     result.IsStreakSaved = true;
                 }

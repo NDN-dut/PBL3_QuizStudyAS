@@ -1,5 +1,5 @@
 using QuizStudyAS.Models;
-using QuizStudyAS.DTOs; // Thêm thư viện DTO
+using QuizStudyAS.DTOs;
 
 namespace QuizStudyAS.Services.Admin
 {
