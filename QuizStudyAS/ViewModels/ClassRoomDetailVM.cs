@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace QuizStudyAS.ViewModels
@@ -19,6 +19,15 @@ namespace QuizStudyAS.ViewModels
         public int DurationMinutes { get; set; }
     }
 
+    public class ClassroomPostVM
+    {
+        public int PostId { get; set; }
+        public string AuthorName { get; set; }
+        public string? AuthorAvatarUrl { get; set; }
+        public string Content { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
     public class ClassRoomDetailVM
     {
         public int ClassroomId { get; set; } // Dùng để truyền vào link Tạo đề (/Exam/Create?classroomId=...)
@@ -35,5 +44,8 @@ namespace QuizStudyAS.ViewModels
 
         // Danh sách Bài kiểm tra của lớp này
         public List<ClassroomExamItemVM> Exams { get; set; } = new List<ClassroomExamItemVM>();
+
+        // Danh sách Thông báo của lớp học
+        public List<ClassroomPostVM> Posts { get; set; } = new List<ClassroomPostVM>();
     }
 }

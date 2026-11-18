@@ -192,6 +192,38 @@ namespace QuizStudyAS.Migrations
                     b.ToTable("Classrooms", (string)null);
                 });
 
+            modelBuilder.Entity("QuizStudyAS.Models.ClassroomPost", b =>
+                {
+                    b.Property<int>("PostId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostId"));
+
+                    b.Property<string>("AuthorUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ClassroomId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("PostId");
+
+                    b.HasIndex("AuthorUserId");
+
+                    b.HasIndex("ClassroomId");
+
+                    b.ToTable("ClassroomPosts");
+                });
+
             modelBuilder.Entity("QuizStudyAS.Models.ClassroomStatus", b =>
                 {
                     b.Property<int>("StatusId")
@@ -741,6 +773,25 @@ namespace QuizStudyAS.Migrations
                     b.Navigation("Status");
                 });
 
+            modelBuilder.Entity("QuizStudyAS.Models.ClassroomPost", b =>
+                {
+                    b.HasOne("QuizStudyAS.Models.ApplicationUser", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("QuizStudyAS.Models.Classroom", "Classroom")
+                        .WithMany("Posts")
+                        .HasForeignKey("ClassroomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Classroom");
+                });
+
             modelBuilder.Entity("QuizStudyAS.Models.ClassroomUser", b =>
                 {
                     b.HasOne("QuizStudyAS.Models.Classroom", "Classroom")
@@ -997,6 +1048,8 @@ namespace QuizStudyAS.Migrations
                     b.Navigation("JoinRequests");
 
                     b.Navigation("Materials");
+
+                    b.Navigation("Posts");
                 });
 
             modelBuilder.Entity("QuizStudyAS.Models.ClassroomStatus", b =>

@@ -1,4 +1,4 @@
-﻿@model QuizStudyAS.ViewModels.ClassRoomDetailVM
+@model QuizStudyAS.ViewModels.ClassRoomDetailVM
 
 @{
     ViewData["Title"] = Model.ClassName;
@@ -26,15 +26,34 @@
                         Giảng viên: <strong class="ms-2 text-dark">@Model.OwnerName</strong>
                     </span>
                     <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fs-6 shadow-xs">
-                        <i class="bi bi-upc-scan me-1"></i> Mã lớp: @Model.ClassCode
+                        <i class="bi bi-upc-scan me-1"></i> Mã lớp: <strong id="lblClassCode">@Model.ClassCode</strong>
                     </span>
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="copyClassLink()" title="Sao chép liên kết">
+                        <i class="bi bi-clipboard me-1"></i> Copy Link
+                    </button>
+                    @if (Model.IsOwner)
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-3" onclick="confirmRegenerateCode('@Model.ClassCode')" title="Đổi mã lớp mới">
+                            <i class="bi bi-arrow-repeat me-1"></i> Đổi mã
+                        </button>
+                    }
                 </div>
             </div>
 
             <div class="d-flex gap-3">
-                <button id="btnOpenAddModal" class="btn btn-primary btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
-                    <i class="bi bi-plus-circle-fill fs-5"></i> Thêm học phần
-                </button>
+                @if(Model.IsOwner)
+                {
+                    <button id="btnOpenAddModal" class="btn btn-primary btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
+                        <i class="bi bi-plus-circle-fill fs-5"></i> Thêm học phần
+                    </button>
+                }
+                else
+                {
+                    <button type="button" onclick="confirmLeaveClass('@Model.ClassCode')" class="btn btn-outline-danger btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
+                        <i class="bi bi-box-arrow-right fs-5"></i> Rời khỏi lớp
+                    </button>
+                }
+
                 <button id="btnOpenShowUserModal" class="btn btn-primary btn-lg fw-bold rounded-pill shadow-sm px-4 py-3 d-flex align-items-center gap-2 transition-smooth">
                     <i class="bi bi-people fs-5"></i> Xem thành viên
                 </button>
@@ -43,6 +62,77 @@
         
         
         
+    </div>
+
+    <!-- ===== ANNOUNCEMENTS SECTION ===== -->
+    <div class="mb-5">
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <h4 class="fw-bold text-dark m-0">
+                <i class="bi bi-megaphone-fill text-warning me-2"></i>Thông báo lớp học (@Model.Posts.Count)
+            </h4>
+        </div>
+
+        @if (Model.IsOwner)
+        {
+            <div class="bg-white rounded-4 shadow-sm border border-light-subtle p-4 mb-4">
+                <textarea id="postContentInput" class="form-control rounded-3 border mb-3"
+                          rows="3" placeholder="Viết thông báo mới cho lớp học..."></textarea>
+                <div class="d-flex justify-content-end">
+                    <button type="button" onclick="submitPost('@Model.ClassCode')"
+                            class="btn btn-warning fw-bold rounded-pill px-4 shadow-sm">
+                        <i class="bi bi-send-fill me-1"></i> Đăng thông báo
+                    </button>
+                </div>
+            </div>
+        }
+
+        <div id="postFeed">
+            @if (Model.Posts.Any())
+            {
+                @foreach (var post in Model.Posts)
+                {
+                    <div class="bg-white rounded-4 shadow-sm border border-light-subtle p-4 mb-3 post-card" id="post-@post.PostId">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                @if (!string.IsNullOrEmpty(post.AuthorAvatarUrl))
+                                {
+                                    <img src="@post.AuthorAvatarUrl" alt="Avatar"
+                                         class="rounded-circle object-fit-cover shadow-sm"
+                                         style="width:42px;height:42px;border:2px solid #e9ecef;" />
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle bg-warning bg-opacity-10 text-warning d-flex justify-content-center align-items-center shadow-sm"
+                                         style="width:42px;height:42px;border:2px solid #e9ecef;">
+                                        <i class="bi bi-person-fill fs-5"></i>
+                                    </div>
+                                }
+                                <div>
+                                    <div class="fw-bold text-dark">@post.AuthorName</div>
+                                    <div class="text-muted small">@post.CreatedAt.ToString("HH:mm - dd/MM/yyyy")</div>
+                                </div>
+                            </div>
+                            @if (Model.IsOwner)
+                            {
+                                <button type="button" onclick="deletePost(@post.PostId)"
+                                        class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                        title="Xóa thông báo">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            }
+                        </div>
+                        <p class="text-dark mb-0" style="white-space: pre-wrap;">@post.Content</p>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-megaphone fs-1 d-block mb-2 opacity-25"></i>
+                    <span>Chưa có thông báo nào.</span>
+                </div>
+            }
+        </div>
     </div>
 
     <div class="mb-4 d-flex justify-content-between align-items-center">
@@ -60,9 +150,12 @@
                     <div class="card h-100 border border-light-subtle shadow-sm rounded-4 focus-card bg-white overflow-hidden transition-smooth position-relative">
                         <div class="card-accent-top"></div>
 
-                        <button class="btn-delete-card shadow-sm" data-url="/ClassRoom/DeleteStudySetOfClass" data-id="@set.StudySetId" title="Xóa khỏi lớp">
-                            <i class="bi bi-trash3-fill"></i>
-                        </button>
+                        @if (Model.IsOwner)
+                        {
+                            <button class="btn-delete-card shadow-sm" data-url="/ClassRoom/DeleteStudySetOfClass" data-id="@set.StudySetId" title="Xóa khỏi lớp">
+                                <i class="bi bi-trash3-fill"></i>
+                            </button>
+                        }
 
                         <a href="/StudySet/Details/@set.StudySetId" class="text-decoration-none card-body p-4 d-flex flex-column">
                             <div class="icon-circle bg-primary bg-opacity-10 text-primary mb-3">
@@ -268,17 +361,23 @@ else
             let isLoadedStudySetModal = false; // Cờ kiểm tra xem đã tải data chưa
             let scopeAttribute = Array.from(modal.attributes).find(attr => attr.name.startsWith('b-'))?.name;
             // 1. Đóng/Mở Modal
-            btnOpenModal.addEventListener('click', function () {
-                modal.classList.remove('hidden');
-                if (!isLoadedStudySetModal) {
-                    loadMyStudySets();
-                }
-            });
+            if(btnOpenModal){
+                btnOpenModal.addEventListener('click', function () {
+                    modal.classList.remove('hidden');
+                    if (!isLoadedStudySetModal) {
+                        loadMyStudySets();
+                    }
+                });
+            }
 
+            if(btnCloseModal){
             btnCloseModal.addEventListener('click', () => modal.classList.add('hidden'));
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) modal.classList.add('hidden');
-            });
+            }
+            if(modal){
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) modal.classList.add('hidden');
+                });
+            }
 
             // 2. Hàm Fetch lấy danh sách học phần của user
             async function loadMyStudySets() {
@@ -347,7 +446,7 @@ else
             });
             async function loadUserClass(){
                 try{
-                    
+                    const isOwner = @Json.Serialize(Model.IsOwner);
                     const response = await fetch('/ClassRoom/GetUserOfClass?classcode=@Model.ClassCode');
                     const data = await response.json();
 
@@ -360,20 +459,25 @@ else
                         const li = document.createElement('li');
                         li.className = "modal-showuser-item";
                         btnStyle = 'background-color: #E32B2B; color: white; border-color: #85291E;';
-                        li.innerHTML= `
-                            <h4>${user.userName}</h4>
-                            <button class="btn-usermodal-del" data-userid="${user.userId}" style="${btnStyle}"  >
+                        const deleteBtnHtml = isOwner ? `
+                            <button class="btn-usermodal-del" data-userid="${user.userId}" style="${btnStyle}">
                                 Xóa
                             </button>
+                        ` : '';
+                        li.innerHTML= `
+                            <h4>${user.userName}</h4>
+                            ${deleteBtnHtml}
                         `;
                         if (scopeAttribute) {
                             li.setAttribute(scopeAttribute, '');
-                            li.querySelector('h4').setAttribute(scopeAttribute, '');
-                            li.querySelector('button').setAttribute(scopeAttribute, '');
+                            li.querySelector('h4')?.setAttribute(scopeAttribute, '');
+                            li.querySelector('button')?.setAttribute(scopeAttribute, '');
                         }
                         modalUserList.appendChild(li);
                     });
-                    btnAddEventDeleteUser();
+                    if (isOwner) {
+                        btnAddEventDeleteUser();
+                    }
                     isLoadUserModal = true;
                 }catch(error){
                      console.error("Lỗi fetch user:", error);
@@ -443,10 +547,110 @@ else
 
                         }catch(error){
                             alert("Xảy ra lỗi");
-                            console.error("erorr:",error);
+                            console.error("error:", error);
                         };
                     });
                 });
+            }
+            window.confirmLeaveClass = function (classCode) {
+                if (confirm("Bạn có chắc chắn muốn rời khỏi lớp học này không?")) {
+                    fetch('/ClassRoom/LeaveClass', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({ 'classCode': classCode })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Bạn đã rời khỏi lớp học thành công.");
+                            window.location.href = '/ClassRoom/Index';
+                        } else {
+                            alert("Không thể rời khỏi lớp học. Vui lòng thử lại!");
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert("Có lỗi xảy ra kết nối!");
+                    });
+                }
+            }
+
+            window.copyClassLink = function () {
+                const classCode = document.getElementById('lblClassCode').innerText.trim();
+                const joinUrl = `${window.location.origin}/ClassRoom/Index?NameClass=${classCode}`;
+                navigator.clipboard.writeText(joinUrl).then(() => {
+                    alert('Đã sao chép liên kết tham gia lớp học!');
+                }).catch(err => {
+                    console.error('Lỗi khi sao chép link:', err);
+                });
+            }
+
+            window.confirmRegenerateCode = function (oldCode) {
+                if (confirm('Bạn có chắc chắn muốn tạo mã lớp mới? Mã cũ sẽ không còn hiệu lực.')) {
+                    fetch('/ClassRoom/RegenerateInviteCode', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({ 'classCode': oldCode })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('lblClassCode').innerText = data.newCode;
+                            alert('Đã đổi mã lớp mới thành công: ' + data.newCode);
+                        } else {
+                            alert(data.message || 'Không thể tạo lại mã lớp.');
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Có lỗi xảy ra kết nối!');
+                    });
+                }
+            }
+
+            window.submitPost = function (classCode) {
+                const content = document.getElementById('postContentInput').value.trim();
+                if (!content) {
+                    alert('Vui lòng nhập nội dung thông báo!');
+                    return;
+                }
+                fetch('/ClassRoom/CreatePost', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ classCode, content })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('postContentInput').value = '';
+                        window.location.reload();
+                    } else {
+                        alert('Không thể đăng thông báo. Vui lòng thử lại!');
+                    }
+                })
+                .catch(err => { console.error(err); alert('Có lỗi xảy ra!'); });
+            }
+
+            window.deletePost = function (postId) {
+                if (confirm('Bạn có chắc muốn xóa thông báo này?')) {
+                    fetch('/ClassRoom/DeletePost', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({ postId })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            const card = document.getElementById(`post-${postId}`);
+                            if (card) card.remove();
+                        } else {
+                            alert('Không thể xóa thông báo!');
+                        }
+                    })
+                    .catch(err => { console.error(err); alert('Có lỗi xảy ra!'); });
+                }
             }
         });
     </script>

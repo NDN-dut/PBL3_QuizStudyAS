@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Models;
 
 namespace QuizStudyAS.Data
@@ -24,11 +24,9 @@ namespace QuizStudyAS.Data
         public DbSet<Achievement> Achievements { get; set; }
         public DbSet<UserAchievement> UserAchievements { get; set; }
         public DbSet<AuthProvider> AuthProviders { get; set; }
-        // BỔ SUNG BẢNG MỚI TẠI ĐÂY
         public DbSet<StudySetStatus> StudySetStatuses { get; set; }
-        // BỔ SUNG BẢNG MỚI TẠI ĐÂY
         public DbSet<ClassroomStatus> ClassroomStatuses { get; set; }
-        // BỔ SUNG CÁC BẢNG CHO TÍNH NĂNG KIỂM TRA
+        public DbSet<ClassroomPost> ClassroomPosts { get; set; }
         public DbSet<Exam> Exams { get; set; }
         public DbSet<ExamQuestion> ExamQuestions { get; set; }
         public DbSet<QuestionOption> QuestionOptions { get; set; }

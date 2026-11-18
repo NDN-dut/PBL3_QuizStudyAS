@@ -1,4 +1,4 @@
-﻿@model QuizStudyAS.ViewModels.YourClassVM
+@model QuizStudyAS.ViewModels.YourClassVM
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @{
@@ -85,7 +85,8 @@
                                     else
                                     {
                                         <form asp-controller="ClassRoom" asp-action="Join" method="post" class="m-0">
-                                            <input type="hidden" name="className" value="@item.ClassName" />
+                                            <input type="hidden" name="classCode" value="@item.Link" />
+                                            <input type="hidden" name="searchName" value="@ViewBag.NameClass" />
                                             <button type="submit" class="btn btn-success fw-bold rounded-pill px-4 shadow-sm">Xin Tham Gia</button>
                                         </form>
                                     }

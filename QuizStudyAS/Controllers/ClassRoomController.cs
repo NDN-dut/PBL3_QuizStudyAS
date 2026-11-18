@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using QuizStudyAS.Services;
+using Microsoft.AspNetCore.Mvc;
+using QuizStudyAS.Attributes;
+using QuizStudyAS.Services.ClassRoom;
 using QuizStudyAS.ViewModels;
 using System.Threading.Tasks;
 
 namespace QuizStudyAS.Controllers
 {
+    [AuthorizeRole("All")]
     public class ClassRoomController : Controller
     {
         private readonly IClassRoomServices _ClassRoomServices;
@@ -35,10 +37,10 @@ namespace QuizStudyAS.Controllers
 
         // Sửa hàm Tham gia: Sau khi xử lý xong thì Redirect về lại Index kèm từ khóa để giữ giao diện
         [HttpPost] // Chuyển thành HttpPost cho đúng bản chất tạo dữ liệu
-        public async Task<IActionResult> Join(string className)
+        public async Task<IActionResult> Join(string classCode, string? searchName)
         {
-            await _ClassRoomServices.CreateRequest(className);
-            return RedirectToAction("Index", new { NameClass = className });
+            await _ClassRoomServices.CreateRequest(classCode);
+            return RedirectToAction("Index", new { NameClass = searchName });
         }
 
 
@@ -47,22 +49,22 @@ namespace QuizStudyAS.Controllers
         // ĐỔI TÊN TỪ Request KHÁI NIỆM TRÙNG THÀNH JoinRequests
         public async Task<IActionResult> JoinRequests()
         {
-            var ListRequesData = await _ClassRoomServices.GetJoinVMs();
-            return View(ListRequesData);
+            var listRequestData = await _ClassRoomServices.GetJoinVMs();
+            return View(listRequestData);
         }
 
         [HttpPost]
         public async Task<IActionResult> AcceptRequest(string userId, int classroomId)
         {
-            await _ClassRoomServices.AcceptRequest(userId, classroomId);
-            return Json(new { success = true });
+            var result = await _ClassRoomServices.AcceptRequest(userId, classroomId);
+            return Json(new { success = result });
         }
 
         [HttpPost]
         public async Task<IActionResult> DeniedRequest(string userId, int classroomId)
         {
-            await _ClassRoomServices.DeninedRequest(userId, classroomId);
-            return Json(new { success = true });
+            var result = await _ClassRoomServices.DeniedRequest(userId, classroomId);
+            return Json(new { success = result });
         }
 
         [HttpPost]
@@ -72,13 +74,20 @@ namespace QuizStudyAS.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> ClassRoomDetail(string LinkLop)
+        public async Task<IActionResult> ClassRoomDetail(string? classCode, string? LinkLop)
         {
-            var ClassRoomDetailData = await _ClassRoomServices.GetClassRoomDetail(LinkLop);
+            string targetCode = classCode ?? LinkLop ?? "";
+            if (string.IsNullOrEmpty(targetCode)) return NotFound();
+
+            if (!await _ClassRoomServices.IsMemberOrOwner(targetCode))
+            {
+                return RedirectToRefererWithLockMessage("Bạn chưa phải là thành viên của lớp học này. Vui lòng gửi yêu cầu tham gia và chờ phê duyệt!");
+            }
+
+            var ClassRoomDetailData = await _ClassRoomServices.GetClassRoomDetail(targetCode);
 
             if (ClassRoomDetailData == null) return NotFound();
 
-            // ĐOẠN KIỂM TRA NÀY ĐANG BỊ THIẾU TRONG CODE CỦA BẠN
             if (!ClassRoomDetailData.IsActive)
             {
                 return RedirectToRefererWithLockMessage("Lớp học này đã bị khóa bởi Quản trị viên hệ thống.");
@@ -112,11 +121,42 @@ namespace QuizStudyAS.Controllers
             bool result = await _ClassRoomServices.DeleteClassRoom(classcode);
             return Json(new {success= result });
         }
-        // THÊM API NÀY ĐỂ LẤY SỐ LƯỢNG THÔNG BÁO CHO SIDEBAR
+
+        [HttpPost]
+        public async Task<IActionResult> LeaveClass(string classCode)
+        {
+            bool result = await _ClassRoomServices.LeaveClassRoom(classCode);
+            return Json(new { success = result });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegenerateInviteCode(string classCode)
+        {
+            string? newCode = await _ClassRoomServices.RegenerateInviteCode(classCode);
+            if (newCode == null)
+            {
+                return Json(new { success = false, message = "Không có quyền thực hiện thao tác này." });
+            }
+            return Json(new { success = true, newCode = newCode });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePost(string classCode, string content)
+        {
+            bool result = await _ClassRoomServices.CreatePost(classCode, content);
+            return Json(new { success = result });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeletePost(int postId)
+        {
+            bool result = await _ClassRoomServices.DeletePost(postId);
+            return Json(new { success = result });
+        }
+        
         [HttpGet]
         public async Task<IActionResult> GetPendingRequestCount()
         {
-            // Tận dụng lại hàm GetJoinVMs đã có sẵn
             var listRequest = await _ClassRoomServices.GetJoinVMs();
             int count = listRequest.RequestJoinVMs?.Count ?? 0;
             return Json(new { count = count });
@@ -136,6 +176,11 @@ namespace QuizStudyAS.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUserOfClass(string classcode)
         {
+            if (string.IsNullOrEmpty(classcode) || !await _ClassRoomServices.IsMemberOrOwner(classcode))
+            {
+                return Json(new { classUsers = new List<object>() });
+            }
+
             ClassRoomDetailVM result = await _ClassRoomServices.GetAllUserOfClass(classcode);
             return Json(result);
         }

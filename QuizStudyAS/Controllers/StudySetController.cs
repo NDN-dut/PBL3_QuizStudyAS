@@ -1,25 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using QuizStudyAS.Services;
+using Microsoft.AspNetCore.Mvc;
+using QuizStudyAS.Services.StudySet;
+using QuizStudyAS.Services.Gamification;
+using QuizStudyAS.Services.ClassRoom;
 using QuizStudyAS.ViewModels;
-using QuizStudyAS.Models; // THÊM DÒNG NÀY
+using QuizStudyAS.Models;
 
 namespace QuizStudyAS.Controllers
 {
     public class StudySetController : Controller
     {
         private readonly IStudySetService _studySetService;
-        private readonly IGamificationService _gamificationService; // THÊM DÒNG NÀY
-        private readonly IClassRoomServices _classRoomServices; // THÊM DÒNG NÀY
+        private readonly IGamificationService _gamificationService;
+        private readonly IClassRoomServices _classRoomServices;
 
-        // Cập nhật Constructor
         public StudySetController(IStudySetService studySetService, IGamificationService gamificationService, IClassRoomServices classRoomServices)
         {
             _studySetService = studySetService;
-            _gamificationService = gamificationService; // THÊM DÒNG NÀY
-            _classRoomServices = classRoomServices; // THÊM DÒNG NÀY
+            _gamificationService = gamificationService;
+            _classRoomServices = classRoomServices;
         }
-
-        // ... (Các hàm GetCurrentUserId() và Index() giữ nguyên) ...
 
         private string? GetCurrentUserId()
         {
@@ -170,15 +169,11 @@ namespace QuizStudyAS.Controllers
             return Json(suggestions);
         }
 
-        // --- API CHO TÍNH NĂNG "THÊM VÀO LỚP HỌC" ---
-
-        // ĐỔI TÊN BIẾN classroomId THÀNH classCode ĐỂ KHỚP VỚI HÀM CỦA ClassRoomServices
         public class AddToClassRequest { public int studySetId { get; set; } public string classCode { get; set; } }
 
         [HttpGet]
         public async Task<IActionResult> GetMyClassesForShare(int studySetId)
         {
-            // 1. Lấy ID người dùng đang đăng nhập (Tùy theo cách nhóm bạn lưu Session)
             var userId = HttpContext.Session.GetString("UserId");
 
             if (string.IsNullOrEmpty(userId))

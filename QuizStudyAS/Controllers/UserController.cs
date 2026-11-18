@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizStudyAS.Data;
 using QuizStudyAS.ViewModels;
-// Thư viện cần thêm
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 
@@ -11,7 +10,6 @@ namespace QuizStudyAS.Controllers
     public class UserController : Controller
     {
         private readonly AppDbContext _context;
-        // --- THAY ĐỔI 1: Khai báo Environment ---
         private readonly IWebHostEnvironment _environment;
 
         // Cập nhật Constructor để tiêm Environment
@@ -103,8 +101,6 @@ namespace QuizStudyAS.Controllers
             await _context.SaveChangesAsync();
 
             HttpContext.Session.SetString("UserName", vm.UserName);
-
-            // ---THÊM DÒNG NÀY ĐỂ NAVBAR CẬP NHẬT ẢNH NGAY LẬP TỨC ---
             HttpContext.Session.SetString("UserAvatar", user.AvatarUrl ?? "");
 
             TempData["SuccessMessage"] = "Cập nhật thông tin và ảnh đại diện thành công!";

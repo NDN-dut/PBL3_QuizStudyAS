@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using QuizStudyAS.Services;
+using QuizStudyAS.Services.Auth;
+using QuizStudyAS.Services.Email;
 using QuizStudyAS.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -53,7 +54,6 @@ namespace QuizStudyAS.Controllers
 
             var result = _authService.AuthenticateUser(model.UserNameOrEmail, model.Password);
 
-            // SỬA: result.Data thay vì result.User
             if (result.Success && result.Data != null)
             {
                 var user = result.Data;
@@ -101,7 +101,6 @@ namespace QuizStudyAS.Controllers
 
             var authResult = await _authService.AuthenticateGoogleUserAsync(email, fullName ?? "");
 
-            // SỬA: authResult.Data thay vì authResult.User
             if (!authResult.Success || authResult.Data == null)
             {
                 await HttpContext.SignOutAsync();
@@ -141,7 +140,7 @@ namespace QuizStudyAS.Controllers
         [HttpGet]
         public async Task<IActionResult> Logout()
         {
-            TempData.Clear(); // BỔ SUNG DÒNG NÀY ĐỂ XÓA SẠCH "BÓNG MA" THÔNG BÁO
+            TempData.Clear();
             HttpContext.Session.Clear();
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
@@ -157,7 +156,6 @@ namespace QuizStudyAS.Controllers
 
             var result = _authService.GeneratePasswordResetToken(model.Email);
 
-            // SỬA: Kiểm tra result.Success và lấy result.Data
             if (result.Success && result.Data != null)
             {
                 var user = result.Data;

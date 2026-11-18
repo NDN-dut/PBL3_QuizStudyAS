@@ -1,0 +1,545 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using QuizStudyAS.Constants;
+using QuizStudyAS.Data;
+using QuizStudyAS.Models;
+using QuizStudyAS.ViewModels;
+using System.Security.Cryptography;
+
+namespace QuizStudyAS.Services.ClassRoom
+{
+    using AdditionAlgorithm = QuizStudyAS.Services.AdditionAlgorithm.AdditionAlgorithm;
+    public class ClassRoomServices : IClassRoomServices
+    {
+        private readonly AppDbContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public ClassRoomServices(AppDbContext context,IHttpContextAccessor httpContextAccessor)
+        {
+            _context = context;
+            _httpContextAccessor = httpContextAccessor;
+            
+        }
+        private string? GetCurrentUserId()
+        {
+            return _httpContextAccessor.HttpContext?.Session?.GetString("UserId");
+        }
+        public async Task<ListShowClassRoomVM> FindClassRoomByName(string NameClass)
+        {
+            if (string.IsNullOrWhiteSpace(NameClass))
+            {
+                return new ListShowClassRoomVM { ListClassRoom = new List<ShowClassRoom>() };
+            }
+
+            string currentUserId = GetCurrentUserId() ?? "";
+            string nameToSearch = NameClass.Trim().ToLower();
+
+            //STAGE 1: SQL LIKE filter — fast, runs directly on the indexed DB
+            var sqlCandidates = await _context.Classrooms
+                .Where(c => c.StatusId == (int)ClassroomStatusEnum.Active &&
+                            EF.Functions.Like(c.ClassName, $"%{NameClass.Trim()}%"))
+                .Select(c => new { c.ClassroomId, c.ClassName })
+                .Take(20)
+                .ToListAsync();
+
+            List<int> candidateIds;
+
+            if (sqlCandidates.Any())
+            {
+                candidateIds = sqlCandidates
+                    .Select(c => c.ClassroomId)
+                    .ToList();
+            }
+            else
+            {
+                //STAGE 2: Levenshtein fallback on a capped pool (max 50 rows)
+                AdditionAlgorithm addAlgorithm = new AdditionAlgorithm(_context);
+                var fallbackPool = await _context.Classrooms
+                    .Where(c => c.StatusId == (int)ClassroomStatusEnum.Active)
+                    .Select(c => new { c.ClassroomId, c.ClassName })
+                    .Take(50)
+                    .ToListAsync();
+
+                candidateIds = fallbackPool
+                    .OrderBy(c => addAlgorithm.DistanceLevenshtein(c.ClassName.ToLower(), nameToSearch))
+                    .Take(5)
+                    .Select(c => c.ClassroomId)
+                    .ToList();
+            }
+
+            if (!candidateIds.Any()) return new ListShowClassRoomVM { ListClassRoom = new List<ShowClassRoom>() };
+
+            // Load full details for the matching candidate IDs
+            var classroomsData = await _context.Classrooms
+                .Where(p => candidateIds.Contains(p.ClassroomId))
+                .Select(p => new ShowClassRoom
+                {
+                    ClassName = p.ClassName,
+                    Link = p.InviteCode,
+                    OwnerName = p.OwnerUser.UserName,
+                    ExistingAvatarUrl = p.OwnerUser.AvatarUrl,
+                    Status_Class = p.JoinRequests
+                                    .Where(r => r.UserId == currentUserId)
+                                    .Select(r => r.Status)
+                                    .FirstOrDefault()
+                })
+                .ToListAsync();
+
+            return new ListShowClassRoomVM { ListClassRoom = classroomsData };
+        }
+        
+
+        public async Task CreateRequest(string classCode)
+        {
+            var currentUserId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId)) return;
+
+            var classroom = await _context.Classrooms
+                .FirstOrDefaultAsync(c => c.InviteCode == classCode && c.StatusId == (int)ClassroomStatusEnum.Active);
+
+            if (classroom == null) return;
+            if (classroom.OwnerUserId == currentUserId) return;
+
+            var record = await _context.RequestJoinClasses
+                .FirstOrDefaultAsync(c => c.ClassroomId == classroom.ClassroomId && c.UserId == currentUserId);
+
+            if (record != null)
+            {
+                record.Status = RequestJoinStatus.Pending;
+                await _context.SaveChangesAsync();
+                return;
+            }
+
+            await _context.RequestJoinClasses.AddAsync(new RequestJoinClass
+            {
+                UserId = currentUserId,
+                ClassroomId = classroom.ClassroomId,
+                Status = RequestJoinStatus.Pending
+            });
+            await _context.SaveChangesAsync();
+        }
+        public async Task<YourClassVM> GetYourClass()
+        {
+            var UserID = GetCurrentUserId();
+            var MyOwnerClass = await _context.Classrooms
+                .Where(p => p.OwnerUserId == UserID && p.StatusId != (int)ClassroomStatusEnum.DeletedByUser)
+                .Select(c=>new ShowClassRoom{
+                    ClassName = c.ClassName,
+                    Link = c.InviteCode,
+                    OwnerName = c.OwnerUser.UserName,
+                    ExistingAvatarUrl = c.OwnerUser.AvatarUrl,
+                    Status_Class = ClassroomRoleStatus.Owner
+                }).ToListAsync();
+
+            // Sửa câu truy vấn MyJoinedClass:
+            var MyJoinedClass = await _context.ClassroomUsers
+                .Where(p => p.UserId == UserID && p.Status == ClassroomUserStatus.Studying && p.Classroom.StatusId == (int)ClassroomStatusEnum.Active)
+                .Select(c => new ShowClassRoom
+                {
+                    ClassName = c.Classroom.ClassName,
+                    Link = c.Classroom.InviteCode,
+                    OwnerName = c.Classroom.OwnerUser.UserName,
+                    ExistingAvatarUrl = c.Classroom.OwnerUser.AvatarUrl,
+                    Status_Class = ClassroomRoleStatus.Joined
+                }).ToListAsync();
+
+            return new YourClassVM
+            {
+                MyClasses = MyOwnerClass,
+                JoinedClasses = MyJoinedClass
+            };
+            
+        }
+        public async Task<ListRequestJoinVM> GetJoinVMs()
+        {
+            var currentUserId = GetCurrentUserId();
+            var ListRequestJoin = await _context.RequestJoinClasses
+                .Where(e => e.Classroom.OwnerUserId == currentUserId && e.Status == RequestJoinStatus.Pending && e.Classroom.StatusId == (int)ClassroomStatusEnum.Active)
+                .Select(e => new RequestJoinVM
+                {
+                    UserId = e.UserId,
+                    UserName = e.User.UserName,
+                    ClassName = e.Classroom.ClassName,
+                    ClassRoomId = e.Classroom.ClassroomId
+                }).ToListAsync();
+            return new ListRequestJoinVM
+            {
+                RequestJoinVMs = ListRequestJoin
+            };
+        }
+        public async Task<bool> DeniedRequest(string userid, int classroomid)
+        {
+            if (!await CheckAuthorityClass(classroomid)) return false;
+
+            var request = await _context.RequestJoinClasses.FirstOrDefaultAsync(e=>e.ClassroomId == classroomid && e.UserId ==  userid);
+            if(request != null)
+            {
+                request.Status = RequestJoinStatus.Denied;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+        public async Task<bool> AcceptRequest(string userid, int classroomid)
+        {
+            if (!await CheckAuthorityClass(classroomid)) return false;
+
+            var request = await _context.RequestJoinClasses.FirstOrDefaultAsync(e => e.ClassroomId == classroomid && e.UserId == userid);
+            if (request != null)
+            {
+                request.Status = RequestJoinStatus.Approved;
+                var record = await _context.ClassroomUsers.FirstOrDefaultAsync(c=>c.ClassroomId==classroomid && c.UserId == userid);
+                if (record != null)
+                {
+                    record.Status = ClassroomUserStatus.Studying;
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+                await _context.AddAsync(new ClassroomUser
+                {
+                    ClassroomId = classroomid,
+                    UserId = userid,
+                    JoinedAt = DateTime.Now
+                });
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+        public async Task CreateClassRoom(string ClassName)
+        {
+            var newLink = await CreateUniqueLink();
+            await _context.Classrooms.AddAsync(new Classroom
+            {
+                InviteCode = newLink,
+                ClassName = ClassName,
+                OwnerUserId = GetCurrentUserId()
+            });
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<string> CreateUniqueLink()
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            string newLink = "";
+            bool isUnique = false;
+
+            while (!isUnique)
+            {
+                newLink = RandomNumberGenerator.GetString(chars, 8);
+                bool linkExists = await _context.Classrooms.AnyAsync(c => c.InviteCode == newLink);
+
+                if (!linkExists)
+                {
+                    isUnique = true;
+                }
+            }
+
+            return newLink;
+        }
+        public async Task<ClassRoomDetailVM> GetClassRoomDetail(string LinkLop)
+        {
+            // 1. Lấy UserId đang đăng nhập để xác định xem họ có phải Chủ phòng không
+            string currentUserId = GetCurrentUserId();
+
+            var ClassRoomDetailData = await _context.Classrooms
+                .Where(c => c.InviteCode == LinkLop)
+                .Select(e => new ClassRoomDetailVM
+                {
+                    ClassroomId = e.ClassroomId,
+                    ClassName = e.ClassName,
+                    OwnerName = e.OwnerUser.UserName,
+                    ExistingAvatarUrl = e.OwnerUser.AvatarUrl,
+                    ClassCode = LinkLop,
+                    IsActive = e.StatusId == (int)ClassroomStatusEnum.Active,
+                    IsOwner = e.OwnerUserId == currentUserId,
+                    StudySets = e.Materials.
+                                Where(s => s.Status == ClassroomMaterialStatus.Available).
+                                Select(k => new StudySetItemVM
+                                {
+                                    StudySetId = k.StudySetId,
+                                    Title = k.StudySet.Title
+                                }).ToList()
+                }).FirstOrDefaultAsync();
+
+            if (ClassRoomDetailData != null)
+            {
+                var exams = await _context.Exams
+                    .Where(ex => ex.ClassroomId == ClassRoomDetailData.ClassroomId)
+                    .Select(ex => new ClassroomExamItemVM
+                    {
+                        ExamId = ex.ExamId,
+                        Title = ex.Title,
+                        StartTime = ex.StartTime,
+                        EndTime = ex.EndTime,
+                        DurationMinutes = ex.DurationMinutes
+                    })
+                    .OrderByDescending(ex => ex.ExamId)
+                    .ToListAsync();
+
+                ClassRoomDetailData.Exams = exams;
+
+                // Load posts newest-first
+                var posts = await _context.ClassroomPosts
+                    .Where(p => p.ClassroomId == ClassRoomDetailData.ClassroomId)
+                    .OrderByDescending(p => p.CreatedAt)
+                    .Select(p => new ClassroomPostVM
+                    {
+                        PostId = p.PostId,
+                        AuthorName = p.Author.UserName,
+                        AuthorAvatarUrl = p.Author.AvatarUrl,
+                        Content = p.Content,
+                        CreatedAt = p.CreatedAt
+                    })
+                    .ToListAsync();
+
+                ClassRoomDetailData.Posts = posts;
+            }
+
+            return ClassRoomDetailData;
+        }
+        public async Task<bool> AddStudySet(string ClassCode, int StudySetId)
+        {
+            
+            int Classid = await _context.Classrooms.Where(c=>c.InviteCode == ClassCode)
+                                                   .Select(c=>c.ClassroomId).FirstOrDefaultAsync();
+            if (await CheckAuthorityClass(Classid) == false)
+            {
+                return false;
+            }
+            var record = await _context.ClassRoomMaterials.FirstOrDefaultAsync(e => e.ClassRoomId == Classid && e.StudySetId == StudySetId);
+            
+            if (record!=null)
+            {
+                record.Status = ClassroomMaterialStatus.Available;
+            }
+            else
+            {
+                await _context.ClassRoomMaterials.AddAsync(new ClassRoomMaterial
+                {
+                    StudySetId = StudySetId,
+                    ClassRoomId = Classid,
+                    Status = ClassroomMaterialStatus.Available
+                    
+                });
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> DeleteStudySet(string ClassCode, int StudySetId)
+        {
+            int Classid = await _context.Classrooms.Where(c => c.InviteCode == ClassCode)
+                                                   .Select(c => c.ClassroomId).FirstOrDefaultAsync();
+            if (await CheckAuthorityClass(Classid) == false)
+            {
+                return false;
+            }
+            var record = await _context.ClassRoomMaterials.FirstOrDefaultAsync(e => e.ClassRoomId == Classid && e.StudySetId == StudySetId);
+
+            if (record != null)
+            {
+                record.Status = ClassroomMaterialStatus.Deleted;
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteClassRoom(string Classcode)
+        {
+            int Classid = await _context.Classrooms.Where(c => c.InviteCode == Classcode)
+                                                   .Select(c => c.ClassroomId).FirstOrDefaultAsync();
+            if (await CheckAuthorityClass(Classid) == false)
+            {
+                return false;
+            }
+
+            var classroom = await _context.Classrooms.FirstOrDefaultAsync(c=>c.InviteCode == Classcode);
+            if (classroom == null)
+            {
+                return false;
+            }
+            // THAY THẾ DÒNG CŨ: classroom.IsActive = false;
+            // Thực hiện Xóa mềm bằng Enum
+            classroom.StatusId = (int)ClassroomStatusEnum.DeletedByUser;
+            await _context.SaveChangesAsync();
+            
+            return true;
+        }
+
+        public async Task<bool> LeaveClassRoom(string classCode)
+        {
+            string? currentUserId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId))
+            {
+                return false;
+            }
+            // 1. Find the classroom by invite code
+            var classroom = await _context.Classrooms
+                .FirstOrDefaultAsync(c => c.InviteCode == classCode && c.StatusId == (int)ClassroomStatusEnum.Active);
+            if (classroom == null)
+            {
+                return false;
+            }
+            // 2. Prevent Owner from leaving their own classroom (Owner must delete or transfer ownership)
+            if (classroom.OwnerUserId == currentUserId)
+            {
+                return false;
+            }
+            // 3. Find user membership record
+            var memberRecord = await _context.ClassroomUsers
+                .FirstOrDefaultAsync(cu => cu.ClassroomId == classroom.ClassroomId && cu.UserId == currentUserId);
+            if (memberRecord != null)
+            {
+                memberRecord.Status = ClassroomUserStatus.Left;
+            }
+            // 4. Also clean up any pending/approved join requests so the user can re-apply in the future if desired
+            var joinRequest = await _context.RequestJoinClasses
+                .FirstOrDefaultAsync(r => r.ClassroomId == classroom.ClassroomId && r.UserId == currentUserId);
+            if (joinRequest != null)
+            {
+                joinRequest.Status = RequestJoinStatus.Denied;
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> IsMemberOrOwner(string classCode)
+        {
+            var currentUserId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId)) return false;
+
+            var classroom = await _context.Classrooms
+                .FirstOrDefaultAsync(c => c.InviteCode == classCode && c.StatusId != (int)ClassroomStatusEnum.DeletedByUser);
+
+            if (classroom == null) return false;
+
+            if (classroom.OwnerUserId == currentUserId) return true;
+
+            return await _context.ClassroomUsers
+                .AnyAsync(cu => cu.ClassroomId == classroom.ClassroomId
+                             && cu.UserId == currentUserId
+                             && cu.Status == ClassroomUserStatus.Studying);
+        }
+
+        public async Task<bool> CheckAuthorityClass(int ClassId)
+        {
+            string CurrentUserId = GetCurrentUserId();
+            if(string.IsNullOrEmpty(CurrentUserId))
+            {
+                return false;
+            }
+            var classroom = await _context.Classrooms.FirstOrDefaultAsync(c=>c.ClassroomId== ClassId);
+            if(classroom == null)
+            {
+                return false;
+            }
+            return CurrentUserId == classroom.OwnerUserId;
+        }
+        public async Task<bool> DeleteUserOfClass(string ClassCode, string UserId)
+        {
+            var ClassId = await _context.Classrooms.Where(cl=> cl.InviteCode == ClassCode)
+                                                    .Select(cl=>cl.ClassroomId)
+                                                    .FirstOrDefaultAsync();
+            if ((await CheckAuthorityClass(ClassId)) == false)
+            {
+                return false;
+            }
+
+            var record = await _context.ClassroomUsers.FirstOrDefaultAsync(c => c.UserId == UserId && c.ClassroomId == ClassId);
+            var request = await _context.RequestJoinClasses.FirstOrDefaultAsync(c => c.UserId == UserId && c.ClassroomId == ClassId);
+
+            if (record != null)
+            {
+                record.Status = ClassroomUserStatus.Kicked;
+                
+            }
+            if(request != null){
+                request.Status = RequestJoinStatus.Denied;
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<ClassRoomDetailVM> GetAllUserOfClass(string ClassCode)
+        {
+            var userList = await _context.ClassroomUsers
+                                                        .Where(cu => cu.Classroom.InviteCode == ClassCode && cu.Status == ClassroomUserStatus.Studying) // Móc thẳng vào thẻ Navigation
+                                                        .Select(cu => new UserInfo
+                                                        {
+                                                            UserId = cu.UserId,
+                                                            UserName = cu.User.UserName
+                                                        })
+                                                        .ToListAsync();
+            var Data = new ClassRoomDetailVM
+            {
+                ClassUsers = userList
+            };
+            return Data;
+
+        }
+        public async Task<string?> RegenerateInviteCode(string oldClassCode)
+        {
+            var classroom = await _context.Classrooms
+                .FirstOrDefaultAsync(c => c.InviteCode == oldClassCode);
+
+            if (classroom == null)
+            {
+                return null;
+            }
+
+            // Security check: Only the classroom owner can regenerate the code
+            if (!await CheckAuthorityClass(classroom.ClassroomId))
+            {
+                return null;
+            }
+
+            // Generate a new unique 8-character invite code
+            string newCode = await CreateUniqueLink();
+            classroom.InviteCode = newCode;
+
+            await _context.SaveChangesAsync();
+            return newCode;
+        }
+        public async Task<bool> CreatePost(string classCode, string content)
+        {
+            if (string.IsNullOrWhiteSpace(content)) return false;
+
+            string? currentUserId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId)) return false;
+
+            var classroom = await _context.Classrooms
+                .FirstOrDefaultAsync(c => c.InviteCode == classCode);
+
+            if (classroom == null) return false;
+
+            // Only the classroom owner can post announcements
+            if (!await CheckAuthorityClass(classroom.ClassroomId)) return false;
+
+            await _context.ClassroomPosts.AddAsync(new ClassroomPost
+            {
+                ClassroomId = classroom.ClassroomId,
+                AuthorUserId = currentUserId,
+                Content = content.Trim(),
+                CreatedAt = DateTime.Now
+            });
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> DeletePost(int postId)
+        {
+            string? currentUserId = GetCurrentUserId();
+            if (string.IsNullOrEmpty(currentUserId)) return false;
+
+            var post = await _context.ClassroomPosts
+                .Include(p => p.Classroom)
+                .FirstOrDefaultAsync(p => p.PostId == postId);
+
+            if (post == null) return false;
+
+            // Only the classroom owner can delete posts
+            if (post.Classroom.OwnerUserId != currentUserId) return false;
+
+            _context.ClassroomPosts.Remove(post);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+    }
+}
