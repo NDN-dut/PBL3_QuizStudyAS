@@ -465,9 +465,11 @@ else
                             </button>
                         ` : '';
                         li.innerHTML= `
-                            <h4>${user.userName}</h4>
+                            <h4></h4>
                             ${deleteBtnHtml}
                         `;
+                        // Set the name as plain text so a username containing HTML cannot inject script (XSS)
+                        li.querySelector('h4').textContent = user.userName;
                         if (scopeAttribute) {
                             li.setAttribute(scopeAttribute, '');
                             li.querySelector('h4')?.setAttribute(scopeAttribute, '');
@@ -654,4 +656,4 @@ else
             }
         });
     </script>
-}
+}

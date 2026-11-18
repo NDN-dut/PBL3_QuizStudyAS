@@ -33,10 +33,12 @@ namespace QuizStudyAS.Services.ClassRoom
             string currentUserId = GetCurrentUserId() ?? "";
             string nameToSearch = NameClass.Trim().ToLower();
 
-            //STAGE 1: SQL LIKE filter — fast, runs directly on the indexed DB
+            //STAGE 1: SQL LIKE filter — fast, runs directly on the indexed DB.
+            // Shorter names first: "Java Programming" ranks above "Advanced Java Programming" for "java".
             var sqlCandidates = await _context.Classrooms
                 .Where(c => c.StatusId == (int)ClassroomStatusEnum.Active &&
                             EF.Functions.Like(c.ClassName, $"%{NameClass.Trim()}%"))
+                .OrderBy(c => c.ClassName.Length)
                 .Select(c => new { c.ClassroomId, c.ClassName })
                 .Take(20)
                 .ToListAsync();
@@ -51,8 +53,14 @@ namespace QuizStudyAS.Services.ClassRoom
             }
             else
             {
-                //STAGE 2: Levenshtein fallback on a capped pool (max 50 rows)
+                //STAGE 2: fuzzy fallback on a capped pool (max 50 rows), tolerant to typos.
+                // - normalize both sides (lower case, no Vietnamese accents)
+                // - "partial" = edit distance between the keyword and the closest part of the class name
+                // - drop classes that need too many edits, rank by partial then by whole-name Levenshtein
                 AdditionAlgorithm addAlgorithm = new AdditionAlgorithm(_context);
+                string keyword = AdditionAlgorithm.NormalizeForSearch(nameToSearch);
+                int maxTypos = AdditionAlgorithm.MaxTyposFor(keyword.Length);
+
                 var fallbackPool = await _context.Classrooms
                     .Where(c => c.StatusId == (int)ClassroomStatusEnum.Active)
                     .Select(c => new { c.ClassroomId, c.ClassName })
@@ -60,9 +68,21 @@ namespace QuizStudyAS.Services.ClassRoom
                     .ToListAsync();
 
                 candidateIds = fallbackPool
-                    .OrderBy(c => addAlgorithm.DistanceLevenshtein(c.ClassName.ToLower(), nameToSearch))
+                    .Select(c =>
+                    {
+                        string name = AdditionAlgorithm.NormalizeForSearch(c.ClassName);
+                        return new
+                        {
+                            c.ClassroomId,
+                            Partial = addAlgorithm.ApproximateSubstringDistance(name, keyword),
+                            Full = addAlgorithm.DistanceLevenshtein(name, keyword)
+                        };
+                    })
+                    .Where(x => x.Partial <= maxTypos)
+                    .OrderBy(x => x.Partial)
+                    .ThenBy(x => x.Full)
                     .Take(5)
-                    .Select(c => c.ClassroomId)
+                    .Select(x => x.ClassroomId)
                     .ToList();
             }
 
@@ -71,20 +91,30 @@ namespace QuizStudyAS.Services.ClassRoom
             // Load full details for the matching candidate IDs
             var classroomsData = await _context.Classrooms
                 .Where(p => candidateIds.Contains(p.ClassroomId))
-                .Select(p => new ShowClassRoom
+                .Select(p => new
                 {
-                    ClassName = p.ClassName,
-                    Link = p.InviteCode,
-                    OwnerName = p.OwnerUser.UserName,
-                    ExistingAvatarUrl = p.OwnerUser.AvatarUrl,
-                    Status_Class = p.JoinRequests
-                                    .Where(r => r.UserId == currentUserId)
-                                    .Select(r => r.Status)
-                                    .FirstOrDefault()
+                    p.ClassroomId,
+                    View = new ShowClassRoom
+                    {
+                        ClassName = p.ClassName,
+                        Link = p.InviteCode,
+                        OwnerName = p.OwnerUser.UserName,
+                        ExistingAvatarUrl = p.OwnerUser.AvatarUrl,
+                        Status_Class = p.JoinRequests
+                                        .Where(r => r.UserId == currentUserId)
+                                        .Select(r => r.Status)
+                                        .FirstOrDefault()
+                    }
                 })
                 .ToListAsync();
 
-            return new ListShowClassRoomVM { ListClassRoom = classroomsData };
+            // SQL "IN (...)" does not keep order, so restore the ranking computed above
+            var orderedResult = classroomsData
+                .OrderBy(c => candidateIds.IndexOf(c.ClassroomId))
+                .Select(c => c.View)
+                .ToList();
+
+            return new ListShowClassRoomVM { ListClassRoom = orderedResult };
         }
         
 

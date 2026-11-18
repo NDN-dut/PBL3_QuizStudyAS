@@ -166,12 +166,14 @@ namespace QuizStudyAS.Controllers
             TempData["LockedMessage"] = message;
             string referer = Request.Headers["Referer"].ToString();
 
-            // Nếu không xác định được trang trước đó (ví dụ copy link dán thẳng vào trình duyệt), đẩy về Trang chủ
-            if (string.IsNullOrEmpty(referer))
+            // Chỉ quay lại trang trước nếu trang đó thuộc chính website này (tránh open redirect sang trang lạ);
+            // nếu không xác định được (vd. dán link thẳng vào trình duyệt) thì đẩy về Trang chủ
+            if (Uri.TryCreate(referer, UriKind.Absolute, out var refererUri)
+                && string.Equals(refererUri.Host, Request.Host.Host, StringComparison.OrdinalIgnoreCase))
             {
-                return RedirectToAction("Index", "Home");
+                return Redirect(refererUri.PathAndQuery);
             }
-            return Redirect(referer);
+            return RedirectToAction("Index", "Home");
         }
         [HttpGet]
         public async Task<IActionResult> GetUserOfClass(string classcode)
@@ -185,4 +187,4 @@ namespace QuizStudyAS.Controllers
             return Json(result);
         }
     }
-}
+}
